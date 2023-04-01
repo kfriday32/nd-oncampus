@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'navigation.dart';
 import 'events_page.dart';
+import 'publisher_page.dart';
 
 class HomePage extends StatefulWidget {
   final AppNavigator navigator;
