@@ -35,8 +35,11 @@ def get_mongodb_all():
     # get all event doucments in the collection
     data = collection.find()
 
-    # return a json formatted events list
-    return [document for document in data]
+    # return a json formatted events list of upcoming events (old events filtered)
+    return [document for document in data if 
+        datetime.strptime(document['time'], "%Y-%m-%d %H:%M:%S.%f") 
+        >= 
+        datetime.strptime(datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f"),"%Y-%m-%d %H:%M:%S.%f" )]
 
 # this function is utilized by the chatGPT api call to parse only the information necessary
 # for chatGPT to parse  
@@ -60,21 +63,11 @@ def get_mongodb_events(id_list):
 
     # itterate through the id list and query all completed collections 
     events = [collection.find_one({'_id': ObjectId(id)}) for id in id_list]
-    return sort_events(events)
+    return events
 
 # simple api wrapper for returning all data to flutter
 def get_mongodb_flutter():
     data = get_mongodb_all()
-
-    return sort_events(data)
-
-def sort_events(data):
-    try:
-        sorted_data = sorted(data, key = lambda x: datetime.strptime(x['time'], '%Y-%m-%d %H:%M:%S.%f'))
-        return sorted_data
-    except Exception as e:
-        print("Date Error: one or more dates was formatted incorrectly: ", e)
-        print(" returning unsorted list of events")
 
     return data
 
@@ -116,8 +109,9 @@ def set_mongodb_user_interests(interests, user):
 
 def main():
     # pprint(get_mongodb_flutter())
-    set_mongodb_user_interests(["baseball", "soccer"], "cpreciad")
-    print(get_mongodb_user_interests("cpreciad"))
+    # set_mongodb_user_interests(["baseball", "soccer"], "cpreciad")
+    # print(get_mongodb_user_interests("cpreciad"))
+    pprint(get_mongodb_all())
 
 
 if __name__ == '__main__':

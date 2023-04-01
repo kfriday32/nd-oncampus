@@ -20,7 +20,7 @@ def call_gpt():
         interests = re.split(', |,| ',interests)
 
         # save the interests list to the account list of MongoDB
-        set_mongodb_user_interests(interests)
+        set_mongodb_user_interests(interests, "cpreciad")
 
         # make call to OpenAI and retrieve the data
         data = generate_prompt(interests)
@@ -56,7 +56,7 @@ def refresh_suggested():
     if request.method == "GET":
 
         # retrieve the interests list form mongoDB and run the prompt generation 
-        interests = get_mongodb_user_interests()
+        interests = get_mongodb_user_interests("cpreciad")
         
         data = generate_prompt(interests)
         if data == None:

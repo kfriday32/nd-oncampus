@@ -6,6 +6,7 @@ import 'navigation.dart';
 import 'events_page.dart';
 import 'publisher_page.dart';
 import 'events_list.dart';
+import 'helpers.dart';
 
 class HomePage extends StatefulWidget {
   final AppNavigator navigator;
@@ -113,7 +114,7 @@ class _HomePageState extends State<HomePage>
       _isLoading = true;
     });
     try {
-      final response = await http.get(Uri.parse('http://10.0.2.2:5000/'));
+      final response = await http.get(Uri.parse(helpers.getUri()));
 
       if (response.statusCode != 200) {
         print('Error: ${response.statusCode}');
