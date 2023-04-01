@@ -12,6 +12,9 @@ class HomePage extends StatefulWidget {
   List<dynamic> eventDataToday = [];
   List<dynamic> eventDataThisWeek = [];
   List<dynamic> eventDataUpcoming = [];
+  List<dynamic> suggestedEventDataToday = [];
+  List<dynamic> suggestedEventDataThisWeek = [];
+  List<dynamic> suggestedEventDataUpcoming = [];
 
   HomePage({Key? key, required this.navigator}) : super(key: key);
 
@@ -34,7 +37,8 @@ class _HomePageState extends State<HomePage>
     super.initState();
     // Initialize the controller with the number of tabs and this class as the provider
     _tabController = TabController(length: myTabs.length, vsync: this);
-    _loadEvents();
+    _loadAllEvents();
+    // _loadSuggestedEvents();
   }
 
   @override
@@ -50,6 +54,12 @@ class _HomePageState extends State<HomePage>
       appBar: AppBar(
         backgroundColor: const Color(0xFF0C2340),
         centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.refresh),
+          onPressed: () {
+            _loadAllEvents();
+          },
+        ),
         title: const Text(
           'OnCampus',
           style: TextStyle(
@@ -66,12 +76,11 @@ class _HomePageState extends State<HomePage>
             },
           ),
           IconButton(
-            icon: const Icon(Icons.filter_alt),
-            onPressed: (){
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => EventsPage()));
-            }
-          )
+              icon: const Icon(Icons.filter_alt),
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => EventsPage()));
+              })
         ],
         bottom: TabBar(
           controller: _tabController, // Set the controller for the TabBar
@@ -99,7 +108,7 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  void _loadEvents() async {
+  void _loadAllEvents() async {
     setState(() {
       _isLoading = true;
     });
@@ -110,6 +119,11 @@ class _HomePageState extends State<HomePage>
         print('Error: ${response.statusCode}');
       } else {
         setState(() {
+          // Clear existing data
+          widget.eventDataToday = [];
+          widget.eventDataThisWeek = [];
+          widget.eventDataUpcoming = [];
+
           final DateTime now = DateTime.now();
           for (var event in jsonDecode(response.body)) {
             event['time'] = DateTime.parse(event['time']!);
@@ -131,6 +145,58 @@ class _HomePageState extends State<HomePage>
           widget.eventDataThisWeek
               .sort((a, b) => a['time'].compareTo(b['time']));
           widget.eventDataUpcoming
+              .sort((a, b) => a['time'].compareTo(b['time']));
+        });
+      }
+    } catch (e) {
+      print('Error: $e');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _loadSuggestedEvents() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final response =
+          await http.get(Uri.parse('http://10.0.2.2:5000/refresh'));
+
+      if (response.statusCode != 200) {
+        print('Error: ${response.statusCode}');
+      } else {
+        setState(() {
+          // Clear existing data
+          widget.suggestedEventDataToday = [];
+          widget.suggestedEventDataThisWeek = [];
+          widget.suggestedEventDataUpcoming = [];
+
+          final DateTime now = DateTime.now();
+          for (var event in jsonDecode(response.body)) {
+            print(event);
+            event['time'] = DateTime.parse(event['time']!);
+
+            if (event['time'].isBefore(now)) {
+              continue;
+            }
+
+            if (isSameDate(now, event['time'])) {
+              widget.suggestedEventDataToday.add(event);
+            } else if (isWithinUpcomingWeek(now, event['time'])) {
+              widget.suggestedEventDataThisWeek.add(event);
+            } else {
+              widget.suggestedEventDataUpcoming.add(event);
+            }
+          }
+
+          widget.suggestedEventDataToday
+              .sort((a, b) => a['time'].compareTo(b['time']));
+          widget.suggestedEventDataThisWeek
+              .sort((a, b) => a['time'].compareTo(b['time']));
+          widget.suggestedEventDataUpcoming
               .sort((a, b) => a['time'].compareTo(b['time']));
         });
       }
