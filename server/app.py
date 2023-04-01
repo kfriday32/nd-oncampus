@@ -1,6 +1,7 @@
 from flask import Flask, request
 from gpt import generate_prompt
 import json
+import re
 
 app = Flask(__name__)
 
@@ -11,16 +12,15 @@ def call_gpt():
         
         # access interest sent via post body
         data = request.get_json()
-        interest = data['interest']
+        interests = data['interest']
 
-        # TODO PLACEHOLDER: parse the interests and turn it into a list of strings
-        interests = [interest.strip(), "hockey"]
+        interests = re.split(', |,| ',interests)
 
         # make call to OpenAI
         response = generate_prompt(interests)
         if response == None:
             # need to make a decision about what is sent back to the front end upon failure
-            return "ok"
+            return "failure"
 
         # return the generated results
         response_data = response.choices[0].text
