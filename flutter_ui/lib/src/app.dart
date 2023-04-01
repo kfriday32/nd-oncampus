@@ -11,6 +11,7 @@ class OnCampus extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Navigator Example',
       navigatorKey: navigator.navigatorKey,
       routes: {
