@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'suggested_page.dart';
 
 class EventsPage extends StatelessWidget {
 
@@ -30,6 +31,8 @@ class _InterestFormState extends State<InterestForm> {
   final _formKey = GlobalKey<FormState>();
   
   final _serverUri = 'http://10.0.2.2:5000/';
+  
+  // watch when text input field changes
   final interestsController = TextEditingController();
 
   // clean up controller when widget is removed
@@ -40,7 +43,7 @@ class _InterestFormState extends State<InterestForm> {
   }
 
   // http request to post interests to backend server
-  Future<http.Response> postInterest(String interest) {
+  Future<http.Response> postInterest(String interest) async {
  
     // encode post body data
     String bodyData = jsonEncode(<String, String> {
@@ -48,12 +51,25 @@ class _InterestFormState extends State<InterestForm> {
     });
     final headers = {'Content-Type': 'application/json'};
 
-    // post to server
-    return http.post(
+    // send post to server
+    final response = await http.post(
       Uri.parse(_serverUri),
       headers: headers,
       body: bodyData
     );
+
+    if (response.statusCode == 200) {
+      return response;
+    }
+    // error with post request
+    else {
+      throw Exception("post interest request failed: ${response}");
+    }
+  }
+
+  // clean response object to parse event list
+  List<String> getEventList(String response) {
+    return response.trim().split('\n');
   }
 
   @override
@@ -78,14 +94,24 @@ class _InterestFormState extends State<InterestForm> {
             controller: interestsController
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               // validate input
               if (_formKey.currentState!.validate()) {
-                // process the input if valid
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Processing Data')),
+
+                // make post request to get events
+                final response = await postInterest(interestsController.text);
+
+                // clean the response
+                List<String> eventList = getEventList(response.body);
+                print("event list: ${eventList}");
+
+                // forward suggested events to next page
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SuggestedPage(events: eventList)
+                  )
                 );
-                postInterest(interestsController.text);
               }
             },
             child: const Text('Submit')

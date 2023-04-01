@@ -16,11 +16,16 @@ def call_gpt():
         # TODO PLACEHOLDER: parse the interests and turn it into a list of strings
         interests = [interest.strip(), "hockey"]
 
+        # make call to OpenAI
         response = generate_prompt(interests)
         if response == None:
             # need to make a decision about what is sent back to the front end upon failure
             return "ok"
-        DEBUG(response.choices[0].text)
+
+        # return the generated results
+        response_data = response.choices[0].text
+        DEBUG(response_data)
+        return response_data
 
     elif request.method == "GET":
         DEBUG("GET request recieved")
