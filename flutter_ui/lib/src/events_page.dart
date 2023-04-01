@@ -3,17 +3,8 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'suggested_page.dart';
-import 'dart:io' show Platform;
+import 'helpers.dart' as helpers;
 
-String getUri() {
-  if (Platform.isAndroid){
-    return 'http://10.0.2.2:5000/';
-  }
-  else if (Platform.isIOS){
-    return 'http://127.0.0.1:5000/';
-  }
-  return "";
-}
 
 class EventsPage extends StatelessWidget {
 
@@ -41,7 +32,7 @@ class _InterestFormState extends State<InterestForm> {
   // global key to keep track of form id
   final _formKey = GlobalKey<FormState>();
 	
-  final _serverUri = getUri();
+  final _serverUri = helpers.getUri();
   
   // watch when text input field changes
   final interestsController = TextEditingController();

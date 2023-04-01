@@ -1,8 +1,8 @@
-# mongodb.py
-from bson.objectid import ObjectId 
+# mongodb.py 
 from dotenv import load_dotenv
 import os
 from pymongo import MongoClient
+from bson import ObjectId
 
 load_dotenv()
 MONGO_USERNAME = os.getenv("MONGO_USERNAME")
@@ -13,7 +13,6 @@ MONGO_PASSWORD = os.getenv("MONGO_PASSWORD")
 def get_mongodb_collection():
     # connect to client (mongo user password should be stored in personal .env file)
     mongo_client = MongoClient(f'mongodb+srv://{MONGO_USERNAME}:{MONGO_PASSWORD}@test-cluster1.ljrkvvp.mongodb.net/?retryWrites=true&w=majority')
-
     # access 'campus_events' database
     db = mongo_client['campus_events']
 
@@ -59,20 +58,15 @@ def get_mongodb_flutter():
     return data
 
 # publish data to collection
-def publish_event():
-    mongo_client = connect_to_db()
-    # Send a ping to confirm a successful connection
-    try:
-        print(mongo_client)
-        mongo_client.admin.command('ping')
-        print("Pinged your deployment. You successfully connected to MongoDB!")
-    except Exception as e:
-        print(e)
-
+def publish_event(new_event):
+    events_coll = get_mongodb_collection()
+    # insert new event into collection
+    created_event = events_coll.insert_one(new_event)
+    
+    return "successfully posted new event"
 
 def main():
     print(get_mongodb_flutter())
-    
 
 
 if __name__ == '__main__':

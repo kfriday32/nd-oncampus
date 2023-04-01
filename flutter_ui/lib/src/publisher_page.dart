@@ -1,6 +1,9 @@
 import 'package:date_field/date_field.dart';
 import 'package:flutter/material.dart';
 import 'package:select_form_field/select_form_field.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'helpers.dart' as helpers;
 
 class PublisherPage extends StatelessWidget {
   @override
@@ -24,6 +27,9 @@ class _EventFormState extends State<EventForm> {
   // global key to keep track of form id
   final _formKey = GlobalKey<FormState>();
 
+  // visibility of guest list
+  String _time = "";
+
   // text field controllers
   final titleCont = TextEditingController();
   final descCont = TextEditingController();
@@ -35,6 +41,33 @@ class _EventFormState extends State<EventForm> {
   final hostCont = TextEditingController();
   final guestCont = TextEditingController();
   final capCont = TextEditingController();
+
+  Future<http.Response> postEvent() {
+
+    String bodyData = jsonEncode(<String, String> {
+        'title': titleCont.text,
+        'description': descCont.text,
+        'location': locCont.text,
+        'time': _time,
+        'duration': durCont.text,
+        'registrationLink': regCont.text,
+        'url': urlCont.text,
+        'publicGuestList': visCont.text,
+        'host': hostCont.text,
+        'numberGuests': guestCont.text,
+        'capacity': capCont.text
+    });
+
+    print(bodyData);
+
+    return http.post(
+      Uri.parse(helpers.getUri()),
+      headers: <String, String> {
+        'Content-Type': 'applicaton/json'
+      },
+      body: bodyData
+    );
+  }
 
   @override
   Widget build(BuildContext buildContext) {
@@ -91,7 +124,7 @@ class _EventFormState extends State<EventForm> {
                   },
                   onDateSelected: (DateTime val) {
                     print(val);
-                    // TODO: save value somehow
+                    _time = val.toString();
                   }
                 ),
                 TextFormField(
@@ -138,9 +171,6 @@ class _EventFormState extends State<EventForm> {
                       'icon': Icon(Icons.visibility_off)
                     }
                   ],
-                  onChanged: (val) {
-                    print(val);
-                  },
                   onSaved: (val) {
                     print(val);
                   }
@@ -177,6 +207,8 @@ class _EventFormState extends State<EventForm> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Processing Data')),
                       );
+                      // send data to MongoDB
+                      postEvent();
                     }
                     else {
                       ScaffoldMessenger.of(context).showSnackBar(
