@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'navigation.dart';
+import 'events_page.dart';
 
 class HomePage extends StatelessWidget {
   final AppNavigator navigator;
@@ -36,6 +37,17 @@ class HomePage extends StatelessWidget {
         IconButton(
           icon: const Icon(Icons.add),
           onPressed: () {},
+        ),
+        IconButton(
+          icon: const Icon(Icons.event),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => EventsPage()
+              )
+            );
+          },
         ),
       ]),
       body: ListView.builder(
