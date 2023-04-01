@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'navigation.dart';
 import 'events_page.dart';
 import 'publisher_page.dart';
+import 'package:fuzzy/fuzzy.dart';
 
 class HomePage extends StatefulWidget {
   final AppNavigator navigator;
   static const eventData = [
     {
+      '_id': '1',
       'title': 'Bingo Night',
       'location': 'Duncan Student Center',
       'time': '5:07 PM',
@@ -14,6 +16,7 @@ class HomePage extends StatefulWidget {
       'month': 'Apr',
     },
     {
+      '_id': '2',
       'title': 'Thursday Night at CJs',
       'location': 'CJs Pub',
       'time': '5:07 PM',
@@ -21,6 +24,7 @@ class HomePage extends StatefulWidget {
       'month': 'Apr',
     },
     {
+      '_id': '3',
       'title': 'DomerFest',
       'location': 'DeBartolo Quad',
       'time': '5:07 PM',
@@ -43,6 +47,8 @@ class _HomePageState extends State<HomePage>
   ];
 
   late TabController _tabController;
+  bool displaySearch = false;
+  final searchCont = TextEditingController();
 
   @override
   void initState() {
@@ -56,6 +62,34 @@ class _HomePageState extends State<HomePage>
     _tabController
         .dispose(); // Dispose of the controller when the widget is removed from the tree
     super.dispose();
+  }
+
+  // method performs search query on events in main page
+  List<Map<String,String>> searchEvents() {
+    
+    // get user input from search bar
+    String searchText = searchCont.text;
+    print("search text: ${searchText}");
+
+    List<Map<String,String>> matches = [];
+
+    // search events for anything that matches user's input
+    for (var event in HomePage.eventData) {
+      var values = event.values;
+      print("val: ${values}");
+      List<dynamic> valList = values.toList() as List<dynamic>;
+      final textToSearch = Fuzzy(valList);
+      final result = textToSearch.search(searchText);
+      print(result);
+
+      // add to list of search matches if result returns something
+      if (result.isNotEmpty) {
+        matches.add(event);
+      }
+    }
+
+    print("matches: ${matches}");
+    return matches;
   }
 
   @override
@@ -75,8 +109,9 @@ class _HomePageState extends State<HomePage>
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => PublisherPage()));
+              setState(() {
+                displaySearch = !displaySearch;
+              });
             },
           ),
         ],
@@ -97,6 +132,25 @@ class _HomePageState extends State<HomePage>
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // display search text box if search button is clicked
+                      displaySearch ? Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: (
+                          TextField(
+                            controller: searchCont,
+                            decoration: InputDecoration(
+                              hintText: 'Search',
+                              prefixIcon: IconButton(
+                                icon: Icon(Icons.search),
+                                onPressed: searchEvents
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20.0),
+                              ),
+                            ),
+                          )
+                        ),
+                      ) : SizedBox(height: 0),
                       const SizedBox(height: 20),
                       const Text(
                         'Today',
