@@ -1,6 +1,7 @@
 import os
 import openai
-from mongodb import get_partial_data
+import re
+from mongodb import get_mongodb_gpt, get_mongodb_events
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
@@ -13,7 +14,7 @@ def generate_prompt(interests):
 
     # query data from mongodb, pulling only the event titles and descriptions
     # returns a list of dictionaries: {"title": ~~~, "description": ~~~}
-    events = get_partial_data()
+    events = get_mongodb_gpt()
 
     # create a header to the prompt
     header = f"Look at the Titles and Descriptions of the following events:"
@@ -24,7 +25,7 @@ def generate_prompt(interests):
         event_body += f"""
         {i}. Title: {event["title"]}
              Description: {event["description"]}
-        
+             ID: {event["id"]} 
         """
 
     # generate interest list in a string format
@@ -38,7 +39,7 @@ def generate_prompt(interests):
         interest_str += f", {interest}"
 
     # create a footer to the prompt
-    footer = f"Return the Titles of the events that are most closely related to {interest_str}."
+    footer = f"Return the IDs of the events that are most closely related to the following: ({interest_str})."
 
     # create the fully formatted prompt
     prompt = header + "\n" + event_body + '\n' + footer
@@ -53,11 +54,19 @@ def generate_prompt(interests):
             frequency_penalty=0,
             presence_penalty=0
         )
-        return response
+
     except Exception as error:
         print("OpenAI Completion error!: ", error)
         return None
 
+    # clean the returned ids from chatGPT
+    id_list = re.split(', |,| ', response.choices[0].text)
+    id_list = [id.strip() for id in id_list]
+
+    # query the collections corresponding to the IDs
+    data = get_mongodb_events(id_list) 
+    
+    return data
 
 def main():
     # get user input
