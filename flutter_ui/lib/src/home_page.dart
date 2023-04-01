@@ -79,6 +79,13 @@ class _HomePageState extends State<HomePage>
                   MaterialPageRoute(builder: (context) => PublisherPage()));
             },
           ),
+          IconButton(
+            icon: const Icon(Icons.filter_alt),
+            onPressed: (){
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => EventsPage()));
+            }
+          )
         ],
         bottom: TabBar(
           controller: _tabController, // Set the controller for the TabBar
