@@ -83,6 +83,7 @@ class _HomePageState extends State<HomePage>
         bottom: TabBar(
           controller: _tabController, // Set the controller for the TabBar
           tabs: myTabs,
+          indicatorColor: const Color(0xFFd39F10),
         ),
       ),
       body: TabBarView(
