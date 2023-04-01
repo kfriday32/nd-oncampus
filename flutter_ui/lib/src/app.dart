@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'navigation.dart';
 import 'home_page.dart';
 import 'events_page.dart';
+import 'suggested_page.dart';
 
 class OnCampus extends StatelessWidget {
   OnCampus({super.key});
@@ -16,7 +17,8 @@ class OnCampus extends StatelessWidget {
       navigatorKey: navigator.navigatorKey,
       routes: {
         '/': (BuildContext context) => HomePage(navigator: navigator),
-        '/findEvents': (BuildContext context) => const EventsPage()
+        '/findEvents': (BuildContext context) => EventsPage(),
+        '/suggestedEvents': (BuildContext context) => SuggestedPage(events: [])
       },
     );
   }
