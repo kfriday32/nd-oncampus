@@ -3,6 +3,8 @@ from bson.objectid import ObjectId
 from dotenv import load_dotenv
 import os
 from pymongo import MongoClient
+from datetime import datetime
+from pprint import pprint
 
 load_dotenv()
 MONGO_USERNAME = os.getenv("MONGO_USERNAME")
@@ -56,6 +58,17 @@ def get_mongodb_events(id_list):
 # simple api wrapper for returning all data to flutter
 def get_mongodb_flutter():
     data = get_mongodb_all()
+
+    return sort_events(data)
+
+def sort_events(data):
+    try:
+        sorted_data = sorted(data, key = lambda x: datetime.strptime(x['time'], '%Y/%m/%d, %H:%M:%S.f'))
+        return sorted_data
+    except Exception as e:
+        print("Date Error: one or more dates was formatted incorrectly.")
+        print(" returning unsorted list of events")
+
     return data
 
 def main():
