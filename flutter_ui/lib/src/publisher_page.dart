@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:select_form_field/select_form_field.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'helpers.dart' as helpers;
+import 'helpers.dart';
 
 class PublisherPage extends StatelessWidget {
   @override
@@ -58,7 +58,7 @@ class _EventFormState extends State<EventForm> {
         'capacity': capCont.text
     });
     
-    String uri = "${helpers.getUri()}/publish";
+    String uri = helpers.getUri();
     final headers = {'Content-Type': 'application/json'};
 
     // send post to server
