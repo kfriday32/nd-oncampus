@@ -34,7 +34,6 @@ def call_gpt():
 
     return "success!"
 
-
 # route to publish events
 @app.route('/publish', methods=["GET", "POST"])
 def publish_event():
