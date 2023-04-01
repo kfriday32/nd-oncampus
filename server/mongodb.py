@@ -21,6 +21,13 @@ def get_mongodb_collection():
     # access  and return 'event_list' collection
     return db['event_list']
 
+def get_mongodb_user():
+    # connect to client
+    mongo_client = MongoClient(f'mongodb+srv://{MONGO_USERNAME}:{MONGO_PASSWORD}@test-cluster1.ljrkvvp.mongodb.net/?retryWrites=true&w=majority')
+    # access 'campus_events' database
+    db = mongo_client['campus_events']
+    return db['account_list']
+
 # this function will query all events from the event_list collection and return all events in json format
 def get_mongodb_all():
     collection = get_mongodb_collection()
@@ -79,8 +86,38 @@ def publish_event(new_event):
     
     return "successfully posted new event"
 
+def get_mongodb_user_interests(user):
+
+    # get the user account collection from mongoDB
+    account = get_mongodb_user()
+
+    # query the demo user 
+    query = account.find_one({"studentId": user})
+    if query == None:
+        print("error: user was not found")
+        return None
+
+    # return the interests list  
+    return query['interests']
+
+def set_mongodb_user_interests(interests, user):
+    # get the user account from mongoDB
+    account = get_mongodb_user()
+    
+    # query on the demo user to get the appropriate table
+    query = account.find_one({"studentId": user})
+    if query == None:
+        print("error: user was not found")
+
+    # update the users interests
+    new_interests = { "$set": {"interests": interests}}
+    account.update_one(query, new_interests)
+
+
 def main():
-    print(get_mongodb_flutter())
+    # pprint(get_mongodb_flutter())
+    set_mongodb_user_interests(["baseball", "soccer"], "cpreciad")
+    print(get_mongodb_user_interests("cpreciad"))
 
 
 if __name__ == '__main__':

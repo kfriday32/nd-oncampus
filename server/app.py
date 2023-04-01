@@ -3,7 +3,7 @@ from gpt import generate_prompt
 import mongodb
 import json
 from bson.json_util import dumps
-from mongodb import get_mongodb_flutter
+from mongodb import get_mongodb_flutter, get_mongodb_user_interests, set_mongodb_user_interests
 import re
 
 app = Flask(__name__)
@@ -19,6 +19,9 @@ def call_gpt():
 
         interests = re.split(', |,| ',interests)
 
+        # save the interests list to the account list of MongoDB
+        set_mongodb_user_interests(interests)
+
         # make call to OpenAI and retrieve the data
         data = generate_prompt(interests)
         if data == None:
@@ -26,6 +29,7 @@ def call_gpt():
             return "failure"
 
         # return the generated results
+
         return dumps(data)
 
     elif request.method == "GET":
@@ -45,6 +49,20 @@ def publish_event():
         # post event to MongoDB
         new_event = mongodb.publish_event(data)
         return new_event
+
+
+@app.route('/refresh', methods=["GET"])
+def refresh_suggested():
+    if request.method == "GET":
+
+        # retrieve the interests list form mongoDB and run the prompt generation 
+        interests = get_mongodb_user_interests()
+        
+        data = generate_prompt(interests)
+        if data == None:
+            return "failure"
+        
+        return dumps(data)
 
 
 def DEBUG(message):
