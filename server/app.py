@@ -1,6 +1,6 @@
 from flask import Flask, request
 from gpt import generate_prompt
-
+import json
 
 app = Flask(__name__)
 
@@ -8,7 +8,11 @@ app = Flask(__name__)
 @app.route("/", methods=("GET", "POST"))
 def call_gpt():
     if request.method == "POST":
-        interest = request.form.get("interest")
+        
+        # access interest sent via post body
+        data = request.get_json()
+        interest = data['interest']
+
         # TODO PLACEHOLDER: parse the interests and turn it into a list of strings
         interests = [interest.strip(), "hockey"]
 
