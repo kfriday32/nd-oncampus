@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class EventsPage extends StatelessWidget {
@@ -28,7 +29,7 @@ class _InterestFormState extends State<InterestForm> {
   // global key to keep track of form id
   final _formKey = GlobalKey<FormState>();
   
-  final _serverUri = 'http://127.0.0.1:5000';
+  final _serverUri = 'http://10.0.2.2:5000/';
   final interestsController = TextEditingController();
 
   // clean up controller when widget is removed
@@ -40,16 +41,18 @@ class _InterestFormState extends State<InterestForm> {
 
   // http request to post interests to backend server
   Future<http.Response> postInterest(String interest) {
-    print("post interest: ${interest}");
+ 
+    // encode post body data
+    String bodyData = jsonEncode(<String, String> {
+        'interest': interest
+    });
+    final headers = {'Content-Type': 'application/json'};
+
+    // post to server
     return http.post(
       Uri.parse(_serverUri),
-      headers: <String, String> {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Content-Length': '18'
-      },
-      body: <String, String> {
-        'interests': interest
-      }
+      headers: headers,
+      body: bodyData
     );
   }
 
