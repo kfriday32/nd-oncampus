@@ -15,7 +15,7 @@ class OnCampus extends StatelessWidget {
       navigatorKey: navigator.navigatorKey,
       routes: {
         '/': (BuildContext context) => HomePage(navigator: navigator),
-        '/findEvents': (BuildContext context) => EventsPage()
+        '/findEvents': (BuildContext context) => const EventsPage()
       },
     );
   }

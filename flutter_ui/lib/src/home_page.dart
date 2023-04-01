@@ -5,27 +5,27 @@ import 'events_page.dart';
 class HomePage extends StatelessWidget {
   final AppNavigator navigator;
   static const eventData = [
-    {'title': 'Bingo Night', 'who': 'seniors only'},
-    {'title': 'CJs', 'who': 'anyone 21+'},
-    {'title': 'domerfest', 'who': 'freshman'},
-    {'title': 'Bingo Night', 'who': 'seniors only'},
-    {'title': 'CJs', 'who': 'anyone 21+'},
-    {'title': 'domerfest', 'who': 'freshman'},
-    {'title': 'Bingo Night', 'who': 'seniors only'},
-    {'title': 'CJs', 'who': 'anyone 21+'},
-    {'title': 'domerfest', 'who': 'freshman'},
-    {'title': 'Bingo Night', 'who': 'seniors only'},
-    {'title': 'CJs', 'who': 'anyone 21+'},
-    {'title': 'domerfest', 'who': 'freshman'},
-    {'title': 'Bingo Night', 'who': 'seniors only'},
-    {'title': 'CJs', 'who': 'anyone 21+'},
-    {'title': 'domerfest', 'who': 'freshman'},
-    {'title': 'Bingo Night', 'who': 'seniors only'},
-    {'title': 'CJs', 'who': 'anyone 21+'},
-    {'title': 'domerfest', 'who': 'freshman'},
-    {'title': 'Bingo Night', 'who': 'seniors only'},
-    {'title': 'CJs', 'who': 'anyone 21+'},
-    {'title': 'domerfest', 'who': 'freshman'},
+    {
+      'title': 'Bingo Night',
+      'location': 'Duncan Student Center',
+      'time': '5:07 PM',
+      'day': '5',
+      'month': 'Apr',
+    },
+    {
+      'title': 'Thursday Night at CJs',
+      'location': 'CJs Pub',
+      'time': '5:07 PM',
+      'day': '5',
+      'month': 'Apr',
+    },
+    {
+      'title': 'DomerFest',
+      'location': 'DeBartolo Quad',
+      'time': '5:07 PM',
+      'day': '5',
+      'month': 'Apr',
+    },
   ];
 
   const HomePage({Key? key, required this.navigator}) : super(key: key);
@@ -41,25 +41,485 @@ class HomePage extends StatelessWidget {
         IconButton(
           icon: const Icon(Icons.event),
           onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => EventsPage()
-              )
-            );
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => const EventsPage()));
           },
         ),
       ]),
-      body: ListView.builder(
-        itemCount: eventData.length,
-        itemBuilder: (BuildContext context, int index) {
-          final eventTitle = eventData[index]['title']!;
-          final eventGuests = eventData[index]['who']!;
-          return ListTile(
-            title: Text(eventTitle),
-            subtitle: Text(eventGuests),
-          );
-        },
+      body: Padding(
+        padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Today',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 28,
+                    ),
+                  ),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: eventData.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      final eventTitle = eventData[index]['title']!;
+                      final eventLocation = eventData[index]['location']!;
+                      final eventTime = eventData[index]['time']!;
+                      final eventDay = eventData[index]['day']!;
+                      final eventMonth = eventData[index]['month']!;
+
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 5.0,
+                        ),
+                        child: Container(
+                          height: 100.0,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(7.5),
+                            border: Border(
+                              top: BorderSide(
+                                color: Colors.grey[300]!,
+                                width: 1,
+                              ),
+                              bottom: BorderSide(
+                                color: Colors.grey[300]!,
+                                width: 1,
+                              ),
+                              left: BorderSide(
+                                color: Colors.grey[300]!,
+                                width: 1,
+                              ),
+                              right: BorderSide(
+                                color: Colors.grey[300]!,
+                                width: 1,
+                              ),
+                            ),
+                          ),
+                          child: Expanded(
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 80,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[200]!,
+                                    borderRadius: const BorderRadius.only(
+                                      topLeft: Radius.circular(7.5),
+                                      bottomLeft: Radius.circular(7.5),
+                                    ),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      eventTime,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 22.0,
+                                        height: 1.25,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 5.0,
+                                ),
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10.0,
+                                      vertical: 10.0,
+                                    ),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          eventTitle,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18,
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          height: 2.5,
+                                        ),
+                                        Row(
+                                          children: [
+                                            Text(
+                                              'Hosted by ',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.normal,
+                                                fontSize: 12,
+                                                color: Colors.grey[500]!,
+                                              ),
+                                            ),
+                                            const Text(
+                                              'Student Activities Office',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 12,
+                                                color: Colors.blue,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 7.5),
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.location_on_outlined,
+                                              size: 14,
+                                              color: Colors.grey[500]!,
+                                            ),
+                                            const SizedBox(width: 2.5),
+                                            Text(
+                                              eventLocation,
+                                              style: TextStyle(
+                                                color: Colors.grey[500]!,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          ],
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  const Text(
+                    'This Week',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 28,
+                    ),
+                  ),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: eventData.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      final eventTitle = eventData[index]['title']!;
+                      final eventLocation = eventData[index]['location']!;
+                      final eventTime = eventData[index]['time']!;
+                      final eventDay = eventData[index]['day']!;
+                      final eventMonth = eventData[index]['month']!;
+
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 5.0,
+                        ),
+                        child: Container(
+                          height: 100.0,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(7.5),
+                            border: Border(
+                              top: BorderSide(
+                                color: Colors.grey[300]!,
+                                width: 1,
+                              ),
+                              bottom: BorderSide(
+                                color: Colors.grey[300]!,
+                                width: 1,
+                              ),
+                              left: BorderSide(
+                                color: Colors.grey[300]!,
+                                width: 1,
+                              ),
+                              right: BorderSide(
+                                color: Colors.grey[300]!,
+                                width: 1,
+                              ),
+                            ),
+                          ),
+                          child: Expanded(
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 80,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[200]!,
+                                    borderRadius: const BorderRadius.only(
+                                      topLeft: Radius.circular(7.5),
+                                      bottomLeft: Radius.circular(7.5),
+                                    ),
+                                  ),
+                                  child: Center(
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          eventDay,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 32.0,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 2.5),
+                                        Text(
+                                          eventMonth,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14.0,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 5.0,
+                                ),
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10.0,
+                                      vertical: 10.0,
+                                    ),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          eventTitle,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18,
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          height: 2.5,
+                                        ),
+                                        Row(
+                                          children: [
+                                            Text(
+                                              'Hosted by ',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.normal,
+                                                fontSize: 12,
+                                                color: Colors.grey[500]!,
+                                              ),
+                                            ),
+                                            const Text(
+                                              'Student Activities Office',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 12,
+                                                color: Colors.blue,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 7.5),
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.location_on_outlined,
+                                              size: 14,
+                                              color: Colors.grey[500]!,
+                                            ),
+                                            const SizedBox(width: 2.5),
+                                            Text(
+                                              eventLocation,
+                                              style: TextStyle(
+                                                color: Colors.grey[500]!,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          ],
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  const Text(
+                    'Upcoming',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 28,
+                    ),
+                  ),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: eventData.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      final eventTitle = eventData[index]['title']!;
+                      final eventLocation = eventData[index]['location']!;
+                      final eventTime = eventData[index]['time']!;
+                      final eventDay = eventData[index]['day']!;
+                      final eventMonth = eventData[index]['month']!;
+
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 5.0,
+                        ),
+                        child: Container(
+                          height: 100.0,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(7.5),
+                            border: Border(
+                              top: BorderSide(
+                                color: Colors.grey[300]!,
+                                width: 1,
+                              ),
+                              bottom: BorderSide(
+                                color: Colors.grey[300]!,
+                                width: 1,
+                              ),
+                              left: BorderSide(
+                                color: Colors.grey[300]!,
+                                width: 1,
+                              ),
+                              right: BorderSide(
+                                color: Colors.grey[300]!,
+                                width: 1,
+                              ),
+                            ),
+                          ),
+                          child: Expanded(
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 80,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[200]!,
+                                    borderRadius: const BorderRadius.only(
+                                      topLeft: Radius.circular(7.5),
+                                      bottomLeft: Radius.circular(7.5),
+                                    ),
+                                  ),
+                                  child: Center(
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          eventDay,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 32.0,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 2.5),
+                                        Text(
+                                          eventMonth,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14.0,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 5.0,
+                                ),
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10.0,
+                                      vertical: 10.0,
+                                    ),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          eventTitle,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18,
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          height: 2.5,
+                                        ),
+                                        Row(
+                                          children: [
+                                            Text(
+                                              'Hosted by ',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.normal,
+                                                fontSize: 12,
+                                                color: Colors.grey[500]!,
+                                              ),
+                                            ),
+                                            const Text(
+                                              'Student Activities Office',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 12,
+                                                color: Colors.blue,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 7.5),
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.location_on_outlined,
+                                              size: 14,
+                                              color: Colors.grey[500]!,
+                                            ),
+                                            const SizedBox(width: 2.5),
+                                            Text(
+                                              eventLocation,
+                                              style: TextStyle(
+                                                color: Colors.grey[500]!,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          ],
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                ],
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
