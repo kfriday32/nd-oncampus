@@ -63,10 +63,10 @@ def get_mongodb_flutter():
 
 def sort_events(data):
     try:
-        sorted_data = sorted(data, key = lambda x: datetime.strptime(x['time'], '%Y/%m/%d, %H:%M:%S.f'))
+        sorted_data = sorted(data, key = lambda x: datetime.strptime(x['time'], '%Y-%m-%d %H:%M:%S.%f'))
         return sorted_data
     except Exception as e:
-        print("Date Error: one or more dates was formatted incorrectly.")
+        print("Date Error: one or more dates was formatted incorrectly: ", e)
         print(" returning unsorted list of events")
 
     return data
