@@ -39,7 +39,7 @@ class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
   final List<Tab> myTabs = [
     Tab(text: 'Upcoming'),
-    Tab(text: 'For You'),
+    Tab(text: 'Suggested'),
   ];
 
   late TabController _tabController;
@@ -62,24 +62,28 @@ class _HomePageState extends State<HomePage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('OnCampus'),
         backgroundColor: const Color(0xFF0C2340),
+        centerTitle: true,
+        title: const Text(
+          'OnCampus',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 24.0,
+          ),
+        ),
         actions: <Widget>[
           IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.event),
+            icon: const Icon(Icons.search),
             onPressed: () {
               Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const EventsPage()));
+                  MaterialPageRoute(builder: (context) => PublisherPage()));
             },
           ),
         ],
         bottom: TabBar(
           controller: _tabController, // Set the controller for the TabBar
           tabs: myTabs,
+          indicatorColor: const Color(0xFFd39F10),
         ),
       ),
       body: TabBarView(
@@ -90,9 +94,6 @@ class _HomePageState extends State<HomePage>
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  Row(
-                    children: [],
-                  ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -588,7 +589,7 @@ class _HomePageState extends State<HomePage>
                     children: [
                       const SizedBox(height: 20),
                       const Text(
-                        'For You',
+                        'Suggested',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 28,
