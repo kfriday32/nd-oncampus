@@ -1,5 +1,6 @@
 from flask import Flask, request
 from gpt import generate_prompt
+import mongodb
 import json
 from bson.json_util import dumps
 from mongodb import get_mongodb_flutter
@@ -7,7 +8,7 @@ import re
 
 app = Flask(__name__)
 
-
+# route to get events based on interests
 @app.route("/", methods=("GET", "POST"))
 def call_gpt():
     if request.method == "POST":
@@ -33,6 +34,17 @@ def call_gpt():
 
     return "success!"
 
+# route to publish events
+@app.route('/publish', methods=["GET", "POST"])
+def publish_event():
+    if request.method == "GET":
+        return "<p>publish get request</p>"
+    else:
+        # get data to publish from post request
+        data = request.get_json()
+        # post event to MongoDB
+        new_event = mongodb.publish_event(data)
+        return new_event
 
 
 def DEBUG(message):

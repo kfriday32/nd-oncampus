@@ -1,8 +1,8 @@
-# mongodb.py
-from bson.objectid import ObjectId 
+# mongodb.py 
 from dotenv import load_dotenv
 import os
 from pymongo import MongoClient
+from bson import ObjectId
 from datetime import datetime
 from pprint import pprint
 
@@ -15,7 +15,6 @@ MONGO_PASSWORD = os.getenv("MONGO_PASSWORD")
 def get_mongodb_collection():
     # connect to client (mongo user password should be stored in personal .env file)
     mongo_client = MongoClient(f'mongodb+srv://{MONGO_USERNAME}:{MONGO_PASSWORD}@test-cluster1.ljrkvvp.mongodb.net/?retryWrites=true&w=majority')
-
     # access 'campus_events' database
     db = mongo_client['campus_events']
 
@@ -71,9 +70,16 @@ def sort_events(data):
 
     return data
 
+# publish data to collection
+def publish_event(new_event):
+    events_coll = get_mongodb_collection()
+    # insert new event into collection
+    created_event = events_coll.insert_one(new_event)
+    
+    return "successfully posted new event"
+
 def main():
     print(get_mongodb_flutter())
-    
 
 
 if __name__ == '__main__':

@@ -1,6 +1,9 @@
 import 'package:date_field/date_field.dart';
 import 'package:flutter/material.dart';
 import 'package:select_form_field/select_form_field.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'helpers.dart' as helpers;
 
 class PublisherPage extends StatelessWidget {
   @override
@@ -24,6 +27,9 @@ class _EventFormState extends State<EventForm> {
   // global key to keep track of form id
   final _formKey = GlobalKey<FormState>();
 
+  // visibility of guest list
+  String _time = "";
+
   // text field controllers
   final titleCont = TextEditingController();
   final descCont = TextEditingController();
@@ -35,6 +41,41 @@ class _EventFormState extends State<EventForm> {
   final hostCont = TextEditingController();
   final guestCont = TextEditingController();
   final capCont = TextEditingController();
+
+  Future<http.Response> postEvent() async {
+
+    String bodyData = jsonEncode(<String, String> {
+        'title': titleCont.text,
+        'description': descCont.text,
+        'location': locCont.text,
+        'time': _time,
+        'duration': durCont.text,
+        'registrationLink': regCont.text,
+        'url': urlCont.text,
+        'publicGuestList': visCont.text,
+        'host': hostCont.text,
+        'numberGuests': guestCont.text,
+        'capacity': capCont.text
+    });
+    
+    String uri = "${helpers.getUri()}/publish";
+    final headers = {'Content-Type': 'application/json'};
+
+    // send post to server
+    final response = await http.post(
+      Uri.parse(uri),
+      headers: headers,
+      body: bodyData
+    );
+
+    if (response.statusCode == 200) {
+      return response;
+    }
+    // error with post request
+    else {
+      throw Exception("post new event request failed: ${response}");
+    }
+  }
 
   @override
   Widget build(BuildContext buildContext) {
@@ -91,7 +132,7 @@ class _EventFormState extends State<EventForm> {
                   },
                   onDateSelected: (DateTime val) {
                     print(val);
-                    // TODO: save value somehow
+                    _time = val.toString();
                   }
                 ),
                 TextFormField(
@@ -138,9 +179,6 @@ class _EventFormState extends State<EventForm> {
                       'icon': Icon(Icons.visibility_off)
                     }
                   ],
-                  onChanged: (val) {
-                    print(val);
-                  },
                   onSaved: (val) {
                     print(val);
                   }
@@ -174,9 +212,13 @@ class _EventFormState extends State<EventForm> {
                   onPressed: () async {
                     // validate input
                     if (_formKey.currentState!.validate()) {
+                      // send data to MongoDB
+                      final res = await postEvent();
+
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Processing Data')),
+                        const SnackBar(content: Text('Successfully created new event!')),
                       );
+
                     }
                     else {
                       ScaffoldMessenger.of(context).showSnackBar(
