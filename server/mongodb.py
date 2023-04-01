@@ -52,7 +52,8 @@ def get_mongodb_events(id_list):
     collection = get_mongodb_collection()
 
     # itterate through the id list and query all completed collections 
-    return [collection.find_one({'_id': ObjectId(id)}) for id in id_list]
+    events = [collection.find_one({'_id': ObjectId(id)}) for id in id_list]
+    return sort_events(events)
 
 # simple api wrapper for returning all data to flutter
 def get_mongodb_flutter():
