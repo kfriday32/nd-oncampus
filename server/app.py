@@ -43,10 +43,8 @@ def publish_event():
     else:
         # get data to publish from post request
         data = request.get_json()
-
         # post event to MongoDB
         new_event = mongodb.publish_event(data)
-
         return new_event
 
 

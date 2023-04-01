@@ -42,7 +42,7 @@ class _EventFormState extends State<EventForm> {
   final guestCont = TextEditingController();
   final capCont = TextEditingController();
 
-  Future<http.Response> postEvent() {
+  Future<http.Response> postEvent() async {
 
     String bodyData = jsonEncode(<String, String> {
         'title': titleCont.text,
@@ -57,16 +57,24 @@ class _EventFormState extends State<EventForm> {
         'numberGuests': guestCont.text,
         'capacity': capCont.text
     });
+    
+    String uri = "${helpers.getUri()}/publish";
+    final headers = {'Content-Type': 'application/json'};
 
-    print(bodyData);
-
-    return http.post(
-      Uri.parse(helpers.getUri()),
-      headers: <String, String> {
-        'Content-Type': 'applicaton/json'
-      },
+    // send post to server
+    final response = await http.post(
+      Uri.parse(uri),
+      headers: headers,
       body: bodyData
     );
+
+    if (response.statusCode == 200) {
+      return response;
+    }
+    // error with post request
+    else {
+      throw Exception("post new event request failed: ${response}");
+    }
   }
 
   @override
@@ -204,11 +212,13 @@ class _EventFormState extends State<EventForm> {
                   onPressed: () async {
                     // validate input
                     if (_formKey.currentState!.validate()) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Processing Data')),
-                      );
                       // send data to MongoDB
-                      postEvent();
+                      final res = await postEvent();
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Successfully created new event!')),
+                      );
+
                     }
                     else {
                       ScaffoldMessenger.of(context).showSnackBar(
