@@ -2,6 +2,8 @@ from flask import Flask, request
 from gpt import generate_prompt
 import mongodb
 import json
+from bson.json_util import dumps
+from mongodb import get_mongodb_flutter
 import re
 
 app = Flask(__name__)
@@ -17,19 +19,18 @@ def call_gpt():
 
         interests = re.split(', |,| ',interests)
 
-        # make call to OpenAI
-        response = generate_prompt(interests)
-        if response == None:
+        # make call to OpenAI and retrieve the data
+        data = generate_prompt(interests)
+        if data == None:
             # need to make a decision about what is sent back to the front end upon failure
             return "failure"
 
         # return the generated results
-        response_data = response.choices[0].text
-        DEBUG(response_data)
-        return response_data
+        return dumps(data)
 
     elif request.method == "GET":
-        DEBUG("GET request recieved")
+        data = get_mongodb_flutter()
+        return dumps(data)
 
     return "success!"
 
