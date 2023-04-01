@@ -34,6 +34,13 @@ def get_partial_data():
 
     return partial_data
 
+# get event from user and save it to MongoDB
+# input: event => dict(k = string, v = string)
+
+
+def post_event(event):
+    pass
+
 
 if __name__ == "__main__":
     get_partial_data()
