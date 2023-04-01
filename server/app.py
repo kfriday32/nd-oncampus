@@ -1,21 +1,22 @@
 from flask import Flask, request
-from openai import generate_prompt
+from gpt import generate_prompt
 
 
 app = Flask(__name__)
 
 
-@app.route("/")
+@app.route("/", methods=("GET", "POST"))
 def call_gpt():
     if request.method == "POST":
         interest = request.form.get("interest")
-        response = generate_prompt(interest)
+        # TODO PLACEHOLDER: parse the interests and turn it into a list of strings
+        interests = [interest.strip(), "hockey"]
+
+        response = generate_prompt(interests)
         if response == None:
             # need to make a decision about what is sent back to the front end upon failure
-            return "faulure"
-        DEBUG(response)
-
-        DEBUG("POST request recieved")
+            return "ok"
+        DEBUG(response.choices[0].text)
 
     elif request.method == "GET":
         DEBUG("GET request recieved")
