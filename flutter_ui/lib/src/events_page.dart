@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class EventsPage extends StatelessWidget {
 
@@ -26,6 +27,31 @@ class _InterestFormState extends State<InterestForm> {
 
   // global key to keep track of form id
   final _formKey = GlobalKey<FormState>();
+  
+  final _serverUri = 'http://127.0.0.1:5000';
+  final interestsController = TextEditingController();
+
+  // clean up controller when widget is removed
+  @override
+  void dispose() {
+    interestsController.dispose();
+    super.dispose();
+  }
+
+  // http request to post interests to backend server
+  Future<http.Response> postInterest(String interest) {
+    print("post interest: ${interest}");
+    return http.post(
+      Uri.parse(_serverUri),
+      headers: <String, String> {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': '18'
+      },
+      body: <String, String> {
+        'interests': interest
+      }
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +72,7 @@ class _InterestFormState extends State<InterestForm> {
               }
               return null;
             },
+            controller: interestsController
           ),
           ElevatedButton(
             onPressed: () {
@@ -55,6 +82,7 @@ class _InterestFormState extends State<InterestForm> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Processing Data')),
                 );
+                postInterest(interestsController.text);
               }
             },
             child: const Text('Submit')
