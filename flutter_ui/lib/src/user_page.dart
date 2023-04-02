@@ -29,9 +29,11 @@ class _UserPageState extends State<UserPage> {
   }
 
   Future<void> _getUserFromDatabase() async {
-    setState(() {
-      _isUserLoading = true;
-    });
+    if (mounted) {
+      setState(() {
+        _isUserLoading = true;
+      });
+    }
     final response = await http.get(Uri.parse('${Helpers.getUri()}/user'));
     if (response.statusCode == 200) {
       final decoded = jsonDecode(response.body);
@@ -46,9 +48,11 @@ class _UserPageState extends State<UserPage> {
     } else {
       print("failed");
     }
-    setState(() {
-      _isUserLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        _isUserLoading = false;
+      });
+    }
   }
 
   @override
@@ -92,9 +96,11 @@ class _UserPageState extends State<UserPage> {
                                         lastName: _lastNameController.text,
                                         netID: _netIdController.text)),
                               );
-                              setState(() {
-                                _shouldUpdate = true;
-                              });
+                              if (mounted) {
+                                setState(() {
+                                  _shouldUpdate = true;
+                                });
+                              }
                             },
                             child: Row(
                               children: const [
@@ -135,9 +141,11 @@ class _UserPageState extends State<UserPage> {
                                       isUserLoading: _isUserLoading),
                                 ),
                               );
-                              setState(() {
-                                _shouldUpdate = true;
-                              });
+                              if (mounted) {
+                                setState(() {
+                                  _shouldUpdate = true;
+                                });
+                              }
                             },
                             child: Row(
                               children: const [

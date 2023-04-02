@@ -86,9 +86,11 @@ class _HomePageState extends State<HomePage>
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
-              setState(() {
-                displaySearch = !displaySearch;
-              });
+              if (mounted) {
+                setState(() {
+                  displaySearch = !displaySearch;
+                });
+              }
             },
           ),
         ],
@@ -120,13 +122,15 @@ class _HomePageState extends State<HomePage>
                                           icon: const Icon(Icons.close),
                                           onPressed: () {
                                             // reset current lists
-                                            setState(() {
-                                              widget.eventDataToday = [];
-                                              widget.eventDataThisWeek = [];
-                                              widget.eventDataUpcoming = [];
+                                            if (mounted) {
+                                              setState(() {
+                                                widget.eventDataToday = [];
+                                                widget.eventDataThisWeek = [];
+                                                widget.eventDataUpcoming = [];
 
-                                              displaySearch = false;
-                                            });
+                                                displaySearch = false;
+                                              });
+                                            }
                                             // repopulate events
                                             _loadAllEvents();
                                           },
@@ -429,15 +433,17 @@ class _HomePageState extends State<HomePage>
       }
 
       // update event lists with matches
-      setState(() {
-        if (allEvents[i] == widget.eventDataToday) {
-          widget.eventDataToday = matches;
-        } else if (allEvents[i] == widget.eventDataThisWeek) {
-          widget.eventDataThisWeek = matches;
-        } else {
-          widget.eventDataUpcoming = matches;
-        }
-      });
+      if (mounted) {
+        setState(() {
+          if (allEvents[i] == widget.eventDataToday) {
+            widget.eventDataToday = matches;
+          } else if (allEvents[i] == widget.eventDataThisWeek) {
+            widget.eventDataThisWeek = matches;
+          } else {
+            widget.eventDataUpcoming = matches;
+          }
+        });
+      }
 
       widget.eventDataToday
           .sort((a, b) => a['startTime'].compareTo(b['startTime']));
