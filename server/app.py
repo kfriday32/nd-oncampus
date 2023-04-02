@@ -3,7 +3,7 @@ from gpt import generate_prompt
 import mongodb
 import json
 from bson.json_util import dumps
-from mongodb import get_mongodb_flutter, get_mongodb_user_interests, set_mongodb_user_interests
+from mongodb import get_mongodb_flutter, get_mongodb_user_interests, set_mongodb_user_interests, get_mongodb_user_data, set_mongodb_user_data
 import re
 
 app = Flask(__name__)
@@ -50,7 +50,7 @@ def publish_event():
         new_event = mongodb.publish_event(data)
         return new_event
 
-
+# route to refresh the pages 
 @app.route('/refresh', methods=["GET"])
 def refresh_suggested():
     if request.method == "GET":
@@ -64,6 +64,25 @@ def refresh_suggested():
         
         return dumps(data)
 
+# route to get the user information from mongoDB
+@app.route('/user', methods=["GET", "POST"])
+def query_user():
+    if request.method == 'GET':
+        data = get_mongodb_user_data("cpreciad")
+        DEBUG(data)
+        return dumps(data)
+    if request.method == 'POST':
+        data = request.get_json()
+        if 'firstName' in data:
+            # save the user profile 
+            set_mongodb_user_data(request.get_json(), "cpreciad")
+        else:
+            # save the user preferences
+            set_mongodb_user_interests(data['interests'], "cpreciad")
+            return "success"
+    return "done"
+
+        
 
 def DEBUG(message):
     print(f"--------------------------------------------------------------------")
