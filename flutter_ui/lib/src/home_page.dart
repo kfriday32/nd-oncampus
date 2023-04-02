@@ -80,14 +80,6 @@ class _HomePageState extends State<HomePage>
               });
             },
           ),
-          IconButton(
-              icon: const Icon(Icons.filter_alt),
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const EventsPage()));
-              })
         ],
         bottom: TabBar(
           controller: _tabController, // Set the controller for the TabBar
