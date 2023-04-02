@@ -4,8 +4,15 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class InterestsPage extends StatefulWidget {
-  final List<String> interests;
-  const InterestsPage({super.key, required this.interests});
+  final List<String> savedInterests;
+  final List<String> suggestedInterests;
+  final bool isUserLoading;
+  const InterestsPage({
+    super.key,
+    required this.savedInterests,
+    required this.suggestedInterests,
+    required this.isUserLoading,
+  });
   @override
   State<InterestsPage> createState() => _InterestsPageState();
 }
@@ -19,7 +26,8 @@ class _InterestsPageState extends State<InterestsPage> {
   @override
   void initState() {
     super.initState();
-    _savedInterests = widget.interests;
+    _savedInterests = widget.savedInterests;
+    _suggestedInterests = widget.suggestedInterests;
   }
 
   Future<void> _saveInterestsToDatabase(List<String> interests) async {

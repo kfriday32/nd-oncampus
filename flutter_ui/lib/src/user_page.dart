@@ -16,9 +16,10 @@ class _UserPageState extends State<UserPage> {
   TextEditingController _firstNameController = TextEditingController();
   TextEditingController _lastNameController = TextEditingController();
   TextEditingController _netIdController = TextEditingController();
-  List<String> _interests = [];
+  List<String> _savedInterests = [];
+  List<String> _suggestedInterests = [];
 
-  bool _isLoading = true;
+  bool _isUserLoading = true;
   bool _shouldUpdate = false;
 
   @override
@@ -29,21 +30,25 @@ class _UserPageState extends State<UserPage> {
 
   Future<void> _getUserFromDatabase() async {
     setState(() {
-      _isLoading = true;
+      _isUserLoading = true;
     });
     final response = await http.get(Uri.parse('${Helpers.getUri()}/user'));
     if (response.statusCode == 200) {
-      print(response.body);
       final decoded = jsonDecode(response.body);
       _firstNameController.text = decoded['firstName'];
       _lastNameController.text = decoded['lastName'];
       // for dev purposes, this netid will never be allowed to change
       _netIdController.text = "cprecaid";
-      _interests = List<String>.from(
+      _savedInterests = List<String>.from(
           decoded['interests'].map((e) => e.toString()).toList());
+      _suggestedInterests = List<String>.from(
+          decoded['suggestions'].map((e) => e.toString()).toList());
     } else {
       print("failed");
     }
+    setState(() {
+      _isUserLoading = false;
+    });
   }
 
   @override
@@ -63,130 +68,135 @@ class _UserPageState extends State<UserPage> {
         ),
         backgroundColor: const Color(0xFF0C2340),
       ),
-      body: Column(
-        children: [
-          SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.only(
-                  top: 20.0, left: 15.0, right: 15.0, bottom: 20.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 20.0),
-                    child: GestureDetector(
-                      onTap: () async {
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => ProfilePage(
-                                  firstName: _firstNameController.text,
-                                  lastName: _lastNameController.text,
-                                  netID: _netIdController.text)),
-                        );
-                        setState(() {
-                          _shouldUpdate = true;
-                        });
-                      },
-                      child: Row(
-                        children: const [
-                          Icon(
-                            Icons.settings,
-                            size: 24.0,
-                          ),
-                          SizedBox(width: 15),
-                          Expanded(
-                            child: Text(
-                              'Manage Profile',
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 2,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18.0,
-                              ),
+      body: _isUserLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
+              children: [
+                SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                        top: 20.0, left: 15.0, right: 15.0, bottom: 20.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 20.0),
+                          child: GestureDetector(
+                            onTap: () async {
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ProfilePage(
+                                        firstName: _firstNameController.text,
+                                        lastName: _lastNameController.text,
+                                        netID: _netIdController.text)),
+                              );
+                              setState(() {
+                                _shouldUpdate = true;
+                              });
+                            },
+                            child: Row(
+                              children: const [
+                                Icon(
+                                  Icons.settings,
+                                  size: 24.0,
+                                ),
+                                SizedBox(width: 15),
+                                Expanded(
+                                  child: Text(
+                                    'Manage Profile',
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 2,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18.0,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Divider(
-                    height: 1,
-                    color: Colors.grey[400],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20.0),
-                    child: GestureDetector(
-                      onTap: () async {
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  InterestsPage(interests: _interests)),
-                        );
-                        setState(() {
-                          _shouldUpdate = true;
-                        });
-                      },
-                      child: Row(
-                        children: const [
-                          Icon(
-                            Icons.local_activity,
-                            size: 24.0,
-                          ),
-                          SizedBox(width: 15),
-                          Expanded(
-                            child: Text(
-                              'Update Interests',
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 2,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18.0,
-                              ),
+                        ),
+                        Divider(
+                          height: 1,
+                          color: Colors.grey[400],
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 20.0),
+                          child: GestureDetector(
+                            onTap: () async {
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => InterestsPage(
+                                      savedInterests: _savedInterests,
+                                      suggestedInterests: _suggestedInterests,
+                                      isUserLoading: _isUserLoading),
+                                ),
+                              );
+                              setState(() {
+                                _shouldUpdate = true;
+                              });
+                            },
+                            child: Row(
+                              children: const [
+                                Icon(
+                                  Icons.local_activity,
+                                  size: 24.0,
+                                ),
+                                SizedBox(width: 15),
+                                Expanded(
+                                  child: Text(
+                                    'Update Interests',
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 2,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18.0,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Divider(
-                    height: 1,
-                    color: Colors.grey[400],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20.0),
-                    child: GestureDetector(
-                      onTap: () {},
-                      child: Row(
-                        children: const [
-                          Icon(
-                            Icons.delete_forever,
-                            size: 24.0,
-                          ),
-                          SizedBox(width: 15),
-                          Expanded(
-                            child: Text(
-                              'Delete Account',
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 2,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18.0,
-                              ),
+                        ),
+                        Divider(
+                          height: 1,
+                          color: Colors.grey[400],
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 20.0),
+                          child: GestureDetector(
+                            onTap: () {},
+                            child: Row(
+                              children: const [
+                                Icon(
+                                  Icons.delete_forever,
+                                  size: 24.0,
+                                ),
+                                SizedBox(width: 15),
+                                Expanded(
+                                  child: Text(
+                                    'Delete Account',
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 2,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18.0,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
     );
   }
 }
