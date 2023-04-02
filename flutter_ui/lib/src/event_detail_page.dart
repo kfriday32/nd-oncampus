@@ -9,14 +9,14 @@ class EventDetailPage extends StatefulWidget {
   final dynamic event;
   final refreshFollowing;
 
-  const EventDetailPage({super.key, required this.event, this.refreshFollowing});
+  const EventDetailPage(
+      {super.key, required this.event, this.refreshFollowing});
 
   @override
   State<EventDetailPage> createState() => _EventDetailPageState();
 }
 
 class _EventDetailPageState extends State<EventDetailPage> {
-  
   Color _colorFollow = Colors.white;
   bool following = false;
   bool _isLoading = true;
@@ -25,33 +25,24 @@ class _EventDetailPageState extends State<EventDetailPage> {
     following = !following;
     String event_id = widget.event['_id']['\$oid'];
 
-    String uri = "${helpers.getUri()}/";
+    String uri = "${Helpers.getUri()}/";
     if (following) {
       uri += "/following";
-    }
-    else {
+    } else {
       uri += "/unfollow";
     }
 
-    final headers = {
-      'Content-Type': 'application/json'
-    };
-    final bodyData = jsonEncode(<String, String> {
-      'event_id': event_id
-    });
+    final headers = {'Content-Type': 'application/json'};
+    final bodyData = jsonEncode(<String, String>{'event_id': event_id});
 
-    final response = await http.post(
-      Uri.parse(uri),
-      headers: headers,
-      body: bodyData
-    );
-    
+    final response =
+        await http.post(Uri.parse(uri), headers: headers, body: bodyData);
+
     if (response.statusCode == 200) {
       // refresh listing
       widget.refreshFollowing();
       return response;
-    }
-    else {
+    } else {
       throw Exception("error posting id to follow_events: ${event_id}");
     }
   }
@@ -64,12 +55,12 @@ class _EventDetailPageState extends State<EventDetailPage> {
     }
     try {
       // get currently logged in user (use default 'cpreciad')
-      String uri = "${helpers.getUri()}/followingIds";
+      String uri = "${Helpers.getUri()}/followingIds";
       final response = await http.get(Uri.parse(uri));
 
       if (response.statusCode != 200) {
         print('Error: ${response.statusCode}');
-      } 
+      }
       // check if the current event is followed by user
       else {
         if (mounted) {
@@ -78,19 +69,16 @@ class _EventDetailPageState extends State<EventDetailPage> {
             if (events.contains(widget.event['_id']['\$oid'])) {
               _colorFollow = Colors.blue;
               following = true;
-            }
-            else {
+            } else {
               _colorFollow = Colors.white;
               following = false;
             }
           });
         }
       }
-    } 
-    catch (err) {
+    } catch (err) {
       print("Error loading event: ${err}");
-    }
-    finally {
+    } finally {
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -107,7 +95,6 @@ class _EventDetailPageState extends State<EventDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFF0C2340),
@@ -128,230 +115,239 @@ class _EventDetailPageState extends State<EventDetailPage> {
       ),
       body: Column(
         children: [
-          _isLoading ? const Center(child: CircularProgressIndicator())
-          : Expanded(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.only(
-                    top: 20.0, left: 15.0, right: 15.0, bottom: 20.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 20.0),
-                      child: Text(widget.event['title']!,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 24.0,
-                          )),
-                    ),
-                    Divider(
-                      height: 1,
-                      color: Colors.grey[400],
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 20.0),
-                      child: Row(
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : Expanded(
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                          top: 20.0, left: 15.0, right: 15.0, bottom: 20.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(
-                            width: 50,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              color: Colors.grey[200]!,
-                              borderRadius: const BorderRadius.only(
-                                topLeft: Radius.circular(7.5),
-                                bottomLeft: Radius.circular(7.5),
-                                topRight: Radius.circular(7.5),
-                                bottomRight: Radius.circular(7.5),
-                              ),
-                            ),
-                            child: const Center(
-                              child: Icon(
-                                Icons.group,
-                                size: 24.0,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 15),
-                          Expanded(
-                            child: Text(
-                              widget.event['host'],
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 2,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18.0,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 15),
-                          OutlinedButton(
-                            style: ButtonStyle(
-                              shape: MaterialStateProperty.all<
-                                  RoundedRectangleBorder>(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(5.0),
-                                  side: const BorderSide(
-                                      color: Color(0xFF0C2340)),
-                                ),
-                              ),
-                              backgroundColor: MaterialStatePropertyAll<Color>(_colorFollow)
-                            ),
-                            onPressed: () {
-                              _updateFollowing();
-                              const snackBar = SnackBar(
-                                content: Text('Successfully updating following events'),
-                              );
-                              ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                              setState(() {
-                                _colorFollow = (_colorFollow == Colors.white) ? Colors.blue : Colors.white;
-                              });
-                            },
-                            child: const Padding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 2.5,
-                                vertical: 0.0,
-                              ),
-                              child: Text(
-                                'Follow',
-                                style: TextStyle(color: Color(0xFF0C2340)),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Divider(
-                      height: 1,
-                      color: Colors.grey[400],
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 20.0),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 50,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              color: Colors.grey[200]!,
-                              borderRadius: const BorderRadius.only(
-                                topLeft: Radius.circular(7.5),
-                                bottomLeft: Radius.circular(7.5),
-                                topRight: Radius.circular(7.5),
-                                bottomRight: Radius.circular(7.5),
-                              ),
-                            ),
-                            child: Center(
-                              child: Text(
-                                widget.event['startTime']!.day.toString(),
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 20.0),
+                            child: Text(widget.event['title']!,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 24.0,
+                                )),
+                          ),
+                          Divider(
+                            height: 1,
+                            color: Colors.grey[400],
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 20.0),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 50,
+                                  height: 50,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[200]!,
+                                    borderRadius: const BorderRadius.only(
+                                      topLeft: Radius.circular(7.5),
+                                      bottomLeft: Radius.circular(7.5),
+                                      topRight: Radius.circular(7.5),
+                                      bottomRight: Radius.circular(7.5),
+                                    ),
+                                  ),
+                                  child: const Center(
+                                    child: Icon(
+                                      Icons.group,
+                                      size: 24.0,
+                                    ),
+                                  ),
                                 ),
-                              ),
+                                const SizedBox(width: 15),
+                                Expanded(
+                                  child: Text(
+                                    widget.event['host'],
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 2,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18.0,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 15),
+                                OutlinedButton(
+                                  style: ButtonStyle(
+                                      shape: MaterialStateProperty.all<
+                                          RoundedRectangleBorder>(
+                                        RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(5.0),
+                                          side: const BorderSide(
+                                              color: Color(0xFF0C2340)),
+                                        ),
+                                      ),
+                                      backgroundColor:
+                                          MaterialStatePropertyAll<Color>(
+                                              _colorFollow)),
+                                  onPressed: () {
+                                    _updateFollowing();
+                                    const snackBar = SnackBar(
+                                      content: Text(
+                                          'Successfully updating following events'),
+                                    );
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(snackBar);
+                                    setState(() {
+                                      _colorFollow =
+                                          (_colorFollow == Colors.white)
+                                              ? Colors.blue
+                                              : Colors.white;
+                                    });
+                                  },
+                                  child: const Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 2.5,
+                                      vertical: 0.0,
+                                    ),
+                                    child: Text(
+                                      'Follow',
+                                      style:
+                                          TextStyle(color: Color(0xFF0C2340)),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          const SizedBox(width: 15),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                DateFormat.yMMMMd()
-                                    .format(widget.event['startTime']!),
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18.0,
+                          Divider(
+                            height: 1,
+                            color: Colors.grey[400],
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 20.0),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 50,
+                                  height: 50,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[200]!,
+                                    borderRadius: const BorderRadius.only(
+                                      topLeft: Radius.circular(7.5),
+                                      bottomLeft: Radius.circular(7.5),
+                                      topRight: Radius.circular(7.5),
+                                      bottomRight: Radius.circular(7.5),
+                                    ),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      widget.event['startTime']!.day.toString(),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 24.0,
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 5),
-                              Text(
-                                '${DateFormat('h:mm a').format(widget.event['startTime'])} - ${DateFormat('h:mm a').format(widget.event['endTime'])}',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.normal,
-                                  fontSize: 18.0,
-                                  color: Colors.grey[600],
+                                const SizedBox(width: 15),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      DateFormat.yMMMMd()
+                                          .format(widget.event['startTime']!),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18.0,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 5),
+                                    Text(
+                                      '${DateFormat('h:mm a').format(widget.event['startTime'])} - ${DateFormat('h:mm a').format(widget.event['endTime'])}',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.normal,
+                                        fontSize: 18.0,
+                                        color: Colors.grey[600],
+                                      ),
+                                    )
+                                  ],
                                 ),
-                              )
-                            ],
+                              ],
+                            ),
+                          ),
+                          Divider(
+                            height: 1,
+                            color: Colors.grey[400],
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 20.0),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 50,
+                                  height: 50,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[200]!,
+                                    borderRadius: const BorderRadius.only(
+                                      topLeft: Radius.circular(7.5),
+                                      bottomLeft: Radius.circular(7.5),
+                                      topRight: Radius.circular(7.5),
+                                      bottomRight: Radius.circular(7.5),
+                                    ),
+                                  ),
+                                  child: const Center(
+                                    child: Icon(
+                                      Icons.location_on,
+                                      size: 24.0,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 15),
+                                Text(
+                                  widget.event['location']!,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 2,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18.0,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Divider(
+                            height: 1,
+                            color: Colors.grey[400],
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 20.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Description',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18.0,
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  widget.event['description'],
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.normal,
+                                    fontSize: 16.0,
+                                    color: Colors.grey[600],
+                                    height: 1.4,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
                     ),
-                    Divider(
-                      height: 1,
-                      color: Colors.grey[400],
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 20.0),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 50,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              color: Colors.grey[200]!,
-                              borderRadius: const BorderRadius.only(
-                                topLeft: Radius.circular(7.5),
-                                bottomLeft: Radius.circular(7.5),
-                                topRight: Radius.circular(7.5),
-                                bottomRight: Radius.circular(7.5),
-                              ),
-                            ),
-                            child: const Center(
-                              child: Icon(
-                                Icons.location_on,
-                                size: 24.0,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 15),
-                          Text(
-                            widget.event['location']!,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 2,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18.0,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Divider(
-                      height: 1,
-                      color: Colors.grey[400],
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 20.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Description',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18.0,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            widget.event['description'],
-                            style: TextStyle(
-                              fontWeight: FontWeight.normal,
-                              fontSize: 16.0,
-                              color: Colors.grey[600],
-                              height: 1.4,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-          ),
           (widget.event['registrationLink'] == null ||
                   widget.event['registrationLink'] == "")
               ? const SizedBox()
