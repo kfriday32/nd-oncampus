@@ -7,12 +7,16 @@ import 'navigation.dart';
 import 'events_page.dart';
 import 'package:fuzzy/fuzzy.dart';
 import 'events_list.dart';
+import 'helpers.dart';
 
 class HomePage extends StatefulWidget {
   final AppNavigator navigator;
   List<dynamic> eventDataToday = [];
   List<dynamic> eventDataThisWeek = [];
   List<dynamic> eventDataUpcoming = [];
+  List<dynamic> suggestedEventDataToday = [];
+  List<dynamic> suggestedEventDataThisWeek = [];
+  List<dynamic> suggestedEventDataUpcoming = [];
 
   HomePage({Key? key, required this.navigator}) : super(key: key);
 
@@ -31,13 +35,16 @@ class _HomePageState extends State<HomePage>
   bool displaySearch = false;
   final searchCont = TextEditingController();
   bool _isLoading = true;
+  bool _isAllLoading = true;
+  bool _isSuggestedLoading = true;
 
   @override
   void initState() {
     super.initState();
     // Initialize the controller with the number of tabs and this class as the provider
     _tabController = TabController(length: myTabs.length, vsync: this);
-    _loadEvents();
+    _loadAllEvents();
+    _loadSuggestedEvents();
   }
 
   @override
@@ -53,6 +60,13 @@ class _HomePageState extends State<HomePage>
       appBar: AppBar(
         backgroundColor: const Color(0xFF0C2340),
         centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.refresh),
+          onPressed: () {
+            _loadAllEvents();
+            _loadSuggestedEvents();
+          },
+        ),
         title: const Text(
           'OnCampus',
           style: TextStyle(
@@ -70,12 +84,11 @@ class _HomePageState extends State<HomePage>
             },
           ),
           IconButton(
-            icon: const Icon(Icons.filter_alt),
-            onPressed: (){
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => EventsPage()));
-            }
-          )
+              icon: const Icon(Icons.filter_alt),
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => EventsPage()));
+              })
         ],
         bottom: TabBar(
           controller: _tabController, // Set the controller for the TabBar
@@ -123,20 +136,24 @@ class _HomePageState extends State<HomePage>
               ) : SizedBox(height: 0),
               Expanded(
                 child: TabBarView(
-                    controller: _tabController,
-                    children: [
-                      EventsList(
-                        eventDataToday: widget.eventDataToday,
-                        eventDataThisWeek: widget.eventDataThisWeek,
-                        eventDataUpcoming: widget.eventDataUpcoming,
-                      ),
-                      EventsList(
-                        eventDataToday: widget.eventDataToday,
-                        eventDataThisWeek: widget.eventDataThisWeek,
-                        eventDataUpcoming: widget.eventDataUpcoming,
-                      )
-                    ],
-                  ),
+                  controller: _tabController,
+                  children: [
+                    _isAllLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : EventsList(
+                            eventDataToday: widget.eventDataToday,
+                            eventDataThisWeek: widget.eventDataThisWeek,
+                            eventDataUpcoming: widget.eventDataUpcoming,
+                          ),
+                    _isSuggestedLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : EventsList(
+                            eventDataToday: widget.suggestedEventDataToday,
+                            eventDataThisWeek: widget.suggestedEventDataThisWeek,
+                            eventDataUpcoming: widget.suggestedEventDataUpcoming,
+                          )
+                  ],
+                ),
               ),
             ],
           ),
@@ -151,33 +168,41 @@ class _HomePageState extends State<HomePage>
         .sort((a, b) => a['time'].compareTo(b['time']));
   }
 
-  void _loadEvents() async {
-    setState(() {
-      _isLoading = true;
-    });
+  void _loadAllEvents() async {
+    if (mounted) {
+      setState(() {
+        _isAllLoading = true;
+      });
+    }
     try {
-      final response = await http.get(Uri.parse('http://10.0.2.2:5000/'));
+      final response = await http.get(Uri.parse(helpers.getUri()));
 
       if (response.statusCode != 200) {
         print('Error: ${response.statusCode}');
       } else {
-        setState(() {
-          final DateTime now = DateTime.now();
-          for (var event in jsonDecode(response.body)) {
-            event['time'] = DateTime.parse(event['time']!);
+        if (mounted) {
+          setState(() {
+            // Clear existing data
+            widget.eventDataToday = [];
+            widget.eventDataThisWeek = [];
+            widget.eventDataUpcoming = [];
 
-            if (event['time'].isBefore(now)) {
-              continue;
-            }
+            final DateTime now = DateTime.now();
+            for (var event in jsonDecode(response.body)) {
+              event['time'] = DateTime.parse(event['time']!);
 
-            if (isSameDate(now, event['time'])) {
-              widget.eventDataToday.add(event);
-            } else if (isWithinUpcomingWeek(now, event['time'])) {
-              widget.eventDataThisWeek.add(event);
-            } else {
-              widget.eventDataUpcoming.add(event);
+              if (event['time'].isBefore(now)) {
+                continue;
+              }
+
+              if (isSameDate(now, event['time'])) {
+                widget.eventDataToday.add(event);
+              } else if (isWithinUpcomingWeek(now, event['time'])) {
+                widget.eventDataThisWeek.add(event);
+              } else {
+                widget.eventDataUpcoming.add(event);
+              }
             }
-          }
 
           sortData();
         });
@@ -185,9 +210,69 @@ class _HomePageState extends State<HomePage>
     } catch (e) {
       print('Error: $e');
     } finally {
+      if (mounted) {
+        setState(() {
+          _isAllLoading = false;
+        });
+      }
+    }
+  }
+
+  void _loadSuggestedEvents() async {
+    if (mounted) {
       setState(() {
-        _isLoading = false;
+        _isSuggestedLoading = true;
       });
+    }
+    try {
+      final response =
+          await http.get(Uri.parse('http://10.0.2.2:5000/refresh'));
+
+      if (response.statusCode != 200) {
+        print('Error: ${response.statusCode}');
+      } else {
+        if (mounted) {
+          setState(() {
+            // Clear existing data
+            widget.suggestedEventDataToday = [];
+            widget.suggestedEventDataThisWeek = [];
+            widget.suggestedEventDataUpcoming = [];
+
+            final DateTime now = DateTime.now();
+            for (var event in jsonDecode(response.body)) {
+              print(event);
+              event['time'] = DateTime.parse(event['time']!);
+
+              if (event['time'].isBefore(now)) {
+                continue;
+              }
+
+              if (isSameDate(now, event['time'])) {
+                widget.suggestedEventDataToday.add(event);
+              } else if (isWithinUpcomingWeek(now, event['time'])) {
+                widget.suggestedEventDataThisWeek.add(event);
+              } else {
+                widget.suggestedEventDataUpcoming.add(event);
+              }
+            }
+
+            widget.suggestedEventDataToday
+                .sort((a, b) => a['time'].compareTo(b['time']));
+            widget.suggestedEventDataThisWeek
+                .sort((a, b) => a['time'].compareTo(b['time']));
+            widget.suggestedEventDataUpcoming
+                .sort((a, b) => a['time'].compareTo(b['time']));
+          });
+        }
+      }
+    } catch (e) {
+      print('Error: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSuggestedLoading = false;
+        });
+      }
     }
   }
   

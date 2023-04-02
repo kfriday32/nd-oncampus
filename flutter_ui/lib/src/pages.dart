@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'navigation.dart';
 import 'home_page.dart';
 import 'publisher_page.dart';
+import 'user_page.dart';
 
 class Pages extends StatefulWidget {
   final AppNavigator navigator;
@@ -24,7 +25,8 @@ class _PagesState extends State<Pages> {
       HomePage(
         navigator: widget.navigator,
       ),
-      PublisherPage()
+      PublisherPage(),
+      UserPage()
     ];
   }
 
@@ -52,6 +54,10 @@ class _PagesState extends State<Pages> {
           BottomNavigationBarItem(
             icon: Icon(Icons.add),
             label: 'Add',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
           ),
         ],
       ),
