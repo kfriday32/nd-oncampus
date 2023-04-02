@@ -347,6 +347,7 @@ class _HomePageState extends State<HomePage>
             final DateTime now = DateTime.now();
             for (var event in jsonDecode(response.body)) {
               event['startTime'] = DateTime.parse(event['startTime']!);
+              event['endTime'] = DateTime.parse(event['endTime']!);
 
               if (event['startTime'].isBefore(now)) {
                 continue;
