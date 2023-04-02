@@ -1,19 +1,113 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'helpers.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class EventDetailPage extends StatefulWidget {
   final dynamic event;
+  final refreshFollowing;
 
-  const EventDetailPage({super.key, required this.event});
+  const EventDetailPage({super.key, required this.event, this.refreshFollowing});
 
   @override
   State<EventDetailPage> createState() => _EventDetailPageState();
 }
 
 class _EventDetailPageState extends State<EventDetailPage> {
+  
+  Color _colorFollow = Colors.white;
+  bool following = false;
+  bool _isLoading = true;
+
+  Future<http.Response> _updateFollowing() async {
+    following = !following;
+    String event_id = widget.event['_id']['\$oid'];
+
+    String uri = "${helpers.getUri()}/";
+    if (following) {
+      uri += "/following";
+    }
+    else {
+      uri += "/unfollow";
+    }
+
+    final headers = {
+      'Content-Type': 'application/json'
+    };
+    final bodyData = jsonEncode(<String, String> {
+      'event_id': event_id
+    });
+
+    final response = await http.post(
+      Uri.parse(uri),
+      headers: headers,
+      body: bodyData
+    );
+    
+    if (response.statusCode == 200) {
+      // refresh listing
+      widget.refreshFollowing();
+      return response;
+    }
+    else {
+      throw Exception("error posting id to follow_events: ${event_id}");
+    }
+  }
+
+  void _loadEvent() async {
+    if (mounted) {
+      setState(() {
+        _isLoading = true;
+      });
+    }
+    try {
+      // get currently logged in user (use default 'cpreciad')
+      String uri = "${helpers.getUri()}/followingIds";
+      final response = await http.get(Uri.parse(uri));
+
+      if (response.statusCode != 200) {
+        print('Error: ${response.statusCode}');
+      } 
+      // check if the current event is followed by user
+      else {
+        if (mounted) {
+          var events = response.body;
+          setState(() {
+            if (events.contains(widget.event['_id']['\$oid'])) {
+              _colorFollow = Colors.blue;
+              following = true;
+            }
+            else {
+              _colorFollow = Colors.white;
+              following = false;
+            }
+          });
+        }
+      }
+    } 
+    catch (err) {
+      print("Error loading event: ${err}");
+    }
+    finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadEvent();
+  }
+
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFF0C2340),
@@ -34,7 +128,8 @@ class _EventDetailPageState extends State<EventDetailPage> {
       ),
       body: Column(
         children: [
-          Expanded(
+          _isLoading ? const Center(child: CircularProgressIndicator())
+          : Expanded(
             child: SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.only(
@@ -101,8 +196,18 @@ class _EventDetailPageState extends State<EventDetailPage> {
                                       color: Color(0xFF0C2340)),
                                 ),
                               ),
+                              backgroundColor: MaterialStatePropertyAll<Color>(_colorFollow)
                             ),
-                            onPressed: () {},
+                            onPressed: () {
+                              _updateFollowing();
+                              const snackBar = SnackBar(
+                                content: Text('Successfully updating following events'),
+                              );
+                              ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                              setState(() {
+                                _colorFollow = (_colorFollow == Colors.white) ? Colors.blue : Colors.white;
+                              });
+                            },
                             child: const Padding(
                               padding: EdgeInsets.symmetric(
                                 horizontal: 2.5,

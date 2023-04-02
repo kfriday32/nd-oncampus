@@ -17,6 +17,9 @@ class HomePage extends StatefulWidget {
   List<dynamic> suggestedEventDataToday = [];
   List<dynamic> suggestedEventDataThisWeek = [];
   List<dynamic> suggestedEventDataUpcoming = [];
+  List<dynamic> followingEventDataToday = [];
+  List<dynamic> followingEventDataThisWeek = [];
+  List<dynamic> followingEventDataUpcoming = [];
 
   HomePage({Key? key, required this.navigator}) : super(key: key);
 
@@ -29,6 +32,7 @@ class _HomePageState extends State<HomePage>
   final List<Tab> myTabs = [
     const Tab(text: 'Upcoming'),
     const Tab(text: 'Suggested'),
+    const Tab(text: 'Following')
   ];
 
   late TabController _tabController;
@@ -36,6 +40,7 @@ class _HomePageState extends State<HomePage>
   final searchCont = TextEditingController();
   bool _isAllLoading = true;
   bool _isSuggestedLoading = true;
+  bool _isFollowingLoading = true;
   bool _showInterestsButton = false;
 
   @override
@@ -45,6 +50,7 @@ class _HomePageState extends State<HomePage>
     _tabController = TabController(length: myTabs.length, vsync: this);
     _loadAllEvents();
     _loadSuggestedEvents();
+    _loadFollowingEvents();
   }
 
   @override
@@ -65,6 +71,7 @@ class _HomePageState extends State<HomePage>
           onPressed: () {
             _loadAllEvents();
             _loadSuggestedEvents();
+            _loadFollowingEvents();
           },
         ),
         title: const Text(
@@ -142,6 +149,7 @@ class _HomePageState extends State<HomePage>
                               eventDataToday: widget.eventDataToday,
                               eventDataThisWeek: widget.eventDataThisWeek,
                               eventDataUpcoming: widget.eventDataUpcoming,
+                              refreshFollowing: _loadFollowingEvents
                             ),
                           ],
                         ),
@@ -174,22 +182,22 @@ class _HomePageState extends State<HomePage>
                               eventDataUpcoming:
                                   widget.suggestedEventDataUpcoming,
                             ),
-                          )
+                          ),
+                          _isFollowingLoading 
+                    ? const Center(child: CircularProgressIndicator())
+                    : SingleChildScrollView(
+                        child: EventsList(
+                          eventDataToday: widget.followingEventDataToday,
+                          eventDataThisWeek: widget.followingEventDataThisWeek,
+                          eventDataUpcoming: widget.followingEventDataUpcoming
+                        ),
+                      ),
               ],
             ),
           ),
         ],
       ),
     );
-  }
-
-  void sortData() {
-    widget.eventDataToday
-        .sort((a, b) => a['startTime'].compareTo(b['startTime']));
-    widget.eventDataThisWeek
-        .sort((a, b) => a['startTime'].compareTo(b['startTime']));
-    widget.eventDataUpcoming
-        .sort((a, b) => a['startTime'].compareTo(b['startTime']));
   }
 
   void _loadAllEvents() async {
@@ -227,7 +235,12 @@ class _HomePageState extends State<HomePage>
               }
             }
 
-            sortData();
+            widget.eventDataToday
+                .sort((a, b) => a['startTime'].compareTo(b['startTime']));
+            widget.eventDataThisWeek
+                .sort((a, b) => a['startTime'].compareTo(b['startTime']));
+            widget.eventDataUpcoming
+                .sort((a, b) => a['startTime'].compareTo(b['startTime']));
           });
         }
       } else {
@@ -311,6 +324,65 @@ class _HomePageState extends State<HomePage>
     }
   }
 
+  void _loadFollowingEvents() async {
+    if (mounted) {
+      setState(() {
+        _isFollowingLoading = true;
+      });
+    }
+    try {
+      String uri = "${helpers.getUri()}/following";
+      final response =
+          await http.get(Uri.parse(uri));
+
+      if (response.statusCode != 200) {
+        print('Error: ${response.statusCode}');
+      } else {
+        if (mounted) {
+          setState(() {
+            // Clear existing data
+            widget.followingEventDataToday = [];
+            widget.followingEventDataThisWeek = [];
+            widget.followingEventDataUpcoming = [];
+
+            final DateTime now = DateTime.now();
+            for (var event in jsonDecode(response.body)) {
+              
+              event['startTime'] = DateTime.parse(event['startTime']!);
+              
+              if (event['startTime'].isBefore(now)) {
+                continue;
+              }
+
+              if (isSameDate(now, event['startTime'])) {
+                widget.followingEventDataToday.add(event);
+              } else if (isWithinUpcomingWeek(now, event['startTime'])) {
+                widget.followingEventDataThisWeek.add(event);
+              } else {
+                widget.followingEventDataUpcoming.add(event);
+              }
+            }
+
+            widget.followingEventDataToday
+                .sort((a, b) => a['startTime'].compareTo(b['startTime']));
+            widget.followingEventDataThisWeek
+                .sort((a, b) => a['startTime'].compareTo(b['startTime']));
+            widget.followingEventDataUpcoming
+                .sort((a, b) => a['startTime'].compareTo(b['startTime']));
+          });
+        }
+      }
+    } catch (e) {
+      print('Error: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isFollowingLoading = false;
+        });
+      }
+    }
+  }
+  
   // method performs search query on events in main page
   void _searchEvents() {
     // get user input from search bar
@@ -352,7 +424,12 @@ class _HomePageState extends State<HomePage>
         }
       });
 
-      sortData();
+      widget.eventDataToday
+          .sort((a, b) => a['startTime'].compareTo(b['startTime']));
+      widget.eventDataThisWeek
+          .sort((a, b) => a['startTime'].compareTo(b['startTime']));
+      widget.eventDataUpcoming
+          .sort((a, b) => a['startTime'].compareTo(b['startTime']));
     }
   }
 }
