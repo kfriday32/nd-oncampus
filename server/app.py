@@ -1,5 +1,5 @@
-from flask import Flask, request
-from gpt import generate_prompt
+from flask import Flask, request, jsonify
+from gpt import generate_prompt, generate_interests
 import mongodb
 import json
 from bson.json_util import dumps
@@ -58,9 +58,16 @@ def refresh_suggested():
         # retrieve the interests list form mongoDB and run the prompt generation 
         interests = get_mongodb_user_interests("cpreciad")
         
+        # check if the interests list is empty, and return None if true
+        if interests == []:
+            response = {"error": "empty"}
+            return jsonify(response), 404
+
+        # generate the data  
         data = generate_prompt(interests)
         if data == None:
-            return "failure"
+            response = {{"error": "failure"}}
+            return jsonify(response), 404
         
         return dumps(data)
 
@@ -69,6 +76,10 @@ def refresh_suggested():
 def query_user():
     if request.method == 'GET':
         data = get_mongodb_user_data("cpreciad")
+        # generate suggestion interests, only add them to the data if the user has suggestions
+        suggestions = generate_interests(data['interests']) 
+        if suggestions:
+            data['suggestions'] = suggestions
         DEBUG(data)
         return dumps(data)
     if request.method == 'POST':
@@ -79,7 +90,14 @@ def query_user():
         else:
             # save the user preferences
             set_mongodb_user_interests(data['interests'], "cpreciad")
-            return "success"
+
+            # call chatGPT to generate suggested interests
+            suggestions = generate_interests(data['interests']) 
+            if suggestions == None:
+                return "no"
+            response = {"suggestions": suggestions}
+            return jsonify(response), 200
+
     return "done"
 
         
