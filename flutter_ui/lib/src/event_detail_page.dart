@@ -308,13 +308,15 @@ class _EventDetailPageState extends State<EventDetailPage> {
                                   ),
                                 ),
                                 const SizedBox(width: 15),
-                                Text(
-                                  widget.event['location']!,
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 2,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18.0,
+                                Expanded(
+                                  child: Text(
+                                    widget.event['location']!,
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 2,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18.0,
+                                    ),
                                   ),
                                 ),
                               ],
