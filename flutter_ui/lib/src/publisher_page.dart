@@ -1,13 +1,12 @@
 import 'package:date_field/date_field.dart';
 import 'package:flutter/material.dart';
-import 'package:select_form_field/select_form_field.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'helpers.dart';
 
 class PublisherPage extends StatelessWidget {
   @override
-  Widget build(BuildContext buildContext) {
+  Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           backgroundColor: const Color(0xFF0C2340),
@@ -58,7 +57,7 @@ class _EventFormState extends State<EventForm> {
       'capacity': _capacityController.text
     });
 
-    String uri = '${helpers.getUri()}/publish';
+    String uri = '${Helpers.getUri()}/publish';
     final headers = {'Content-Type': 'application/json'};
 
     // send post to server
@@ -70,7 +69,7 @@ class _EventFormState extends State<EventForm> {
     }
     // error with post request
     else {
-      throw Exception("Post new event request failed: ${response.toString()}");
+      throw Exception("Failed to propose a new event.");
     }
   }
 
@@ -103,7 +102,7 @@ class _EventFormState extends State<EventForm> {
                                 : null;
                           },
                         ),
-                        const SizedBox(height: 10.0),
+                        const SizedBox(height: 20.0),
                         TextFormField(
                           controller: _hostController,
                           decoration: const InputDecoration(
@@ -117,7 +116,7 @@ class _EventFormState extends State<EventForm> {
                                 : null;
                           },
                         ),
-                        const SizedBox(height: 10.0),
+                        const SizedBox(height: 20.0),
                         TextFormField(
                           controller: _descController,
                           decoration: const InputDecoration(
@@ -131,7 +130,7 @@ class _EventFormState extends State<EventForm> {
                                 : null;
                           },
                         ),
-                        const SizedBox(height: 10.0),
+                        const SizedBox(height: 20.0),
                         TextFormField(
                           controller: _locationController,
                           decoration: const InputDecoration(
@@ -145,7 +144,7 @@ class _EventFormState extends State<EventForm> {
                                 : null;
                           },
                         ),
-                        const SizedBox(height: 10.0),
+                        const SizedBox(height: 20.0),
                         DateTimeFormField(
                           decoration: const InputDecoration(
                             icon: Icon(Icons.event_note),
@@ -162,7 +161,7 @@ class _EventFormState extends State<EventForm> {
                             _startTime = val;
                           },
                         ),
-                        const SizedBox(height: 10.0),
+                        const SizedBox(height: 20.0),
                         DateTimeFormField(
                           decoration: const InputDecoration(
                             icon: Icon(Icons.event_note),
@@ -182,7 +181,7 @@ class _EventFormState extends State<EventForm> {
                             _endTime = val;
                           },
                         ),
-                        const SizedBox(height: 10.0),
+                        const SizedBox(height: 20.0),
                         TextFormField(
                           controller: _registrationLinkController,
                           decoration: const InputDecoration(
@@ -191,7 +190,7 @@ class _EventFormState extends State<EventForm> {
                             labelText: 'Registration Link',
                           ),
                         ),
-                        const SizedBox(height: 10.0),
+                        const SizedBox(height: 20.0),
                         TextFormField(
                           controller: _eventUrlController,
                           decoration: const InputDecoration(
@@ -200,7 +199,7 @@ class _EventFormState extends State<EventForm> {
                             labelText: 'Event Url',
                           ),
                         ),
-                        const SizedBox(height: 10.0),
+                        const SizedBox(height: 20.0),
                         TextFormField(
                           keyboardType: TextInputType.number,
                           controller: _capacityController,
@@ -223,7 +222,7 @@ class _EventFormState extends State<EventForm> {
               // validate input
               if (_formKey.currentState!.validate()) {
                 // send data to MongoDB
-                final res = await postEvent();
+                await postEvent();
 
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(

@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -20,7 +18,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF0C2340),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
         ),
         actions: <Widget>[
@@ -42,6 +40,8 @@ class _EventDetailPageState extends State<EventDetailPage> {
                 padding: const EdgeInsets.only(
                     top: 20.0, left: 15.0, right: 15.0, bottom: 20.0),
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(bottom: 20.0),
@@ -79,12 +79,12 @@ class _EventDetailPageState extends State<EventDetailPage> {
                             ),
                           ),
                           const SizedBox(width: 15),
-                          const Expanded(
+                          Expanded(
                             child: Text(
-                              'Student Activities Office',
+                              widget.event['host'],
                               overflow: TextOverflow.ellipsis,
                               maxLines: 2,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 18.0,
                               ),
@@ -161,8 +161,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
                               ),
                               const SizedBox(height: 5),
                               Text(
-                                DateFormat('h:mm a')
-                                    .format(widget.event['startTime']),
+                                '${DateFormat('h:mm a').format(widget.event['startTime'])} - ${DateFormat('h:mm a').format(widget.event['endTime'])}',
                                 style: TextStyle(
                                   fontWeight: FontWeight.normal,
                                   fontSize: 18.0,
@@ -248,40 +247,43 @@ class _EventDetailPageState extends State<EventDetailPage> {
               ),
             ),
           ),
-          TextButton(
-            onPressed: () {
-              launchURL(widget.event['registrationLink']);
-            },
-            child: Container(
-              height: 60.0,
-              width: 200.0,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(7.5),
-                color: const Color(0xFF0C2340),
-              ),
-              child: Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    Text(
-                      'RSVP',
-                      style: TextStyle(
-                        fontWeight: FontWeight.normal,
-                        fontSize: 18.0,
-                        color: Colors.white,
-                        letterSpacing: 1.25,
+          (widget.event['registrationLink'] == null ||
+                  widget.event['registrationLink'] == "")
+              ? const SizedBox()
+              : TextButton(
+                  onPressed: () {
+                    launchURL(widget.event['registrationLink']);
+                  },
+                  child: Container(
+                    height: 60.0,
+                    width: 200.0,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(7.5),
+                      color: const Color(0xFF0C2340),
+                    ),
+                    child: Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Text(
+                            'RSVP',
+                            style: TextStyle(
+                              fontWeight: FontWeight.normal,
+                              fontSize: 18.0,
+                              color: Colors.white,
+                              letterSpacing: 1.25,
+                            ),
+                          ),
+                          SizedBox(width: 10.0),
+                          Icon(
+                            Icons.open_in_browser,
+                            color: Colors.white,
+                          ),
+                        ],
                       ),
                     ),
-                    SizedBox(width: 10.0),
-                    Icon(
-                      Icons.open_in_browser,
-                      color: Colors.white,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          )
+                  ),
+                )
         ],
       ),
     );
