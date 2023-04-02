@@ -31,7 +31,8 @@ class _HomePageState extends State<HomePage>
   ];
 
   late TabController _tabController;
-  bool _isLoading = true;
+  bool _isAllLoading = true;
+  bool _isSuggestedLoading = true;
 
   @override
   void initState() {
@@ -90,79 +91,90 @@ class _HomePageState extends State<HomePage>
           indicatorColor: const Color(0xFFd39F10),
         ),
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : TabBarView(
-              controller: _tabController,
-              children: [
-                EventsList(
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          _isAllLoading
+              ? const Center(child: CircularProgressIndicator())
+              : EventsList(
                   eventDataToday: widget.eventDataToday,
                   eventDataThisWeek: widget.eventDataThisWeek,
                   eventDataUpcoming: widget.eventDataUpcoming,
                 ),
-                EventsList(
+          _isSuggestedLoading
+              ? const Center(child: CircularProgressIndicator())
+              : EventsList(
                   eventDataToday: widget.suggestedEventDataToday,
                   eventDataThisWeek: widget.suggestedEventDataThisWeek,
                   eventDataUpcoming: widget.suggestedEventDataUpcoming,
                 )
-              ],
-            ),
+        ],
+      ),
     );
   }
 
   void _loadAllEvents() async {
-    setState(() {
-      _isLoading = true;
-    });
+    if (mounted) {
+      setState(() {
+        _isAllLoading = true;
+      });
+    }
     try {
       final response = await http.get(Uri.parse(helpers.getUri()));
 
       if (response.statusCode != 200) {
         print('Error: ${response.statusCode}');
       } else {
-        setState(() {
-          // Clear existing data
-          widget.eventDataToday = [];
-          widget.eventDataThisWeek = [];
-          widget.eventDataUpcoming = [];
+        if (mounted) {
+          setState(() {
+            // Clear existing data
+            widget.eventDataToday = [];
+            widget.eventDataThisWeek = [];
+            widget.eventDataUpcoming = [];
 
-          final DateTime now = DateTime.now();
-          for (var event in jsonDecode(response.body)) {
-            event['time'] = DateTime.parse(event['time']!);
+            final DateTime now = DateTime.now();
+            for (var event in jsonDecode(response.body)) {
+              event['time'] = DateTime.parse(event['time']!);
 
-            if (event['time'].isBefore(now)) {
-              continue;
+              if (event['time'].isBefore(now)) {
+                continue;
+              }
+
+              if (isSameDate(now, event['time'])) {
+                widget.eventDataToday.add(event);
+              } else if (isWithinUpcomingWeek(now, event['time'])) {
+                widget.eventDataThisWeek.add(event);
+              } else {
+                widget.eventDataUpcoming.add(event);
+              }
             }
 
-            if (isSameDate(now, event['time'])) {
-              widget.eventDataToday.add(event);
-            } else if (isWithinUpcomingWeek(now, event['time'])) {
-              widget.eventDataThisWeek.add(event);
-            } else {
-              widget.eventDataUpcoming.add(event);
-            }
-          }
-
-          widget.eventDataToday.sort((a, b) => a['time'].compareTo(b['time']));
-          widget.eventDataThisWeek
-              .sort((a, b) => a['time'].compareTo(b['time']));
-          widget.eventDataUpcoming
-              .sort((a, b) => a['time'].compareTo(b['time']));
-        });
+            widget.eventDataToday
+                .sort((a, b) => a['time'].compareTo(b['time']));
+            widget.eventDataThisWeek
+                .sort((a, b) => a['time'].compareTo(b['time']));
+            widget.eventDataUpcoming
+                .sort((a, b) => a['time'].compareTo(b['time']));
+          });
+        }
       }
     } catch (e) {
       print('Error: $e');
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isAllLoading = false;
+        });
+      }
     }
   }
 
   void _loadSuggestedEvents() async {
-    setState(() {
-      _isLoading = true;
-    });
+    if (mounted) {
+      setState(() {
+        _isSuggestedLoading = true;
+      });
+    }
     try {
       final response =
           await http.get(Uri.parse('http://10.0.2.2:5000/refresh'));
@@ -170,44 +182,48 @@ class _HomePageState extends State<HomePage>
       if (response.statusCode != 200) {
         print('Error: ${response.statusCode}');
       } else {
-        setState(() {
-          // Clear existing data
-          widget.suggestedEventDataToday = [];
-          widget.suggestedEventDataThisWeek = [];
-          widget.suggestedEventDataUpcoming = [];
+        if (mounted) {
+          setState(() {
+            // Clear existing data
+            widget.suggestedEventDataToday = [];
+            widget.suggestedEventDataThisWeek = [];
+            widget.suggestedEventDataUpcoming = [];
 
-          final DateTime now = DateTime.now();
-          for (var event in jsonDecode(response.body)) {
-            print(event);
-            event['time'] = DateTime.parse(event['time']!);
+            final DateTime now = DateTime.now();
+            for (var event in jsonDecode(response.body)) {
+              print(event);
+              event['time'] = DateTime.parse(event['time']!);
 
-            if (event['time'].isBefore(now)) {
-              continue;
+              if (event['time'].isBefore(now)) {
+                continue;
+              }
+
+              if (isSameDate(now, event['time'])) {
+                widget.suggestedEventDataToday.add(event);
+              } else if (isWithinUpcomingWeek(now, event['time'])) {
+                widget.suggestedEventDataThisWeek.add(event);
+              } else {
+                widget.suggestedEventDataUpcoming.add(event);
+              }
             }
 
-            if (isSameDate(now, event['time'])) {
-              widget.suggestedEventDataToday.add(event);
-            } else if (isWithinUpcomingWeek(now, event['time'])) {
-              widget.suggestedEventDataThisWeek.add(event);
-            } else {
-              widget.suggestedEventDataUpcoming.add(event);
-            }
-          }
-
-          widget.suggestedEventDataToday
-              .sort((a, b) => a['time'].compareTo(b['time']));
-          widget.suggestedEventDataThisWeek
-              .sort((a, b) => a['time'].compareTo(b['time']));
-          widget.suggestedEventDataUpcoming
-              .sort((a, b) => a['time'].compareTo(b['time']));
-        });
+            widget.suggestedEventDataToday
+                .sort((a, b) => a['time'].compareTo(b['time']));
+            widget.suggestedEventDataThisWeek
+                .sort((a, b) => a['time'].compareTo(b['time']));
+            widget.suggestedEventDataUpcoming
+                .sort((a, b) => a['time'].compareTo(b['time']));
+          });
+        }
       }
     } catch (e) {
       print('Error: $e');
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isSuggestedLoading = false;
+        });
+      }
     }
   }
 }
