@@ -78,7 +78,7 @@ def generate_prompt(interests):
         interest_str += f", {interest}"
 
     # create a footer to the prompt
-    footer = f"Return the IDs of the events based on the following interests: ({interest_str})."
+    footer = f"Return the IDs of the events somewhat related to the following interests: ({interest_str})."
 
     # create the fully formatted prompt
     prompt = header + "\n" + event_body + '\n' + footer
@@ -90,7 +90,7 @@ def generate_prompt(interests):
             response = openai.Completion.create(
             model="text-davinci-003",
             prompt=prompt,
-            temperature=0.7,
+            temperature=0.2,
             max_tokens=256,
             top_p=1,
             frequency_penalty=0,
