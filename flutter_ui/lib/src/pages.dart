@@ -25,7 +25,7 @@ class _PagesState extends State<Pages> {
       HomePage(
         navigator: widget.navigator,
       ),
-      PublisherPage(),
+      PublisherPage(updateSelectedIndex: updateSelectedIndex),
       const UserPage()
     ];
   }
@@ -33,6 +33,12 @@ class _PagesState extends State<Pages> {
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+    });
+  }
+
+  void updateSelectedIndex(int newIndex) {
+    setState(() {
+      _selectedIndex = newIndex;
     });
   }
 
