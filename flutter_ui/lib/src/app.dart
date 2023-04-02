@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'navigation.dart';
-import 'home_page.dart';
+import 'pages.dart';
 
 class OnCampus extends StatelessWidget {
   OnCampus({super.key});
@@ -10,10 +10,11 @@ class OnCampus extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Navigator Example',
       navigatorKey: navigator.navigatorKey,
       routes: {
-        '/': (BuildContext context) => HomePage(navigator: navigator),
+        '/': (BuildContext context) => Pages(navigator: navigator),
       },
     );
   }
