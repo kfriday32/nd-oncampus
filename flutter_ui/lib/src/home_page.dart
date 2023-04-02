@@ -146,11 +146,10 @@ class _HomePageState extends State<HomePage>
                                   )
                                 : const SizedBox(),
                             EventsList(
-                              eventDataToday: widget.eventDataToday,
-                              eventDataThisWeek: widget.eventDataThisWeek,
-                              eventDataUpcoming: widget.eventDataUpcoming,
-                              refreshFollowing: _loadFollowingEvents
-                            ),
+                                eventDataToday: widget.eventDataToday,
+                                eventDataThisWeek: widget.eventDataThisWeek,
+                                eventDataUpcoming: widget.eventDataUpcoming,
+                                refreshFollowing: _loadFollowingEvents),
                           ],
                         ),
                       ),
@@ -183,14 +182,15 @@ class _HomePageState extends State<HomePage>
                                   widget.suggestedEventDataUpcoming,
                             ),
                           ),
-                          _isFollowingLoading 
+                _isFollowingLoading
                     ? const Center(child: CircularProgressIndicator())
                     : SingleChildScrollView(
                         child: EventsList(
-                          eventDataToday: widget.followingEventDataToday,
-                          eventDataThisWeek: widget.followingEventDataThisWeek,
-                          eventDataUpcoming: widget.followingEventDataUpcoming
-                        ),
+                            eventDataToday: widget.followingEventDataToday,
+                            eventDataThisWeek:
+                                widget.followingEventDataThisWeek,
+                            eventDataUpcoming:
+                                widget.followingEventDataUpcoming),
                       ),
               ],
             ),
@@ -331,9 +331,8 @@ class _HomePageState extends State<HomePage>
       });
     }
     try {
-      String uri = "${helpers.getUri()}/following";
-      final response =
-          await http.get(Uri.parse(uri));
+      String uri = "${Helpers.getUri()}/following";
+      final response = await http.get(Uri.parse(uri));
 
       if (response.statusCode != 200) {
         print('Error: ${response.statusCode}');
@@ -347,9 +346,8 @@ class _HomePageState extends State<HomePage>
 
             final DateTime now = DateTime.now();
             for (var event in jsonDecode(response.body)) {
-              
               event['startTime'] = DateTime.parse(event['startTime']!);
-              
+
               if (event['startTime'].isBefore(now)) {
                 continue;
               }
@@ -382,7 +380,7 @@ class _HomePageState extends State<HomePage>
       }
     }
   }
-  
+
   // method performs search query on events in main page
   void _searchEvents() {
     // get user input from search bar
