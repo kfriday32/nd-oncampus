@@ -1,10 +1,11 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:intl/intl.dart';
 import 'navigation.dart';
 import 'events_page.dart';
-import 'publisher_page.dart';
+import 'package:fuzzy/fuzzy.dart';
 import 'events_list.dart';
 import 'helpers.dart';
 
@@ -31,6 +32,9 @@ class _HomePageState extends State<HomePage>
   ];
 
   late TabController _tabController;
+  bool displaySearch = false;
+  final searchCont = TextEditingController();
+  bool _isLoading = true;
   bool _isAllLoading = true;
   bool _isSuggestedLoading = true;
 
@@ -74,8 +78,9 @@ class _HomePageState extends State<HomePage>
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => PublisherPage()));
+              setState(() {
+                displaySearch = !displaySearch;
+              });
             },
           ),
           IconButton(
@@ -91,26 +96,76 @@ class _HomePageState extends State<HomePage>
           indicatorColor: const Color(0xFFd39F10),
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _isAllLoading
-              ? const Center(child: CircularProgressIndicator())
-              : EventsList(
-                  eventDataToday: widget.eventDataToday,
-                  eventDataThisWeek: widget.eventDataThisWeek,
-                  eventDataUpcoming: widget.eventDataUpcoming,
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
+            children: [
+              // display search text box if search button is clicked
+              displaySearch ? Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: (
+                  TextField(
+                    controller: searchCont,
+                    decoration: InputDecoration(
+                      hintText: 'Search',
+                      suffixIcon: IconButton(
+                        icon: Icon(Icons.close),
+                        onPressed: () {
+                          // reset current lists
+                          setState(() {
+                            widget.eventDataToday = [];
+                            widget.eventDataThisWeek = [];
+                            widget.eventDataUpcoming = [];
+
+                            displaySearch = false;
+                          });
+                          // repopulate events
+                          _loadAllEvents();
+                        }
+                      ),
+                      prefixIcon: IconButton(
+                        icon: Icon(Icons.search),
+                        onPressed: _searchEvents
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                    ),
+                  )
                 ),
-          _isSuggestedLoading
-              ? const Center(child: CircularProgressIndicator())
-              : EventsList(
-                  eventDataToday: widget.suggestedEventDataToday,
-                  eventDataThisWeek: widget.suggestedEventDataThisWeek,
-                  eventDataUpcoming: widget.suggestedEventDataUpcoming,
-                )
-        ],
-      ),
+              ) : SizedBox(height: 0),
+              Expanded(
+                child: TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _isAllLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : EventsList(
+                            eventDataToday: widget.eventDataToday,
+                            eventDataThisWeek: widget.eventDataThisWeek,
+                            eventDataUpcoming: widget.eventDataUpcoming,
+                          ),
+                    _isSuggestedLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : EventsList(
+                            eventDataToday: widget.suggestedEventDataToday,
+                            eventDataThisWeek: widget.suggestedEventDataThisWeek,
+                            eventDataUpcoming: widget.suggestedEventDataUpcoming,
+                          )
+                  ],
+                ),
+              ),
+            ],
+          ),
     );
+  }
+
+  void sortData() {
+    widget.eventDataToday.sort((a, b) => a['time'].compareTo(b['time']));
+    widget.eventDataThisWeek
+        .sort((a, b) => a['time'].compareTo(b['time']));
+    widget.eventDataUpcoming
+        .sort((a, b) => a['time'].compareTo(b['time']));
   }
 
   void _loadAllEvents() async {
@@ -149,12 +204,7 @@ class _HomePageState extends State<HomePage>
               }
             }
 
-            widget.eventDataToday
-                .sort((a, b) => a['time'].compareTo(b['time']));
-            widget.eventDataThisWeek
-                .sort((a, b) => a['time'].compareTo(b['time']));
-            widget.eventDataUpcoming
-                .sort((a, b) => a['time'].compareTo(b['time']));
+            sortData();
           });
         }
       }
@@ -224,6 +274,52 @@ class _HomePageState extends State<HomePage>
           _isSuggestedLoading = false;
         });
       }
+    }
+  }
+  
+  // method performs search query on events in main page
+  void _searchEvents() {
+    
+    // get user input from search bar
+    String searchText = searchCont.text;
+
+    List<List<dynamic>> allEvents = 
+      [widget.eventDataToday, widget.eventDataThisWeek, widget.eventDataUpcoming];
+
+    // search all events for anything that matches user's input
+    for (var i = 0; i < allEvents.length; i++) {
+
+      List<dynamic> eventList = allEvents[i];
+      List<dynamic> matches = [];
+
+      for (var event in eventList) {
+        var title = event['title'];
+        var desc = event['description'];
+        var location = event['location'];
+        var values = [title.toString(), desc.toString(), location.toString()];
+        final textToSearch = Fuzzy(values);
+        final result = textToSearch.search(searchText);
+
+        // add to list of search matches if result returns something
+        if (result.isNotEmpty) {
+          matches.add(event);
+        }
+      }
+
+      // update event lists with matches
+      setState(() {
+        if (allEvents[i] == widget.eventDataToday) {
+          widget.eventDataToday = matches;
+        }
+        else if (allEvents[i] == widget.eventDataThisWeek) {
+          widget.eventDataThisWeek = matches;
+        }
+        else {
+          widget.eventDataUpcoming = matches;
+        }
+      });
+
+      sortData();
     }
   }
 }

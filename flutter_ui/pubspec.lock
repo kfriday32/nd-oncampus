@@ -91,6 +91,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  fuzzy:
+    dependency: "direct main"
+    description:
+      name: fuzzy
+      sha256: baf5e5b1e651dc2eaab92399050f6ad6ebf7a56042b2bd141e697b0554940fa2
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.0-nullsafety.0"
   flutter_web_plugins:
     dependency: transitive
     description: flutter
