@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'helpers.dart';
+import 'Helpers.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -29,7 +29,7 @@ class _InterestsPageState extends State<InterestsPage> {
     final headers = {'Content-Type': 'application/json'};
 
     // send post to /user route to server
-    final response = await http.post(Uri.parse('${helpers.getUri()}/user'),
+    final response = await http.post(Uri.parse('${Helpers.getUri()}/user'),
         headers: headers, body: bodyData);
 
     if (response.statusCode == 200) {
