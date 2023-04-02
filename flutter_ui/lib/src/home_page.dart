@@ -164,8 +164,8 @@ class _HomePageState extends State<HomePage>
       _isLoading = true;
     });
     try {
-      final response =
-          await http.get(Uri.parse('http://10.0.2.2:5000/refresh'));
+      // call the refresh route
+      final response = await http.get(Uri.parse('${helpers.getUri()}/refresh'));
 
       if (response.statusCode != 200) {
         print('Error: ${response.statusCode}');
