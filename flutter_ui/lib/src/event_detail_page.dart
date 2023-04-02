@@ -115,285 +115,295 @@ class _EventDetailPageState extends State<EventDetailPage> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : Column(
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                          top: 20.0, left: 15.0, right: 15.0, bottom: 20.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 20.0),
-                            child: Text(widget.event['title']!,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 24.0,
-                                )),
-                          ),
-                          Divider(
-                            height: 1,
-                            color: Colors.grey[400],
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 20.0),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 50,
-                                  height: 50,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[200]!,
-                                    borderRadius: const BorderRadius.only(
-                                      topLeft: Radius.circular(7.5),
-                                      bottomLeft: Radius.circular(7.5),
-                                      topRight: Radius.circular(7.5),
-                                      bottomRight: Radius.circular(7.5),
-                                    ),
-                                  ),
-                                  child: const Center(
-                                    child: Icon(
-                                      Icons.group,
-                                      size: 24.0,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 15),
-                                Expanded(
-                                  child: Text(
-                                    widget.event['host'],
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 2,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18.0,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 15),
-                                OutlinedButton(
-                                  style: ButtonStyle(
-                                      shape: MaterialStateProperty.all<
-                                          RoundedRectangleBorder>(
-                                        RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(5.0),
-                                          side: const BorderSide(
-                                              color: Color(0xFF0C2340)),
-                                        ),
+          : SafeArea(
+              child: Column(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                            top: 20.0, left: 15.0, right: 15.0, bottom: 20.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 20.0),
+                              child: Text(widget.event['title']!,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 24.0,
+                                  )),
+                            ),
+                            Divider(
+                              height: 1,
+                              color: Colors.grey[400],
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 20.0),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 50,
+                                    height: 50,
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[200]!,
+                                      borderRadius: const BorderRadius.only(
+                                        topLeft: Radius.circular(7.5),
+                                        bottomLeft: Radius.circular(7.5),
+                                        topRight: Radius.circular(7.5),
+                                        bottomRight: Radius.circular(7.5),
                                       ),
-                                      backgroundColor:
-                                          MaterialStatePropertyAll<Color>(
-                                              _colorFollow)),
-                                  onPressed: () {
-                                    _updateFollowing();
-                                    const snackBar = SnackBar(
-                                      content: Text(
-                                          'Successfully updating following hosts'),
-                                    );
-                                    ScaffoldMessenger.of(context)
-                                        .showSnackBar(snackBar);
-                                    setState(() {
-                                      _colorFollow =
-                                          (_colorFollow == Colors.white)
-                                              ? Color(0xFF0C2340)
-                                              : Colors.white;
-                                    });
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 2.5,
-                                      vertical: 0.0,
                                     ),
-                                    child: following
-                                        ? const Text(
-                                            'Following',
-                                            style:
-                                                TextStyle(color: Colors.white),
-                                          )
-                                        : const Text(
-                                            'Follow',
-                                            style: TextStyle(
+                                    child: const Center(
+                                      child: Icon(
+                                        Icons.group,
+                                        size: 24.0,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 15),
+                                  Expanded(
+                                    child: Text(
+                                      widget.event['host'],
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 2,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18.0,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 15),
+                                  OutlinedButton(
+                                    style: ButtonStyle(
+                                        shape: MaterialStateProperty.all<
+                                            RoundedRectangleBorder>(
+                                          RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(5.0),
+                                            side: const BorderSide(
                                                 color: Color(0xFF0C2340)),
                                           ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Divider(
-                            height: 1,
-                            color: Colors.grey[400],
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 20.0),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 50,
-                                  height: 50,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[200]!,
-                                    borderRadius: const BorderRadius.only(
-                                      topLeft: Radius.circular(7.5),
-                                      bottomLeft: Radius.circular(7.5),
-                                      topRight: Radius.circular(7.5),
-                                      bottomRight: Radius.circular(7.5),
+                                        ),
+                                        backgroundColor:
+                                            MaterialStatePropertyAll<Color>(
+                                                _colorFollow)),
+                                    onPressed: () {
+                                      _updateFollowing();
+                                      const snackBar = SnackBar(
+                                        content: Text(
+                                            'Successfully updating following hosts'),
+                                      );
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(snackBar);
+                                      if (mounted) {
+                                        setState(() {
+                                          _colorFollow =
+                                              (_colorFollow == Colors.white)
+                                                  ? Color(0xFF0C2340)
+                                                  : Colors.white;
+                                        });
+                                      }
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 2.5,
+                                        vertical: 0.0,
+                                      ),
+                                      child: following
+                                          ? const Text(
+                                              'Following',
+                                              style: TextStyle(
+                                                  color: Colors.white),
+                                            )
+                                          : const Text(
+                                              'Follow',
+                                              style: TextStyle(
+                                                  color: Color(0xFF0C2340)),
+                                            ),
                                     ),
                                   ),
-                                  child: Center(
+                                ],
+                              ),
+                            ),
+                            Divider(
+                              height: 1,
+                              color: Colors.grey[400],
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 20.0),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 50,
+                                    height: 50,
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[200]!,
+                                      borderRadius: const BorderRadius.only(
+                                        topLeft: Radius.circular(7.5),
+                                        bottomLeft: Radius.circular(7.5),
+                                        topRight: Radius.circular(7.5),
+                                        bottomRight: Radius.circular(7.5),
+                                      ),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        widget.event['startTime']!.day
+                                            .toString(),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 24.0,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 15),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        DateFormat.yMMMMd()
+                                            .format(widget.event['startTime']!),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18.0,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 5),
+                                      Text(
+                                        '${DateFormat('h:mm a').format(widget.event['startTime'])} - ${DateFormat('h:mm a').format(widget.event['endTime'])}',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.normal,
+                                          fontSize: 18.0,
+                                          color: Colors.grey[600],
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Divider(
+                              height: 1,
+                              color: Colors.grey[400],
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 20.0),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 50,
+                                    height: 50,
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[200]!,
+                                      borderRadius: const BorderRadius.only(
+                                        topLeft: Radius.circular(7.5),
+                                        bottomLeft: Radius.circular(7.5),
+                                        topRight: Radius.circular(7.5),
+                                        bottomRight: Radius.circular(7.5),
+                                      ),
+                                    ),
+                                    child: const Center(
+                                      child: Icon(
+                                        Icons.location_on,
+                                        size: 24.0,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 15),
+                                  Expanded(
                                     child: Text(
-                                      widget.event['startTime']!.day.toString(),
+                                      widget.event['location']!,
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 2,
                                       style: const TextStyle(
                                         fontWeight: FontWeight.bold,
-                                        fontSize: 24.0,
+                                        fontSize: 18.0,
                                       ),
                                     ),
                                   ),
-                                ),
-                                const SizedBox(width: 15),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      DateFormat.yMMMMd()
-                                          .format(widget.event['startTime']!),
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18.0,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 5),
-                                    Text(
-                                      '${DateFormat('h:mm a').format(widget.event['startTime'])} - ${DateFormat('h:mm a').format(widget.event['endTime'])}',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.normal,
-                                        fontSize: 18.0,
-                                        color: Colors.grey[600],
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                          Divider(
-                            height: 1,
-                            color: Colors.grey[400],
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 20.0),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 50,
-                                  height: 50,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[200]!,
-                                    borderRadius: const BorderRadius.only(
-                                      topLeft: Radius.circular(7.5),
-                                      bottomLeft: Radius.circular(7.5),
-                                      topRight: Radius.circular(7.5),
-                                      bottomRight: Radius.circular(7.5),
-                                    ),
-                                  ),
-                                  child: const Center(
-                                    child: Icon(
-                                      Icons.location_on,
-                                      size: 24.0,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 15),
-                                Expanded(
-                                  child: Text(
-                                    widget.event['location']!,
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 2,
-                                    style: const TextStyle(
+                            Divider(
+                              height: 1,
+                              color: Colors.grey[400],
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 20.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Description',
+                                    style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 18.0,
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Divider(
-                            height: 1,
-                            color: Colors.grey[400],
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 20.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Description',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18.0,
+                                  const SizedBox(height: 10),
+                                  Text(
+                                    widget.event['description'],
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.normal,
+                                      fontSize: 16.0,
+                                      color: Colors.grey[600],
+                                      height: 1.4,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 10),
-                                Text(
-                                  widget.event['description'],
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.normal,
-                                    fontSize: 16.0,
-                                    color: Colors.grey[600],
-                                    height: 1.4,
-                                  ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-                (widget.event['registrationLink'] == null ||
-                        widget.event['registrationLink'] == "")
-                    ? const SizedBox()
-                    : TextButton(
-                        onPressed: () {
-                          launchURL(widget.event['registrationLink']);
-                        },
-                        child: Container(
-                          height: 60.0,
-                          width: 200.0,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(7.5),
-                            color: const Color(0xFF0C2340),
-                          ),
-                          child: Center(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                Text(
-                                  'RSVP',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.normal,
-                                    fontSize: 18.0,
-                                    color: Colors.white,
-                                    letterSpacing: 1.25,
+                  (widget.event['registrationLink'] == null ||
+                          widget.event['registrationLink'] == "")
+                      ? const SizedBox()
+                      : TextButton(
+                          onPressed: () {
+                            launchURL(widget.event['registrationLink']);
+                          },
+                          child: Container(
+                            height: 60.0,
+                            width: 200.0,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(7.5),
+                              color: const Color(0xFF0C2340),
+                            ),
+                            child: Center(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: const [
+                                  Text(
+                                    'RSVP',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.normal,
+                                      fontSize: 18.0,
+                                      color: Colors.white,
+                                      letterSpacing: 1.25,
+                                    ),
                                   ),
-                                ),
-                                SizedBox(width: 10.0),
-                                Icon(
-                                  Icons.open_in_browser,
-                                  color: Colors.white,
-                                ),
-                              ],
+                                  SizedBox(width: 10.0),
+                                  Icon(
+                                    Icons.open_in_browser,
+                                    color: Colors.white,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      )
-              ],
+                        )
+                ],
+              ),
             ),
     );
   }

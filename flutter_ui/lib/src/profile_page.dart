@@ -75,65 +75,67 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: Column(
-          children: [
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 20.0),
-                  TextField(
-                    controller: _firstNameController,
-                    decoration: const InputDecoration(
-                      labelText: 'First Name',
+        child: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 20.0),
+                    TextField(
+                      controller: _firstNameController,
+                      decoration: const InputDecoration(
+                        labelText: 'First Name',
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 20.0),
-                  TextField(
-                    controller: _lastNameController,
-                    decoration: const InputDecoration(
-                      labelText: 'Last Name',
+                    const SizedBox(height: 20.0),
+                    TextField(
+                      controller: _lastNameController,
+                      decoration: const InputDecoration(
+                        labelText: 'Last Name',
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 20.0),
-                  TextField(
-                    controller: _netIdController,
-                    decoration: const InputDecoration(
-                      labelText: 'Net ID',
+                    const SizedBox(height: 20.0),
+                    TextField(
+                      controller: _netIdController,
+                      decoration: const InputDecoration(
+                        labelText: 'Net ID',
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-            TextButton(
-              onPressed: () async {
-                _submitProfile();
-                const snackBar = SnackBar(
-                  content: Text('Your changes have been saved'),
-                );
-                ScaffoldMessenger.of(context).showSnackBar(snackBar);
-              },
-              child: Container(
-                height: 60.0,
-                width: 200.0,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(7.5),
-                  color: const Color(0xFF0C2340),
-                ),
-                child: const Center(
-                  child: Text(
-                    'SAVE',
-                    style: TextStyle(
-                      fontWeight: FontWeight.normal,
-                      fontSize: 18.0,
-                      color: Colors.white,
-                      letterSpacing: 1.25,
-                    ),
-                  ),
+                  ],
                 ),
               ),
-            ),
-          ],
+              TextButton(
+                onPressed: () async {
+                  _submitProfile();
+                  const snackBar = SnackBar(
+                    content: Text('Your changes have been saved'),
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                },
+                child: Container(
+                  height: 60.0,
+                  width: 200.0,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(7.5),
+                    color: const Color(0xFF0C2340),
+                  ),
+                  child: const Center(
+                    child: Text(
+                      'SAVE',
+                      style: TextStyle(
+                        fontWeight: FontWeight.normal,
+                        fontSize: 18.0,
+                        color: Colors.white,
+                        letterSpacing: 1.25,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
