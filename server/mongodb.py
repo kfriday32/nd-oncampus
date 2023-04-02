@@ -37,7 +37,7 @@ def get_mongodb_all():
 
     # return a json formatted events list of upcoming events (old events filtered)
     return [document for document in data if 
-        datetime.strptime(document['time'], "%Y-%m-%d %H:%M:%S.%f") 
+        datetime.strptime(document['startTime'], "%Y-%m-%d %H:%M:%S.%f") 
         >= 
         datetime.strptime(datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f"),"%Y-%m-%d %H:%M:%S.%f" )]
 
@@ -79,15 +79,17 @@ def publish_event(new_event):
     
     return "successfully posted new event"
 
+# get mongodb user by student id
+def get_user_by_id(studentId):
+    # get user account
+    accounts = get_mongodb_user()
+    # query for the demo user
+    return accounts.find_one({"studentId": studentId})
+
 def get_mongodb_user_interests(user):
-
-    # get the user account collection from mongoDB
-    account = get_mongodb_user()
-
-    # query the demo user 
-    query = account.find_one({"studentId": user})
+    query = get_user_by_id(user)
     if query == None:
-        print("error: user was not found")
+        print("error: no user was found")
         return None
 
     # return the interests list  
@@ -105,6 +107,61 @@ def set_mongodb_user_interests(interests, user):
     # update the users interests
     new_interests = { "$set": {"interests": interests}}
     account.update_one(query, new_interests)
+
+
+# get all events that a user has followed
+def get_user_following(studentId):
+    # query for the demo user
+    query = get_user_by_id(studentId)
+    if query == None:
+        print("error: no user was found")
+        return None
+
+    # get list of followed events
+    return query["follow_events"]
+
+
+# add an event to a user's 'following' list
+def add_following_event(studentId, eventId):
+    # get user collection
+    users = get_mongodb_user()
+
+    query = users.find_one({"studentId": studentId})
+    if query == None:
+        print(f"error retrieving user with id ${studentId}")
+        return None
+
+    # get events currently followed by user
+    following = get_user_following(studentId)
+    if eventId not in following:
+        following.append(eventId)
+
+    update = { "$set": { "follow_events": following } }
+    users.update_one(query, update)
+
+    return following
+
+
+# remove an event from following list
+def rem_following_event(studentId, eventId):
+    # get user collection
+    users = get_mongodb_user()
+
+    query = users.find_one({"studentId": studentId})
+    if query == None:
+        print(f"error retrieving user with id ${studentId}")
+        return None
+
+    # get events currently followed by user
+    following = get_user_following(studentId)
+    print(f"follow: ${following}")
+    new_follow = list(filter(lambda id: id != eventId, following))
+    print(f"new follow: ${new_follow}")
+
+    update = { "$set": { "follow_events": new_follow } }
+    users.update_one(query, update)
+
+    return new_follow
 
 
 def main():

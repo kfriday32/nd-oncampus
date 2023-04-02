@@ -16,41 +16,39 @@ class EventsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-        child: Column(
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 20),
-                EventsListSection(
-                  title: 'Today',
-                  events: eventDataToday,
-                  displayTime: true,
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                EventsListSection(
-                  title: 'This Week',
-                  events: eventDataThisWeek,
-                  displayTime: false,
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                EventsListSection(
-                  title: 'Upcoming',
-                  events: eventDataUpcoming,
-                  displayTime: false,
-                ),
-                const SizedBox(height: 10),
-              ],
-            ),
-          ],
-        ),
+    return Padding(
+      padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+      child: Column(
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 20),
+              EventsListSection(
+                title: 'Today',
+                events: eventDataToday,
+                displayTime: true,
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              EventsListSection(
+                title: 'This Week',
+                events: eventDataThisWeek,
+                displayTime: false,
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              EventsListSection(
+                title: 'Upcoming',
+                events: eventDataUpcoming,
+                displayTime: false,
+              ),
+              const SizedBox(height: 10),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -89,9 +87,10 @@ class EventsListSection extends StatelessWidget {
             final String eventTitle = event['title']!;
             final String eventLocation = event['location']!;
             final String eventTime =
-                DateFormat('h:mm a').format(event['time']!);
-            final String eventMonth = DateFormat('MMM').format(event['time']);
-            final String eventDay = event['time'].day.toString();
+                DateFormat('h:mm a').format(event['startTime']!);
+            final String eventMonth =
+                DateFormat('MMM').format(event['startTime']);
+            final String eventDay = event['startTime'].day.toString();
 
             return GestureDetector(
               onTap: () {

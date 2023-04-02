@@ -3,7 +3,7 @@ from gpt import generate_prompt
 import mongodb
 import json
 from bson.json_util import dumps
-from mongodb import get_mongodb_flutter, get_mongodb_user_interests, set_mongodb_user_interests
+from mongodb import get_mongodb_flutter, get_mongodb_user_interests, rem_following_event, set_mongodb_user_interests, get_user_following, add_following_event, get_mongodb_events
 import re
 
 app = Flask(__name__)
@@ -63,6 +63,35 @@ def refresh_suggested():
             return "failure"
         
         return dumps(data)
+
+
+@app.route('/following', methods=["GET", "POST"])
+def following_events():
+    demo_user = "cpreciad"
+    # retries the list of events followed by user
+    if request.method == "GET":
+        following = get_user_following(demo_user)
+        print(f"following: ${following}")
+
+        # get actual events based on list of event ids
+        events = get_mongodb_events(following)
+
+        return dumps(events)
+    # add an event to list of following
+    else:
+        data = request.get_json()
+        event_id = data["event_id"]
+        new_following = add_following_event(demo_user, event_id)
+        return dumps(new_following)
+
+@app.route('/unfollow', methods=["POST"])
+def unfollow_events():
+    demo_user = "cpreciad"
+    if request.method == "POST":
+        data = request.get_json()
+        event_id = data["event_id"]
+        new_following = rem_following_event(demo_user, event_id)
+        return dumps(new_following)
 
 
 def DEBUG(message):

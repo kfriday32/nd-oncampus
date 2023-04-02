@@ -3,6 +3,9 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'helpers.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class EventDetailPage extends StatefulWidget {
   final dynamic event;
@@ -14,8 +17,46 @@ class EventDetailPage extends StatefulWidget {
 }
 
 class _EventDetailPageState extends State<EventDetailPage> {
+  
+  Color _colorFollow = Colors.white;
+  bool following = false;
+
+  Future<http.Response> _updateFollowing() async {
+    following = !following;
+    String event_id = widget.event['_id']['\$oid'];
+
+    String uri = "${helpers.getUri()}/";
+    if (following) {
+      uri += "/following";
+    }
+    else {
+      uri += "/unfollow";
+    }
+
+    final headers = {
+      'Content-Type': 'application/json'
+    };
+    final bodyData = jsonEncode(<String, String> {
+      'event_id': event_id
+    });
+
+    final response = await http.post(
+      Uri.parse(uri),
+      headers: headers,
+      body: bodyData
+    );
+    
+    if (response.statusCode == 200) {
+      return response;
+    }
+    else {
+      throw Exception("error posting id to follow_events: ${event_id}");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFF0C2340),
@@ -101,8 +142,18 @@ class _EventDetailPageState extends State<EventDetailPage> {
                                       color: Color(0xFF0C2340)),
                                 ),
                               ),
+                              backgroundColor: MaterialStatePropertyAll<Color>(_colorFollow)
                             ),
-                            onPressed: () {},
+                            onPressed: () {
+                              _updateFollowing();
+                              const snackBar = SnackBar(
+                                content: Text('Successfully updating following events'),
+                              );
+                              ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                              setState(() {
+                                _colorFollow = (_colorFollow == Colors.white) ? Colors.blue : Colors.white;
+                              });
+                            },
                             child: const Padding(
                               padding: EdgeInsets.symmetric(
                                 horizontal: 2.5,
@@ -139,7 +190,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
                             ),
                             child: Center(
                               child: Text(
-                                widget.event['time']!.day.toString(),
+                                widget.event['startTime']!.day.toString(),
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 24.0,
@@ -153,7 +204,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
                             children: [
                               Text(
                                 DateFormat.yMMMMd()
-                                    .format(widget.event['time']!),
+                                    .format(widget.event['startTime']!),
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 18.0,
@@ -162,7 +213,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
                               const SizedBox(height: 5),
                               Text(
                                 DateFormat('h:mm a')
-                                    .format(widget.event['time']),
+                                    .format(widget.event['startTime']),
                                 style: TextStyle(
                                   fontWeight: FontWeight.normal,
                                   fontSize: 18.0,
