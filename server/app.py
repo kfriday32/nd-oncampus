@@ -80,7 +80,8 @@ def query_user():
         suggestions = generate_interests(data['interests']) 
         if suggestions:
             data['suggestions'] = suggestions
-        DEBUG(data)
+        else:
+            data['suggestions'] = []
         return dumps(data)
     if request.method == 'POST':
         data = request.get_json()
@@ -94,7 +95,7 @@ def query_user():
             # call chatGPT to generate suggested interests
             suggestions = generate_interests(data['interests']) 
             if suggestions == None:
-                return "no"
+                suggestions = []
             response = {"suggestions": suggestions}
             return jsonify(response), 200
 
