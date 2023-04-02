@@ -237,7 +237,7 @@ class _HomePageState extends State<HomePage>
     }
     try {
       // call the refresh route
-      final response = await http.get(Uri.parse('${helpers.getUri()}/refresh'));
+      final response = await http.get(Uri.parse('${Helpers.getUri()}/refresh'));
 
       if (response.statusCode == 200) {
         if (mounted) {

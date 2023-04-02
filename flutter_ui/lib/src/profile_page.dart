@@ -47,7 +47,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final headers = {'Content-Type': 'application/json'};
 
     // send post to /user route to server
-    final response = await http.post(Uri.parse('${helpers.getUri()}/user'),
+    final response = await http.post(Uri.parse('${Helpers.getUri()}/user'),
         headers: headers, body: bodyData);
 
     if (response.statusCode == 200) {

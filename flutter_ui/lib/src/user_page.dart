@@ -31,7 +31,7 @@ class _UserPageState extends State<UserPage> {
     setState(() {
       _isLoading = true;
     });
-    final response = await http.get(Uri.parse('${helpers.getUri()}/user'));
+    final response = await http.get(Uri.parse('${Helpers.getUri()}/user'));
     if (response.statusCode == 200) {
       print(response.body);
       final decoded = jsonDecode(response.body);
