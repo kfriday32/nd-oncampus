@@ -54,45 +54,136 @@ class _UserPageState extends State<UserPage> {
     }
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile Settings'),
+        title: const Text(
+          'Profile Settings',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 24.0,
+          ),
+        ),
         backgroundColor: const Color(0xFF0C2340),
       ),
-      body: ListView(
+      body: Column(
         children: [
-          ListTile(
-            title: const Center(child: Text('Manage Profile')),
-            onTap: () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => ProfilePage(
-                        firstName: _firstNameController.text,
-                        lastName: _lastNameController.text,
-                        netID: _netIdController.text)),
-              );
-              setState(() {
-                _shouldUpdate = true;
-              });
-            },
-          ),
-          ListTile(
-            title: const Center(child: Text('Update Interests')),
-            onTap: () async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => InterestsPage(interests: _interests)),
-              );
-              setState(() {
-                _shouldUpdate = true;
-              });
-            },
-          ),
-          ListTile(
-            title: const Center(child: Text('Delete Account')),
-            onTap: () {
-              // This won't do anything right now
-            },
+          SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.only(
+                  top: 20.0, left: 15.0, right: 15.0, bottom: 20.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 20.0),
+                    child: GestureDetector(
+                      onTap: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ProfilePage(
+                                  firstName: _firstNameController.text,
+                                  lastName: _lastNameController.text,
+                                  netID: _netIdController.text)),
+                        );
+                        setState(() {
+                          _shouldUpdate = true;
+                        });
+                      },
+                      child: Row(
+                        children: const [
+                          Icon(
+                            Icons.settings,
+                            size: 24.0,
+                          ),
+                          SizedBox(width: 15),
+                          Expanded(
+                            child: Text(
+                              'Manage Profile',
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 2,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18.0,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Divider(
+                    height: 1,
+                    color: Colors.grey[400],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20.0),
+                    child: GestureDetector(
+                      onTap: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  InterestsPage(interests: _interests)),
+                        );
+                        setState(() {
+                          _shouldUpdate = true;
+                        });
+                      },
+                      child: Row(
+                        children: const [
+                          Icon(
+                            Icons.local_activity,
+                            size: 24.0,
+                          ),
+                          SizedBox(width: 15),
+                          Expanded(
+                            child: Text(
+                              'Update Interests',
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 2,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18.0,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Divider(
+                    height: 1,
+                    color: Colors.grey[400],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20.0),
+                    child: GestureDetector(
+                      onTap: () {},
+                      child: Row(
+                        children: const [
+                          Icon(
+                            Icons.delete_forever,
+                            size: 24.0,
+                          ),
+                          SizedBox(width: 15),
+                          Expanded(
+                            child: Text(
+                              'Delete Account',
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 2,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18.0,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
