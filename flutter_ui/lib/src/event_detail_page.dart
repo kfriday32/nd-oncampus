@@ -139,7 +139,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
                             ),
                             child: Center(
                               child: Text(
-                                widget.event['time']!.day.toString(),
+                                widget.event['startTime']!.day.toString(),
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 24.0,
@@ -153,7 +153,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
                             children: [
                               Text(
                                 DateFormat.yMMMMd()
-                                    .format(widget.event['time']!),
+                                    .format(widget.event['startTime']!),
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 18.0,
@@ -162,7 +162,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
                               const SizedBox(height: 5),
                               Text(
                                 DateFormat('h:mm a')
-                                    .format(widget.event['time']),
+                                    .format(widget.event['startTime']),
                                 style: TextStyle(
                                   fontWeight: FontWeight.normal,
                                   fontSize: 18.0,

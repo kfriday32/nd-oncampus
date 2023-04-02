@@ -37,7 +37,7 @@ def get_mongodb_all():
 
     # return a json formatted events list of upcoming events (old events filtered)
     return [document for document in data if 
-        datetime.strptime(document['time'], "%Y-%m-%d %H:%M:%S.%f") 
+        datetime.strptime(document['startTime'], "%Y-%m-%d %H:%M:%S.%f") 
         >= 
         datetime.strptime(datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f"),"%Y-%m-%d %H:%M:%S.%f" )]
 

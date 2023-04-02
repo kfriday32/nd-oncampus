@@ -34,7 +34,6 @@ class _HomePageState extends State<HomePage>
   late TabController _tabController;
   bool displaySearch = false;
   final searchCont = TextEditingController();
-  bool _isLoading = true;
   bool _isAllLoading = true;
   bool _isSuggestedLoading = true;
 
@@ -96,76 +95,81 @@ class _HomePageState extends State<HomePage>
           indicatorColor: const Color(0xFFd39F10),
         ),
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Column(
-            children: [
-              // display search text box if search button is clicked
-              displaySearch ? Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: (
-                  TextField(
-                    controller: searchCont,
-                    decoration: InputDecoration(
-                      hintText: 'Search',
-                      suffixIcon: IconButton(
-                        icon: Icon(Icons.close),
-                        onPressed: () {
-                          // reset current lists
-                          setState(() {
-                            widget.eventDataToday = [];
-                            widget.eventDataThisWeek = [];
-                            widget.eventDataUpcoming = [];
+      body: Column(
+        children: [
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                _isAllLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            displaySearch
+                                ? Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: (TextField(
+                                      controller: searchCont,
+                                      decoration: InputDecoration(
+                                        hintText: 'Search',
+                                        suffixIcon: IconButton(
+                                            icon: Icon(Icons.close),
+                                            onPressed: () {
+                                              // reset current lists
+                                              setState(() {
+                                                widget.eventDataToday = [];
+                                                widget.eventDataThisWeek = [];
+                                                widget.eventDataUpcoming = [];
 
-                            displaySearch = false;
-                          });
-                          // repopulate events
-                          _loadAllEvents();
-                        }
+                                                displaySearch = false;
+                                              });
+                                              // repopulate events
+                                              _loadAllEvents();
+                                            }),
+                                        prefixIcon: IconButton(
+                                            icon: Icon(Icons.search),
+                                            onPressed: _searchEvents),
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(20.0),
+                                        ),
+                                      ),
+                                    )),
+                                  )
+                                : SizedBox(height: 0),
+                            EventsList(
+                              eventDataToday: widget.eventDataToday,
+                              eventDataThisWeek: widget.eventDataThisWeek,
+                              eventDataUpcoming: widget.eventDataUpcoming,
+                            ),
+                          ],
+                        ),
                       ),
-                      prefixIcon: IconButton(
-                        icon: Icon(Icons.search),
-                        onPressed: _searchEvents
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20.0),
-                      ),
-                    ),
-                  )
-                ),
-              ) : SizedBox(height: 0),
-              Expanded(
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    _isAllLoading
-                        ? const Center(child: CircularProgressIndicator())
-                        : EventsList(
-                            eventDataToday: widget.eventDataToday,
-                            eventDataThisWeek: widget.eventDataThisWeek,
-                            eventDataUpcoming: widget.eventDataUpcoming,
-                          ),
-                    _isSuggestedLoading
-                        ? const Center(child: CircularProgressIndicator())
-                        : EventsList(
-                            eventDataToday: widget.suggestedEventDataToday,
-                            eventDataThisWeek: widget.suggestedEventDataThisWeek,
-                            eventDataUpcoming: widget.suggestedEventDataUpcoming,
-                          )
-                  ],
-                ),
-              ),
-            ],
+                _isSuggestedLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : SingleChildScrollView(
+                        child: EventsList(
+                          eventDataToday: widget.suggestedEventDataToday,
+                          eventDataThisWeek: widget.suggestedEventDataThisWeek,
+                          eventDataUpcoming: widget.suggestedEventDataUpcoming,
+                        ),
+                      )
+              ],
+            ),
           ),
+        ],
+      ),
     );
   }
 
   void sortData() {
-    widget.eventDataToday.sort((a, b) => a['time'].compareTo(b['time']));
+    widget.eventDataToday
+        .sort((a, b) => a['startTime'].compareTo(b['startTime']));
     widget.eventDataThisWeek
-        .sort((a, b) => a['time'].compareTo(b['time']));
+        .sort((a, b) => a['startTime'].compareTo(b['startTime']));
     widget.eventDataUpcoming
-        .sort((a, b) => a['time'].compareTo(b['time']));
+        .sort((a, b) => a['startTime'].compareTo(b['startTime']));
   }
 
   void _loadAllEvents() async {
@@ -189,15 +193,15 @@ class _HomePageState extends State<HomePage>
 
             final DateTime now = DateTime.now();
             for (var event in jsonDecode(response.body)) {
-              event['time'] = DateTime.parse(event['time']!);
+              event['startTime'] = DateTime.parse(event['startTime']!);
 
-              if (event['time'].isBefore(now)) {
+              if (event['startTime'].isBefore(now)) {
                 continue;
               }
 
-              if (isSameDate(now, event['time'])) {
+              if (isSameDate(now, event['startTime'])) {
                 widget.eventDataToday.add(event);
-              } else if (isWithinUpcomingWeek(now, event['time'])) {
+              } else if (isWithinUpcomingWeek(now, event['startTime'])) {
                 widget.eventDataThisWeek.add(event);
               } else {
                 widget.eventDataUpcoming.add(event);
@@ -242,15 +246,15 @@ class _HomePageState extends State<HomePage>
             final DateTime now = DateTime.now();
             for (var event in jsonDecode(response.body)) {
               print(event);
-              event['time'] = DateTime.parse(event['time']!);
+              event['startTime'] = DateTime.parse(event['startTime']!);
 
-              if (event['time'].isBefore(now)) {
+              if (event['startTime'].isBefore(now)) {
                 continue;
               }
 
-              if (isSameDate(now, event['time'])) {
+              if (isSameDate(now, event['startTime'])) {
                 widget.suggestedEventDataToday.add(event);
-              } else if (isWithinUpcomingWeek(now, event['time'])) {
+              } else if (isWithinUpcomingWeek(now, event['startTime'])) {
                 widget.suggestedEventDataThisWeek.add(event);
               } else {
                 widget.suggestedEventDataUpcoming.add(event);
@@ -258,11 +262,11 @@ class _HomePageState extends State<HomePage>
             }
 
             widget.suggestedEventDataToday
-                .sort((a, b) => a['time'].compareTo(b['time']));
+                .sort((a, b) => a['startTime'].compareTo(b['startTime']));
             widget.suggestedEventDataThisWeek
-                .sort((a, b) => a['time'].compareTo(b['time']));
+                .sort((a, b) => a['startTime'].compareTo(b['startTime']));
             widget.suggestedEventDataUpcoming
-                .sort((a, b) => a['time'].compareTo(b['time']));
+                .sort((a, b) => a['startTime'].compareTo(b['startTime']));
           });
         }
       }
@@ -276,19 +280,20 @@ class _HomePageState extends State<HomePage>
       }
     }
   }
-  
+
   // method performs search query on events in main page
   void _searchEvents() {
-    
     // get user input from search bar
     String searchText = searchCont.text;
 
-    List<List<dynamic>> allEvents = 
-      [widget.eventDataToday, widget.eventDataThisWeek, widget.eventDataUpcoming];
+    List<List<dynamic>> allEvents = [
+      widget.eventDataToday,
+      widget.eventDataThisWeek,
+      widget.eventDataUpcoming
+    ];
 
     // search all events for anything that matches user's input
     for (var i = 0; i < allEvents.length; i++) {
-
       List<dynamic> eventList = allEvents[i];
       List<dynamic> matches = [];
 
@@ -310,11 +315,9 @@ class _HomePageState extends State<HomePage>
       setState(() {
         if (allEvents[i] == widget.eventDataToday) {
           widget.eventDataToday = matches;
-        }
-        else if (allEvents[i] == widget.eventDataThisWeek) {
+        } else if (allEvents[i] == widget.eventDataThisWeek) {
           widget.eventDataThisWeek = matches;
-        }
-        else {
+        } else {
           widget.eventDataUpcoming = matches;
         }
       });
@@ -334,11 +337,8 @@ bool isSameDate(DateTime time1, DateTime time2) {
 }
 
 bool isWithinUpcomingWeek(DateTime date1, DateTime date2) {
-  final now = DateTime.now();
-  final upcomingWeekStart =
-      now.subtract(Duration(days: now.weekday - 1)).toUtc();
-  final upcomingWeekEnd = upcomingWeekStart.add(Duration(days: 7)).toUtc();
-  final start = date1.isBefore(date2) ? date1 : date2;
-  final end = date1.isBefore(date2) ? date2 : date1;
-  return start.isAfter(upcomingWeekStart) && end.isBefore(upcomingWeekEnd);
+  final nextWeekStart = date1.add(Duration(days: 7 - date1.weekday));
+  final nextWeekEnd = nextWeekStart.add(Duration(days: 6));
+  return date2.isAfter(nextWeekStart.subtract(Duration(days: 1))) &&
+      date2.isBefore(nextWeekEnd.add(Duration(days: 1)));
 }
