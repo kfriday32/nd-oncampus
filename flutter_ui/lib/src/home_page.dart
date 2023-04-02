@@ -204,8 +204,9 @@ class _HomePageState extends State<HomePage>
               }
             }
 
-          sortData();
-        });
+            sortData();
+          });
+        }
       }
     } catch (e) {
       print('Error: $e');
@@ -292,7 +293,6 @@ class _HomePageState extends State<HomePage>
       List<dynamic> matches = [];
 
       for (var event in eventList) {
-        print("event: ${event}");
         var title = event['title'];
         var desc = event['description'];
         var location = event['location'];
