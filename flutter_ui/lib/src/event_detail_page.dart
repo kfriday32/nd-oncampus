@@ -113,11 +113,11 @@ class _EventDetailPageState extends State<EventDetailPage> {
           )
         ],
       ),
-      body: Column(
-        children: [
-          _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : Expanded(
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
+              children: [
+                Expanded(
                   child: SingleChildScrollView(
                     child: Padding(
                       padding: const EdgeInsets.only(
@@ -354,45 +354,45 @@ class _EventDetailPageState extends State<EventDetailPage> {
                     ),
                   ),
                 ),
-          (widget.event['registrationLink'] == null ||
-                  widget.event['registrationLink'] == "")
-              ? const SizedBox()
-              : TextButton(
-                  onPressed: () {
-                    launchURL(widget.event['registrationLink']);
-                  },
-                  child: Container(
-                    height: 60.0,
-                    width: 200.0,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(7.5),
-                      color: const Color(0xFF0C2340),
-                    ),
-                    child: Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Text(
-                            'RSVP',
-                            style: TextStyle(
-                              fontWeight: FontWeight.normal,
-                              fontSize: 18.0,
-                              color: Colors.white,
-                              letterSpacing: 1.25,
+                (widget.event['registrationLink'] == null ||
+                        widget.event['registrationLink'] == "")
+                    ? const SizedBox()
+                    : TextButton(
+                        onPressed: () {
+                          launchURL(widget.event['registrationLink']);
+                        },
+                        child: Container(
+                          height: 60.0,
+                          width: 200.0,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(7.5),
+                            color: const Color(0xFF0C2340),
+                          ),
+                          child: Center(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: const [
+                                Text(
+                                  'RSVP',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.normal,
+                                    fontSize: 18.0,
+                                    color: Colors.white,
+                                    letterSpacing: 1.25,
+                                  ),
+                                ),
+                                SizedBox(width: 10.0),
+                                Icon(
+                                  Icons.open_in_browser,
+                                  color: Colors.white,
+                                ),
+                              ],
                             ),
                           ),
-                          SizedBox(width: 10.0),
-                          Icon(
-                            Icons.open_in_browser,
-                            color: Colors.white,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                )
-        ],
-      ),
+                        ),
+                      )
+              ],
+            ),
     );
   }
 
