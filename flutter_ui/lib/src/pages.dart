@@ -26,7 +26,7 @@ class _PagesState extends State<Pages> {
         navigator: widget.navigator,
       ),
       PublisherPage(),
-      UserPage()
+      const UserPage()
     ];
   }
 
