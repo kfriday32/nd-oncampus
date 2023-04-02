@@ -133,6 +133,14 @@ def query_user():
 
     return "done"
 
+@app.route("/event-upload", methods=("GET", "POST"))
+def call_gpt():
+    if request.method == "POST":
+        DEBUG("POST request recieved")
+    elif request.method == "GET":
+        DEBUG("GET request recieved")
+
+
 def DEBUG(message):
     print(f"--------------------------------------------------------------------")
     print(f"DEBUG: {message} ")
