@@ -148,7 +148,8 @@ class _HomePageState extends State<HomePage>
                             EventsList(
                               eventDataToday: widget.eventDataToday,
                               eventDataThisWeek: widget.eventDataThisWeek,
-                              eventDataUpcoming: widget.eventDataUpcoming
+                              eventDataUpcoming: widget.eventDataUpcoming,
+                              refreshFollowing: _loadFollowingEvents
                             ),
                           ],
                         ),
@@ -177,9 +178,6 @@ class _HomePageState extends State<HomePage>
         ],
       ),
     );
-  }
-
-  void sortData() {
   }
 
   void _loadAllEvents() async {
@@ -396,7 +394,12 @@ class _HomePageState extends State<HomePage>
         }
       });
 
-      sortData();
+      widget.eventDataToday
+          .sort((a, b) => a['startTime'].compareTo(b['startTime']));
+      widget.eventDataThisWeek
+          .sort((a, b) => a['startTime'].compareTo(b['startTime']));
+      widget.eventDataUpcoming
+          .sort((a, b) => a['startTime'].compareTo(b['startTime']));
     }
   }
 }

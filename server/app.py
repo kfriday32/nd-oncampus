@@ -64,7 +64,13 @@ def refresh_suggested():
         
         return dumps(data)
 
-
+@app.route('/followingIds', methods=["GET"])
+def following_eventIds():
+    demo_user = "cpreciad"
+    # retries the list of events followed by user
+    if request.method == "GET":
+        return dumps(get_user_following(demo_user))
+        
 @app.route('/following', methods=["GET", "POST"])
 def following_events():
     demo_user = "cpreciad"

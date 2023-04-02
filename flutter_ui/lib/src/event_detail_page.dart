@@ -9,8 +9,9 @@ import 'dart:convert';
 
 class EventDetailPage extends StatefulWidget {
   final dynamic event;
+  final refreshFollowing;
 
-  const EventDetailPage({super.key, required this.event});
+  const EventDetailPage({super.key, required this.event, this.refreshFollowing});
 
   @override
   State<EventDetailPage> createState() => _EventDetailPageState();
@@ -20,6 +21,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
   
   Color _colorFollow = Colors.white;
   bool following = false;
+  bool _isLoading = true;
 
   Future<http.Response> _updateFollowing() async {
     following = !following;
@@ -47,11 +49,62 @@ class _EventDetailPageState extends State<EventDetailPage> {
     );
     
     if (response.statusCode == 200) {
+      // refresh listing
+      widget.refreshFollowing();
       return response;
     }
     else {
       throw Exception("error posting id to follow_events: ${event_id}");
     }
+  }
+
+  void _loadEvent() async {
+    if (mounted) {
+      setState(() {
+        _isLoading = true;
+      });
+    }
+    try {
+      // get currently logged in user (use default 'cpreciad')
+      String uri = "${helpers.getUri()}/followingIds";
+      final response = await http.get(Uri.parse(uri));
+
+      if (response.statusCode != 200) {
+        print('Error: ${response.statusCode}');
+      } 
+      // check if the current event is followed by user
+      else {
+        if (mounted) {
+          var events = response.body;
+          setState(() {
+            if (events.contains(widget.event['_id']['\$oid'])) {
+              _colorFollow = Colors.blue;
+              following = true;
+            }
+            else {
+              _colorFollow = Colors.white;
+              following = false;
+            }
+          });
+        }
+      }
+    } 
+    catch (err) {
+      print("Error loading event: ${err}");
+    }
+    finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadEvent();
   }
 
   @override
@@ -77,7 +130,8 @@ class _EventDetailPageState extends State<EventDetailPage> {
       ),
       body: Column(
         children: [
-          Expanded(
+          _isLoading ? const Center(child: CircularProgressIndicator())
+          : Expanded(
             child: SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.only(

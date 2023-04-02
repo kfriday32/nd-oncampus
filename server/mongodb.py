@@ -123,7 +123,7 @@ def get_user_following(studentId):
 
 # add an event to a user's 'following' list
 def add_following_event(studentId, eventId):
-    # get user collection
+    # access collections
     users = get_mongodb_user()
 
     query = users.find_one({"studentId": studentId})
@@ -133,8 +133,9 @@ def add_following_event(studentId, eventId):
 
     # get events currently followed by user
     following = get_user_following(studentId)
-    if eventId not in following:
-        following.append(eventId)
+    if eventId in following:
+        return False
+    following.append(eventId)
 
     update = { "$set": { "follow_events": following } }
     users.update_one(query, update)

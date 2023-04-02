@@ -6,12 +6,14 @@ class EventsList extends StatelessWidget {
   List<dynamic> eventDataToday = [];
   List<dynamic> eventDataThisWeek = [];
   List<dynamic> eventDataUpcoming = [];
+  final refreshFollowing;
 
   EventsList(
       {Key? key,
       required this.eventDataToday,
       required this.eventDataThisWeek,
-      required this.eventDataUpcoming})
+      required this.eventDataUpcoming,
+      this.refreshFollowing})
       : super(key: key);
 
   @override
@@ -28,6 +30,7 @@ class EventsList extends StatelessWidget {
                 title: 'Today',
                 events: eventDataToday,
                 displayTime: true,
+                refreshFollowing: refreshFollowing
               ),
               const SizedBox(
                 height: 20,
@@ -36,6 +39,7 @@ class EventsList extends StatelessWidget {
                 title: 'This Week',
                 events: eventDataThisWeek,
                 displayTime: false,
+                refreshFollowing: refreshFollowing
               ),
               const SizedBox(
                 height: 20,
@@ -44,6 +48,7 @@ class EventsList extends StatelessWidget {
                 title: 'Upcoming',
                 events: eventDataUpcoming,
                 displayTime: false,
+                refreshFollowing: refreshFollowing
               ),
               const SizedBox(height: 10),
             ],
@@ -58,12 +63,14 @@ class EventsListSection extends StatelessWidget {
   String title = "";
   List<dynamic> events = [];
   bool displayTime = false;
+  final refreshFollowing;
 
   EventsListSection(
       {Key? key,
       required this.title,
       required this.events,
-      required this.displayTime})
+      required this.displayTime,
+      this.refreshFollowing})
       : super(key: key);
 
   @override
@@ -97,7 +104,7 @@ class EventsListSection extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => EventDetailPage(event: events[index]),
+                    builder: (context) => EventDetailPage(event: events[index], refreshFollowing: refreshFollowing),
                   ),
                 );
               },
