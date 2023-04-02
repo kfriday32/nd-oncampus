@@ -23,7 +23,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
 
   Future<http.Response> _updateFollowing() async {
     following = !following;
-    String event_id = widget.event['_id']['\$oid'];
+    String host = widget.event['host'];
 
     String uri = "${Helpers.getUri()}/";
     if (following) {
@@ -33,7 +33,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
     }
 
     final headers = {'Content-Type': 'application/json'};
-    final bodyData = jsonEncode(<String, String>{'event_id': event_id});
+    final bodyData = jsonEncode(<String, String>{'host': host});
 
     final response =
         await http.post(Uri.parse(uri), headers: headers, body: bodyData);
@@ -43,7 +43,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
       widget.refreshFollowing();
       return response;
     } else {
-      throw Exception("error posting id to follow_events: ${event_id}");
+      throw Exception("error updating following for ${host}");
     }
   }
 
@@ -55,7 +55,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
     }
     try {
       // get currently logged in user (use default 'cpreciad')
-      String uri = "${Helpers.getUri()}/followingIds";
+      String uri = "${Helpers.getUri()}/followingHosts";
       final response = await http.get(Uri.parse(uri));
 
       if (response.statusCode != 200) {
@@ -64,9 +64,9 @@ class _EventDetailPageState extends State<EventDetailPage> {
       // check if the current event is followed by user
       else {
         if (mounted) {
-          var events = response.body;
+          var hosts = response.body;
           setState(() {
-            if (events.contains(widget.event['_id']['\$oid'])) {
+            if (hosts.contains(widget.event['host'])) {
               _colorFollow = Colors.blue;
               following = true;
             } else {
@@ -192,7 +192,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
                                     _updateFollowing();
                                     const snackBar = SnackBar(
                                       content: Text(
-                                          'Successfully updating following events'),
+                                          'Successfully updating following hosts'),
                                     );
                                     ScaffoldMessenger.of(context)
                                         .showSnackBar(snackBar);
