@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_ui/src/interests_page.dart';
+import 'package:flutter_ui/src/user_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'navigation.dart';
@@ -34,6 +36,7 @@ class _HomePageState extends State<HomePage>
   final searchCont = TextEditingController();
   bool _isAllLoading = true;
   bool _isSuggestedLoading = true;
+  bool _showInterestsButton = false;
 
   @override
   void initState() {
@@ -145,13 +148,33 @@ class _HomePageState extends State<HomePage>
                       ),
                 _isSuggestedLoading
                     ? const Center(child: CircularProgressIndicator())
-                    : SingleChildScrollView(
-                        child: EventsList(
-                          eventDataToday: widget.suggestedEventDataToday,
-                          eventDataThisWeek: widget.suggestedEventDataThisWeek,
-                          eventDataUpcoming: widget.suggestedEventDataUpcoming,
-                        ),
-                      )
+                    : _showInterestsButton
+                        ? Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              Center(
+                                child: Text(
+                                  'You havent saved any interests\n\nClick on the Profile icon and update your Interests!',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(fontSize: 24),
+                                ),
+                              ),
+                              Icon(
+                                Icons.arrow_downward,
+                                size: 40.0,
+                                color: Colors.black,
+                              ),
+                            ],
+                          )
+                        : SingleChildScrollView(
+                            child: EventsList(
+                              eventDataToday: widget.suggestedEventDataToday,
+                              eventDataThisWeek:
+                                  widget.suggestedEventDataThisWeek,
+                              eventDataUpcoming:
+                                  widget.suggestedEventDataUpcoming,
+                            ),
+                          )
               ],
             ),
           ),
@@ -230,8 +253,8 @@ class _HomePageState extends State<HomePage>
     try {
       // call the refresh route
       final response = await http.get(Uri.parse('${Helpers.getUri()}/refresh'));
-
       if (response.statusCode == 200) {
+        _showInterestsButton = false;
         if (mounted) {
           setState(() {
             // Clear existing data
@@ -264,6 +287,15 @@ class _HomePageState extends State<HomePage>
             widget.suggestedEventDataUpcoming
                 .sort((a, b) => a['startTime'].compareTo(b['startTime']));
           });
+        }
+      } else if (response.statusCode == 404) {
+        // display different things based on the error json
+        if (jsonDecode(response.body)['error'] == 'empty') {
+          // display a button to go straight to the interests page
+          _showInterestsButton = true;
+        } else {
+          // display a short explaination that the AI is down
+          print("failure");
         }
       } else {
         throw Exception("Failed to load suggested events.");
