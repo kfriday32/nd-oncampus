@@ -152,9 +152,11 @@ class _InterestsPageState extends State<InterestsPage> {
               onPressed: () {
                 // Handle adding the interest here
                 setState(() {
-                  _interests.add(_interestController.text);
-                  _saveInterestsToDatabase(_interests);
-                  _interestController.text = "";
+                  if (!_interestController.text.trim().isEmpty) {
+                    _interests.add(_interestController.text);
+                    _saveInterestsToDatabase(_interests);
+                    _interestController.text = "";
+                  }
                 });
                 Navigator.of(context).pop();
               },
