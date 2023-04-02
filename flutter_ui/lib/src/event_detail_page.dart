@@ -67,7 +67,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
           var hosts = response.body;
           setState(() {
             if (hosts.contains(widget.event['host'])) {
-              _colorFollow = Colors.blue;
+              _colorFollow = const Color(0xFF0C2340);
               following = true;
             } else {
               _colorFollow = Colors.white;
