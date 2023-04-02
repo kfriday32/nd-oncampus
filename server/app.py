@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from gpt import generate_prompt
 import mongodb
 import json
@@ -58,9 +58,16 @@ def refresh_suggested():
         # retrieve the interests list form mongoDB and run the prompt generation 
         interests = get_mongodb_user_interests("cpreciad")
         
+        # check if the interests list is empty, and return None if true
+        if interests == []:
+            response = {"error": "empty"}
+            return jsonify(response), 404
+
+        # generate the data  
         data = generate_prompt(interests)
         if data == None:
-            return "failure"
+            response = {{"error": "failure"}}
+            return jsonify(response), 404
         
         return dumps(data)
 
@@ -69,7 +76,6 @@ def refresh_suggested():
 def query_user():
     if request.method == 'GET':
         data = get_mongodb_user_data("cpreciad")
-        DEBUG(data)
         return dumps(data)
     if request.method == 'POST':
         data = request.get_json()

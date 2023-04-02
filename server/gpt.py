@@ -4,12 +4,10 @@ import re
 from mongodb import get_mongodb_gpt, get_mongodb_events
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
+TRIES = 3
 
 # get user input and send request to open ai
-
 # input: interests => list(string)
-
-
 def generate_prompt(interests):
 
     # query data from mongodb, pulling only the event titles and descriptions
@@ -43,9 +41,12 @@ def generate_prompt(interests):
 
     # create the fully formatted prompt
     prompt = header + "\n" + event_body + '\n' + footer
-    # create request
-    try:
-        response = openai.Completion.create(
+
+    # attempt to get a valid response from chatGPT {TRIES} times
+    for i in range(TRIES):
+        try:
+        # create request
+            response = openai.Completion.create(
             model="text-davinci-003",
             prompt=prompt,
             temperature=0.7,
@@ -53,20 +54,26 @@ def generate_prompt(interests):
             top_p=1,
             frequency_penalty=0,
             presence_penalty=0
-        )
+            )
 
-    except Exception as error:
-        print("OpenAI Completion error!: ", error)
-        return None
+        except Exception as error:
+            print("OpenAI Completion error!: ", error)
+            continue
 
-    # clean the returned ids from chatGPT
-    id_list = re.split(', |,| ', response.choices[0].text)
-    id_list = [id.strip() for id in id_list]
+        # clean the returned ids from chatGPT
+        id_list = re.split(', |,| ', response.choices[0].text)
+        id_list = [id.strip() for id in id_list]
 
-    # query the collections corresponding to the IDs
-    data = get_mongodb_events(id_list) 
-    
-    return data
+        # query the collections corresponding to the IDs
+        try:
+            data = get_mongodb_events(id_list) 
+        except Exception as error: 
+            print("OpenAI Completion error!: ", error)
+            continue
+        # return data on a sucessful query of Events
+        return data
+
+    return None
 
 def main():
     # get user input
