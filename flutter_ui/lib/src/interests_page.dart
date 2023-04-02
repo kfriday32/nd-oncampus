@@ -13,18 +13,19 @@ class InterestsPage extends StatefulWidget {
 class _InterestsPageState extends State<InterestsPage> {
   final _interestController = TextEditingController();
 
-  List<String> _interests = [];
+  List<String> _savedInterests = [];
+  List<String> _suggestedInterests = [];
 
   @override
   void initState() {
     super.initState();
-    _interests = widget.interests;
+    _savedInterests = widget.interests;
   }
 
   Future<void> _saveInterestsToDatabase(List<String> interests) async {
     // save the interests to the database here
     String bodyData = jsonEncode(<String, List<String>>{
-      'interests': _interests,
+      'interests': _savedInterests,
     });
     final headers = {'Content-Type': 'application/json'};
 
@@ -66,7 +67,7 @@ class _InterestsPageState extends State<InterestsPage> {
           ),
         ],
       ),
-      body: _interests.isEmpty
+      body: _savedInterests.isEmpty
           ? const Center(
               child: Text(
                 'Press the plus botton to add interests',
@@ -82,43 +83,97 @@ class _InterestsPageState extends State<InterestsPage> {
                     Wrap(
                       spacing: 10.0,
                       runSpacing: 10.0,
-                      children: _interests
-                          .map((interest) => GestureDetector(
-                                onTap: () {
-                                  _showConfirmDeleteDialog(context, interest);
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 12.0, vertical: 6.0),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(30.0),
-                                    color: Colors.grey[300],
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        interest,
-                                        style: const TextStyle(fontSize: 20.0),
-                                      ),
-                                      const SizedBox(width: 5.0),
-                                      const Icon(
-                                        Icons.close,
-                                        size: 16.0,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ))
-                          .toList(),
+                      children: [
+                        ...buildSavedInterests(context),
+                        ...buildSuggestedInterests(context)
+                      ],
                     ),
                   ],
                 ),
               ),
             ),
     );
+  }
+
+  List<GestureDetector> buildSavedInterests(BuildContext context) {
+    return _savedInterests
+        .map(
+          (interest) => GestureDetector(
+            onTap: () {
+              _showConfirmDeleteDialog(context, interest);
+            },
+            child: Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(30.0),
+                color: Colors.grey[300],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    interest,
+                    style: const TextStyle(fontSize: 20.0),
+                  ),
+                  const SizedBox(width: 5.0),
+                  const Icon(
+                    Icons.close,
+                    size: 16.0,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        )
+        .toList();
+  }
+
+  List<GestureDetector> buildSuggestedInterests(BuildContext context) {
+    return _suggestedInterests
+        .map(
+          (interest) => GestureDetector(
+            onTap: () {
+              setState(() {
+                _savedInterests.add(interest);
+                _suggestedInterests.remove(interest);
+                _saveInterestsToDatabase(_savedInterests);
+              });
+            },
+            child: Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(30.0),
+                color: Colors.transparent,
+                border: Border.all(
+                  color: Colors.grey[300]!,
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    interest,
+                    style: TextStyle(
+                      fontSize: 20.0,
+                      color: Colors.grey[500]!,
+                    ),
+                  ),
+                  const SizedBox(width: 5.0),
+                  Icon(
+                    Icons.question_mark,
+                    size: 16.0,
+                    color: Colors.grey[500]!,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        )
+        .toList();
   }
 
   void _showAddInterestDialog(BuildContext context) {
@@ -153,8 +208,8 @@ class _InterestsPageState extends State<InterestsPage> {
                 // Handle adding the interest here
                 setState(() {
                   if (!_interestController.text.trim().isEmpty) {
-                    _interests.add(_interestController.text);
-                    _saveInterestsToDatabase(_interests);
+                    _savedInterests.add(_interestController.text);
+                    _saveInterestsToDatabase(_savedInterests);
                     _interestController.text = "";
                   }
                 });
@@ -195,8 +250,8 @@ class _InterestsPageState extends State<InterestsPage> {
               ),
               onPressed: () {
                 setState(() {
-                  _interests.remove(interest);
-                  _saveInterestsToDatabase(_interests);
+                  _savedInterests.remove(interest);
+                  _saveInterestsToDatabase(_savedInterests);
                 });
                 Navigator.of(context).pop();
               },
