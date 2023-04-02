@@ -120,7 +120,7 @@ class _HomePageState extends State<HomePage>
                             displaySearch = false;
                           });
                           // repopulate events
-                          _loadEvents();
+                          _loadAllEvents();
                         }
                       ),
                       prefixIcon: IconButton(
