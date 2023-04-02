@@ -66,7 +66,7 @@ def refresh_suggested():
         # generate the data  
         data = generate_prompt(interests)
         if data == None:
-            response = {{"error": "failure"}}
+            response = {"error": "failure"}
             return jsonify(response), 404
         
         return dumps(data)

@@ -36,7 +36,8 @@ class _HomePageState extends State<HomePage>
   final searchCont = TextEditingController();
   bool _isAllLoading = true;
   bool _isSuggestedLoading = true;
-  bool _showInterestsButton = false;
+  bool _showInterestsSuggestion = false;
+  bool _showErrorScreen = false;
 
   @override
   void initState() {
@@ -148,33 +149,47 @@ class _HomePageState extends State<HomePage>
                       ),
                 _isSuggestedLoading
                     ? const Center(child: CircularProgressIndicator())
-                    : _showInterestsButton
+                    : _showErrorScreen
                         ? Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: const [
                               Center(
                                 child: Text(
-                                  'You havent saved any interests\n\nClick on the Profile icon and update your Interests!',
+                                  'AI is down\n\nPlease wait a moment and click refresh',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(fontSize: 24),
                                 ),
                               ),
-                              Icon(
-                                Icons.arrow_downward,
-                                size: 40.0,
-                                color: Colors.black,
-                              ),
                             ],
                           )
-                        : SingleChildScrollView(
-                            child: EventsList(
-                              eventDataToday: widget.suggestedEventDataToday,
-                              eventDataThisWeek:
-                                  widget.suggestedEventDataThisWeek,
-                              eventDataUpcoming:
-                                  widget.suggestedEventDataUpcoming,
-                            ),
-                          )
+                        : _showInterestsSuggestion
+                            ? Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: const [
+                                  Center(
+                                    child: Text(
+                                      'You haven\'t saved any interests\n\nClick on the Profile icon and update your Interests!',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(fontSize: 24),
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.arrow_downward,
+                                    size: 40.0,
+                                    color: Colors.black,
+                                  ),
+                                ],
+                              )
+                            : SingleChildScrollView(
+                                child: EventsList(
+                                  eventDataToday:
+                                      widget.suggestedEventDataToday,
+                                  eventDataThisWeek:
+                                      widget.suggestedEventDataThisWeek,
+                                  eventDataUpcoming:
+                                      widget.suggestedEventDataUpcoming,
+                                ),
+                              )
               ],
             ),
           ),
@@ -254,7 +269,8 @@ class _HomePageState extends State<HomePage>
       // call the refresh route
       final response = await http.get(Uri.parse('${Helpers.getUri()}/refresh'));
       if (response.statusCode == 200) {
-        _showInterestsButton = false;
+        _showInterestsSuggestion = false;
+        _showErrorScreen = false;
         if (mounted) {
           setState(() {
             // Clear existing data
@@ -292,10 +308,10 @@ class _HomePageState extends State<HomePage>
         // display different things based on the error json
         if (jsonDecode(response.body)['error'] == 'empty') {
           // display a button to go straight to the interests page
-          _showInterestsButton = true;
+          _showInterestsSuggestion = true;
         } else {
           // display a short explaination that the AI is down
-          print("failure");
+          _showErrorScreen = true;
         }
       } else {
         throw Exception("Failed to load suggested events.");
