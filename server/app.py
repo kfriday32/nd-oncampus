@@ -3,7 +3,7 @@ from gpt import generate_prompt, generate_interests
 import mongodb
 import json
 from bson.json_util import dumps
-from mongodb import get_mongodb_flutter, get_mongodb_user_interests, rem_following_event, set_mongodb_user_interests, get_user_following, add_following_event, get_mongodb_events
+from mongodb import get_mongodb_flutter, get_mongodb_user_interests, rem_following_event, set_mongodb_user_interests, get_user_following, add_following_event, get_mongodb_events, get_host_events
 import re
 
 app = Flask(__name__)
@@ -71,8 +71,8 @@ def refresh_suggested():
         
         return dumps(data)
 
-@app.route('/followingIds', methods=["GET"])
-def following_eventIds():
+@app.route('/followingHosts', methods=["GET"])
+def following_host_list():
     demo_user = "cpreciad"
     # retries the list of events followed by user
     if request.method == "GET":
@@ -83,18 +83,15 @@ def following_events():
     demo_user = "cpreciad"
     # retries the list of events followed by user
     if request.method == "GET":
-        following = get_user_following(demo_user)
-        print(f"following: ${following}")
+        follow_hosts = get_user_following(demo_user)
+        follow_events = get_host_events(follow_hosts)
 
-        # get actual events based on list of event ids
-        events = get_mongodb_events(following)
-
-        return dumps(events)
+        return dumps(follow_events)
     # add an event to list of following
     else:
         data = request.get_json()
-        event_id = data["event_id"]
-        new_following = add_following_event(demo_user, event_id)
+        host = data["host"]
+        new_following = add_following_event(demo_user, host)
         return dumps(new_following)
 
 @app.route('/unfollow', methods=["POST"])
@@ -102,8 +99,8 @@ def unfollow_events():
     demo_user = "cpreciad"
     if request.method == "POST":
         data = request.get_json()
-        event_id = data["event_id"]
-        new_following = rem_following_event(demo_user, event_id)
+        host = data["host"]
+        new_following = rem_following_event(demo_user, host)
         return dumps(new_following)
 
 # route to get the user information from mongoDB

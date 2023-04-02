@@ -140,12 +140,12 @@ def get_user_following(studentId):
         print("error: no user was found")
         return None
 
-    # get list of followed events
+    # get list of followed hosts
     return query["follow_events"]
 
 
 # add an event to a user's 'following' list
-def add_following_event(studentId, eventId):
+def add_following_event(studentId, host):
     # access collections
     users = get_mongodb_user()
 
@@ -154,11 +154,11 @@ def add_following_event(studentId, eventId):
         print(f"error retrieving user with id ${studentId}")
         return None
 
-    # get events currently followed by user
+    # get hosts currently followed by user
     following = get_user_following(studentId)
-    if eventId in following:
+    if host in following:
         return False
-    following.append(eventId)
+    following.append(host)
 
     update = { "$set": { "follow_events": following } }
     users.update_one(query, update)
@@ -167,7 +167,7 @@ def add_following_event(studentId, eventId):
 
 
 # remove an event from following list
-def rem_following_event(studentId, eventId):
+def rem_following_event(studentId, host):
     # get user collection
     users = get_mongodb_user()
 
@@ -176,16 +176,28 @@ def rem_following_event(studentId, eventId):
         print(f"error retrieving user with id ${studentId}")
         return None
 
-    # get events currently followed by user
+    # get hosts currently followed by user
     following = get_user_following(studentId)
-    print(f"follow: ${following}")
-    new_follow = list(filter(lambda id: id != eventId, following))
-    print(f"new follow: ${new_follow}")
+    new_follow = list(filter(lambda item: item != host, following))
 
     update = { "$set": { "follow_events": new_follow } }
     users.update_one(query, update)
 
     return new_follow
+
+# get all events organized by a given host
+def get_host_events(hosts):
+    collection = get_mongodb_collection()
+
+    events = []
+    # iterate through all host names in host list
+    for host in hosts:
+        cursor = collection.find({"host": host})
+    
+        for event in cursor:
+            events.append(event)
+
+    return events
 
 
 def main():
