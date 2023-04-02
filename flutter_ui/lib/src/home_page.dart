@@ -29,6 +29,7 @@ class _HomePageState extends State<HomePage>
   final List<Tab> myTabs = [
     const Tab(text: 'Upcoming'),
     const Tab(text: 'Suggested'),
+    const Tab(text: 'Following')
   ];
 
   late TabController _tabController;
@@ -37,6 +38,7 @@ class _HomePageState extends State<HomePage>
   bool _isLoading = true;
   bool _isAllLoading = true;
   bool _isSuggestedLoading = true;
+  bool _isFollowingLoading = true;
 
   @override
   void initState() {
@@ -45,6 +47,7 @@ class _HomePageState extends State<HomePage>
     _tabController = TabController(length: myTabs.length, vsync: this);
     _loadAllEvents();
     _loadSuggestedEvents();
+    _loadFollowingEvents();
   }
 
   @override
@@ -151,7 +154,14 @@ class _HomePageState extends State<HomePage>
                             eventDataToday: widget.suggestedEventDataToday,
                             eventDataThisWeek: widget.suggestedEventDataThisWeek,
                             eventDataUpcoming: widget.suggestedEventDataUpcoming,
-                          )
+                          ),
+                    _isFollowingLoading 
+                        ? const Center(child: CircularProgressIndicator())
+                        : EventsList(
+                            eventDataToday: widget.suggestedEventDataToday,
+                            eventDataThisWeek: widget.suggestedEventDataThisWeek,
+                            eventDataUpcoming: widget.suggestedEventDataUpcoming,
+                          ),
                   ],
                 ),
               ),
@@ -223,6 +233,64 @@ class _HomePageState extends State<HomePage>
     if (mounted) {
       setState(() {
         _isSuggestedLoading = true;
+      });
+    }
+    try {
+      final response =
+          await http.get(Uri.parse('http://10.0.2.2:5000/refresh'));
+
+      if (response.statusCode != 200) {
+        print('Error: ${response.statusCode}');
+      } else {
+        if (mounted) {
+          setState(() {
+            // Clear existing data
+            widget.suggestedEventDataToday = [];
+            widget.suggestedEventDataThisWeek = [];
+            widget.suggestedEventDataUpcoming = [];
+
+            final DateTime now = DateTime.now();
+            for (var event in jsonDecode(response.body)) {
+              print(event);
+              event['time'] = DateTime.parse(event['time']!);
+
+              if (event['time'].isBefore(now)) {
+                continue;
+              }
+
+              if (isSameDate(now, event['time'])) {
+                widget.suggestedEventDataToday.add(event);
+              } else if (isWithinUpcomingWeek(now, event['time'])) {
+                widget.suggestedEventDataThisWeek.add(event);
+              } else {
+                widget.suggestedEventDataUpcoming.add(event);
+              }
+            }
+
+            widget.suggestedEventDataToday
+                .sort((a, b) => a['time'].compareTo(b['time']));
+            widget.suggestedEventDataThisWeek
+                .sort((a, b) => a['time'].compareTo(b['time']));
+            widget.suggestedEventDataUpcoming
+                .sort((a, b) => a['time'].compareTo(b['time']));
+          });
+        }
+      }
+    } catch (e) {
+      print('Error: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSuggestedLoading = false;
+        });
+      }
+    }
+  }
+
+  void _loadFollowingEvents() async {
+    if (mounted) {
+      setState(() {
+        _isFollowingLoading = true;
       });
     }
     try {
