@@ -199,20 +199,26 @@ class _EventDetailPageState extends State<EventDetailPage> {
                                     setState(() {
                                       _colorFollow =
                                           (_colorFollow == Colors.white)
-                                              ? Colors.blue
+                                              ? Color(0xFF0C2340)
                                               : Colors.white;
                                     });
                                   },
-                                  child: const Padding(
-                                    padding: EdgeInsets.symmetric(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
                                       horizontal: 2.5,
                                       vertical: 0.0,
                                     ),
-                                    child: Text(
-                                      'Follow',
-                                      style:
-                                          TextStyle(color: Color(0xFF0C2340)),
-                                    ),
+                                    child: following
+                                        ? const Text(
+                                            'Following',
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          )
+                                        : const Text(
+                                            'Follow',
+                                            style: TextStyle(
+                                                color: Color(0xFF0C2340)),
+                                          ),
                                   ),
                                 ),
                               ],

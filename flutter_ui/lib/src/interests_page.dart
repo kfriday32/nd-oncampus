@@ -143,11 +143,13 @@ class _InterestsPageState extends State<InterestsPage> {
         .map(
           (interest) => GestureDetector(
             onTap: () {
-              setState(() {
-                _savedInterests.add(interest);
-                _suggestedInterests.remove(interest);
-                _saveInterestsToDatabase(_savedInterests);
-              });
+              if (mounted) {
+                setState(() {
+                  _savedInterests.add(interest);
+                  _suggestedInterests.remove(interest);
+                  _saveInterestsToDatabase(_savedInterests);
+                });
+              }
             },
             child: Container(
               padding:
@@ -214,13 +216,16 @@ class _InterestsPageState extends State<InterestsPage> {
               )),
               onPressed: () {
                 // Handle adding the interest here
-                setState(() {
-                  if (!_interestController.text.trim().isEmpty) {
-                    _savedInterests.add(_interestController.text);
-                    _saveInterestsToDatabase(_savedInterests);
-                    _interestController.text = "";
-                  }
-                });
+                if (mounted) {
+                  setState(() {
+                    if (!_interestController.text.trim().isEmpty) {
+                      _savedInterests.add(_interestController.text);
+                      _saveInterestsToDatabase(_savedInterests);
+                      _interestController.text = "";
+                    }
+                  });
+                }
+                ;
                 Navigator.of(context).pop();
               },
               child: Text("Add"),
@@ -257,10 +262,12 @@ class _InterestsPageState extends State<InterestsPage> {
                 ),
               ),
               onPressed: () {
-                setState(() {
-                  _savedInterests.remove(interest);
-                  _saveInterestsToDatabase(_savedInterests);
-                });
+                if (mounted) {
+                  setState(() {
+                    _savedInterests.remove(interest);
+                    _saveInterestsToDatabase(_savedInterests);
+                  });
+                }
                 Navigator.of(context).pop();
               },
               child: Text("Remove"),

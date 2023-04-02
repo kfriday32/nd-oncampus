@@ -50,7 +50,7 @@ class _HomePageState extends State<HomePage>
     // Initialize the controller with the number of tabs and this class as the provider
     _tabController = TabController(length: myTabs.length, vsync: this);
     _loadAllEvents();
-    _loadSuggestedEvents();
+    // _loadSuggestedEvents();
     _loadFollowingEvents();
   }
 
@@ -363,6 +363,7 @@ class _HomePageState extends State<HomePage>
             final DateTime now = DateTime.now();
             for (var event in jsonDecode(response.body)) {
               event['startTime'] = DateTime.parse(event['startTime']!);
+              event['endTime'] = DateTime.parse(event['endTime']!);
 
               if (event['startTime'].isBefore(now)) {
                 continue;
