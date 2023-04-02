@@ -1,4 +1,3 @@
-import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
 import 'helpers.dart';
 import 'package:http/http.dart' as http;
@@ -64,53 +63,75 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
+        centerTitle: true,
+        title: const Text(
+          'Manage Profile',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 24.0,
+          ),
+        ),
         backgroundColor: const Color(0xFF0C2340),
       ),
-      body: Center(
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            SizedBox(
-              width: 300.0,
-              child: TextField(
-                controller: _firstNameController,
-                decoration: InputDecoration(
-                  labelText: 'First Name',
-                ),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 20.0),
+                  TextField(
+                    controller: _firstNameController,
+                    decoration: const InputDecoration(
+                      labelText: 'First Name',
+                    ),
+                  ),
+                  const SizedBox(height: 20.0),
+                  TextField(
+                    controller: _lastNameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Last Name',
+                    ),
+                  ),
+                  const SizedBox(height: 20.0),
+                  TextField(
+                    controller: _netIdController,
+                    decoration: const InputDecoration(
+                      labelText: 'Net ID',
+                    ),
+                  ),
+                ],
               ),
             ),
-            SizedBox(
-              width: 300.0,
-              child: TextField(
-                controller: _lastNameController,
-                decoration: InputDecoration(
-                  labelText: 'Last Name',
-                ),
-              ),
-            ),
-            SizedBox(
-              width: 300.0,
-              child: TextField(
-                controller: _netIdController,
-                decoration: InputDecoration(
-                  labelText: 'Net ID',
-                ),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
+            TextButton(
+              onPressed: () async {
                 _submitProfile();
-                final snackBar = SnackBar(
-                  content: Text('Profile Updated!'),
+                const snackBar = SnackBar(
+                  content: Text('Your changes have been saved'),
                 );
                 ScaffoldMessenger.of(context).showSnackBar(snackBar);
               },
-              child: Text('Submit'),
-              style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(
-                Color(0xFFd39F10),
-              )),
+              child: Container(
+                height: 60.0,
+                width: 200.0,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(7.5),
+                  color: const Color(0xFF0C2340),
+                ),
+                child: const Center(
+                  child: Text(
+                    'SAVE',
+                    style: TextStyle(
+                      fontWeight: FontWeight.normal,
+                      fontSize: 18.0,
+                      color: Colors.white,
+                      letterSpacing: 1.25,
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
         ),

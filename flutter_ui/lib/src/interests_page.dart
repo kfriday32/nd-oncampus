@@ -48,7 +48,13 @@ class _InterestsPageState extends State<InterestsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Interests'),
+        title: const Text(
+          'Interests',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 24.0,
+          ),
+        ),
         backgroundColor: const Color(0xFF0C2340),
         centerTitle: true,
         actions: <Widget>[
@@ -67,40 +73,50 @@ class _InterestsPageState extends State<InterestsPage> {
                 style: TextStyle(fontSize: 18.0),
               ),
             )
-          : Wrap(
-              spacing: 8.0,
-              runSpacing: 4.0,
-              children: _interests
-                  .map((interest) => GestureDetector(
-                        onTap: () {
-                          _showConfirmDeleteDialog(context, interest);
-                        },
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(
-                              vertical: 4.0, horizontal: 10.0),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12.0, vertical: 6.0),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(30.0),
-                            color: Colors.grey[300],
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                interest,
-                                style: TextStyle(fontSize: 20.0),
-                              ),
-                              SizedBox(width: 4.0),
-                              Icon(
-                                Icons.close,
-                                size: 16.0,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ))
-                  .toList(),
+          : SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 20.0),
+                    Wrap(
+                      spacing: 10.0,
+                      runSpacing: 10.0,
+                      children: _interests
+                          .map((interest) => GestureDetector(
+                                onTap: () {
+                                  _showConfirmDeleteDialog(context, interest);
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12.0, vertical: 6.0),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                    color: Colors.grey[300],
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        interest,
+                                        style: const TextStyle(fontSize: 20.0),
+                                      ),
+                                      const SizedBox(width: 5.0),
+                                      const Icon(
+                                        Icons.close,
+                                        size: 16.0,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ))
+                          .toList(),
+                    ),
+                  ],
+                ),
+              ),
             ),
     );
   }
