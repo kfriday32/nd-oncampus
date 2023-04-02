@@ -80,14 +80,14 @@ class EventsListSection extends StatelessWidget {
       children: [
         Text(
           title,
-          style: TextStyle(
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 28,
           ),
         ),
         ListView.builder(
           shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
+          physics: const NeverScrollableScrollPhysics(),
           itemCount: events.length,
           itemBuilder: (BuildContext context, int index) {
             final event = events[index];
@@ -217,12 +217,12 @@ class EventsListSection extends StatelessWidget {
                                         color: Colors.grey[500]!,
                                       ),
                                     ),
-                                    const Expanded(
+                                    Expanded(
                                       child: Text(
-                                        'Student Activities Office',
+                                        event['host'],
                                         overflow: TextOverflow.ellipsis,
                                         maxLines: 1,
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 12,
                                           color: Colors.blue,
@@ -231,7 +231,7 @@ class EventsListSection extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 5),
+                                const SizedBox(height: 2.5),
                                 Row(
                                   children: [
                                     Icon(

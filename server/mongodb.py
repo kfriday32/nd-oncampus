@@ -79,12 +79,35 @@ def publish_event(new_event):
     
     return "successfully posted new event"
 
+
 # get mongodb user by student id
 def get_user_by_id(studentId):
     # get user account
     accounts = get_mongodb_user()
     # query for the demo user
     return accounts.find_one({"studentId": studentId})
+
+# this function returns the entire data set on a user 
+def get_mongodb_user_data(user):
+    account = get_mongodb_user()
+    query = account.find_one({"studentId": user})
+    return query
+
+def set_mongodb_user_data(data, user):
+    # get the collection and querey the user data
+    account = get_mongodb_user()
+    query = account.find_one({"studentId": user})
+    print(query)
+    new_data = {'$set': {"firstName": data['firstName'],
+                         "lastName": data['lastName'],
+                         "netId": "cpreciad"}}
+    account.update_many(query, new_data)
+
+def get_mongodb_user_interests(user):
+
+    # get the user account collection from mongoDB
+    account = get_mongodb_user()
+
 
 def get_mongodb_user_interests(user):
     query = get_user_by_id(user)

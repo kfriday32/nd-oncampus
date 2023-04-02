@@ -1,6 +1,6 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_ui/src/interests_page.dart';
+import 'package:flutter_ui/src/user_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'navigation.dart';
@@ -41,6 +41,7 @@ class _HomePageState extends State<HomePage>
   bool _isAllLoading = true;
   bool _isSuggestedLoading = true;
   bool _isFollowingLoading = true;
+  bool _showInterestsButton = false;
 
   @override
   void initState() {
@@ -89,12 +90,6 @@ class _HomePageState extends State<HomePage>
               });
             },
           ),
-          IconButton(
-              icon: const Icon(Icons.filter_alt),
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => EventsPage()));
-              })
         ],
         bottom: TabBar(
           controller: _tabController, // Set the controller for the TabBar
@@ -116,35 +111,40 @@ class _HomePageState extends State<HomePage>
                             displaySearch
                                 ? Padding(
                                     padding: const EdgeInsets.all(8.0),
-                                    child: (TextField(
+                                    child: TextField(
                                       controller: searchCont,
                                       decoration: InputDecoration(
                                         hintText: 'Search',
                                         suffixIcon: IconButton(
-                                            icon: Icon(Icons.close),
-                                            onPressed: () {
-                                              // reset current lists
-                                              setState(() {
-                                                widget.eventDataToday = [];
-                                                widget.eventDataThisWeek = [];
-                                                widget.eventDataUpcoming = [];
+                                          icon: const Icon(Icons.close),
+                                          onPressed: () {
+                                            // reset current lists
+                                            setState(() {
+                                              widget.eventDataToday = [];
+                                              widget.eventDataThisWeek = [];
+                                              widget.eventDataUpcoming = [];
 
-                                                displaySearch = false;
-                                              });
-                                              // repopulate events
-                                              _loadAllEvents();
-                                            }),
+                                              displaySearch = false;
+                                            });
+                                            // repopulate events
+                                            _loadAllEvents();
+                                          },
+                                        ),
                                         prefixIcon: IconButton(
-                                            icon: Icon(Icons.search),
-                                            onPressed: _searchEvents),
+                                          icon: const Icon(Icons.search),
+                                          onPressed: _searchEvents,
+                                        ),
                                         border: OutlineInputBorder(
+                                          borderSide: BorderSide(
+                                            color: Colors.grey[500]!,
+                                          ),
                                           borderRadius:
-                                              BorderRadius.circular(20.0),
+                                              BorderRadius.circular(10.0),
                                         ),
                                       ),
-                                    )),
+                                    ),
                                   )
-                                : SizedBox(height: 0),
+                                : const SizedBox(),
                             EventsList(
                               eventDataToday: widget.eventDataToday,
                               eventDataThisWeek: widget.eventDataThisWeek,
@@ -156,14 +156,34 @@ class _HomePageState extends State<HomePage>
                       ),
                 _isSuggestedLoading
                     ? const Center(child: CircularProgressIndicator())
-                    : SingleChildScrollView(
-                        child: EventsList(
-                          eventDataToday: widget.suggestedEventDataToday,
-                          eventDataThisWeek: widget.suggestedEventDataThisWeek,
-                          eventDataUpcoming: widget.suggestedEventDataUpcoming
-                        ),
-                      ),
-                _isFollowingLoading 
+                    : _showInterestsButton
+                        ? Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              Center(
+                                child: Text(
+                                  'You havent saved any interests\n\nClick on the Profile icon and update your Interests!',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(fontSize: 24),
+                                ),
+                              ),
+                              Icon(
+                                Icons.arrow_downward,
+                                size: 40.0,
+                                color: Colors.black,
+                              ),
+                            ],
+                          )
+                        : SingleChildScrollView(
+                            child: EventsList(
+                              eventDataToday: widget.suggestedEventDataToday,
+                              eventDataThisWeek:
+                                  widget.suggestedEventDataThisWeek,
+                              eventDataUpcoming:
+                                  widget.suggestedEventDataUpcoming,
+                            ),
+                          ),
+                          _isFollowingLoading 
                     ? const Center(child: CircularProgressIndicator())
                     : SingleChildScrollView(
                         child: EventsList(
@@ -187,11 +207,9 @@ class _HomePageState extends State<HomePage>
       });
     }
     try {
-      final response = await http.get(Uri.parse(helpers.getUri()));
+      final response = await http.get(Uri.parse(Helpers.getUri()));
 
-      if (response.statusCode != 200) {
-        print('Error: ${response.statusCode}');
-      } else {
+      if (response.statusCode == 200) {
         if (mounted) {
           setState(() {
             // Clear existing data
@@ -202,6 +220,7 @@ class _HomePageState extends State<HomePage>
             final DateTime now = DateTime.now();
             for (var event in jsonDecode(response.body)) {
               event['startTime'] = DateTime.parse(event['startTime']!);
+              event['endTime'] = DateTime.parse(event['endTime']!);
 
               if (event['startTime'].isBefore(now)) {
                 continue;
@@ -224,9 +243,11 @@ class _HomePageState extends State<HomePage>
                 .sort((a, b) => a['startTime'].compareTo(b['startTime']));
           });
         }
+      } else {
+        throw Exception("Failed to load all events.");
       }
     } catch (e) {
-      print('Error: $e');
+      throw Exception('Error: $e');
     } finally {
       if (mounted) {
         setState(() {
@@ -243,13 +264,10 @@ class _HomePageState extends State<HomePage>
       });
     }
     try {
-      String uri = "${helpers.getUri()}/refresh";
-      final response =
-          await http.get(Uri.parse(uri));
-
-      if (response.statusCode != 200) {
-        print('Error: ${response.statusCode}');
-      } else {
+      // call the refresh route
+      final response = await http.get(Uri.parse('${Helpers.getUri()}/refresh'));
+      if (response.statusCode == 200) {
+        _showInterestsButton = false;
         if (mounted) {
           setState(() {
             // Clear existing data
@@ -260,6 +278,7 @@ class _HomePageState extends State<HomePage>
             final DateTime now = DateTime.now();
             for (var event in jsonDecode(response.body)) {
               event['startTime'] = DateTime.parse(event['startTime']!);
+              event['endTime'] = DateTime.parse(event['endTime']!);
 
               if (event['startTime'].isBefore(now)) {
                 continue;
@@ -282,9 +301,20 @@ class _HomePageState extends State<HomePage>
                 .sort((a, b) => a['startTime'].compareTo(b['startTime']));
           });
         }
+      } else if (response.statusCode == 404) {
+        // display different things based on the error json
+        if (jsonDecode(response.body)['error'] == 'empty') {
+          // display a button to go straight to the interests page
+          _showInterestsButton = true;
+        } else {
+          // display a short explaination that the AI is down
+          print("failure");
+        }
+      } else {
+        throw Exception("Failed to load suggested events.");
       }
     } catch (e) {
-      print('Error: $e');
+      throw Exception('Error: $e');
     } finally {
       if (mounted) {
         setState(() {
@@ -415,7 +445,7 @@ bool isSameDate(DateTime time1, DateTime time2) {
 
 bool isWithinUpcomingWeek(DateTime date1, DateTime date2) {
   final nextWeekStart = date1.add(Duration(days: 7 - date1.weekday));
-  final nextWeekEnd = nextWeekStart.add(Duration(days: 6));
-  return date2.isAfter(nextWeekStart.subtract(Duration(days: 1))) &&
-      date2.isBefore(nextWeekEnd.add(Duration(days: 1)));
+  final nextWeekEnd = nextWeekStart.add(const Duration(days: 6));
+  return date2.isAfter(nextWeekStart.subtract(const Duration(days: 1))) &&
+      date2.isBefore(nextWeekEnd.add(const Duration(days: 1)));
 }

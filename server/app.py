@@ -1,5 +1,5 @@
-from flask import Flask, request
-from gpt import generate_prompt
+from flask import Flask, request, jsonify
+from gpt import generate_prompt, generate_interests
 import mongodb
 import json
 from bson.json_util import dumps
@@ -50,7 +50,7 @@ def publish_event():
         new_event = mongodb.publish_event(data)
         return new_event
 
-
+# route to refresh the pages 
 @app.route('/refresh', methods=["GET"])
 def refresh_suggested():
     if request.method == "GET":
@@ -58,9 +58,16 @@ def refresh_suggested():
         # retrieve the interests list form mongoDB and run the prompt generation 
         interests = get_mongodb_user_interests("cpreciad")
         
+        # check if the interests list is empty, and return None if true
+        if interests == []:
+            response = {"error": "empty"}
+            return jsonify(response), 404
+
+        # generate the data  
         data = generate_prompt(interests)
         if data == None:
-            return "failure"
+            response = {{"error": "failure"}}
+            return jsonify(response), 404
         
         return dumps(data)
 
@@ -99,6 +106,35 @@ def unfollow_events():
         new_following = rem_following_event(demo_user, event_id)
         return dumps(new_following)
 
+# route to get the user information from mongoDB
+@app.route('/user', methods=["GET", "POST"])
+def query_user():
+    if request.method == 'GET':
+        data = get_mongodb_user_data("cpreciad")
+        # generate suggestion interests, only add them to the data if the user has suggestions
+        suggestions = generate_interests(data['interests']) 
+        if suggestions:
+            data['suggestions'] = suggestions
+        else:
+            data['suggestions'] = []
+        return dumps(data)
+    if request.method == 'POST':
+        data = request.get_json()
+        if 'firstName' in data:
+            # save the user profile 
+            set_mongodb_user_data(request.get_json(), "cpreciad")
+        else:
+            # save the user preferences
+            set_mongodb_user_interests(data['interests'], "cpreciad")
+
+            # call chatGPT to generate suggested interests
+            suggestions = generate_interests(data['interests']) 
+            if suggestions == None:
+                suggestions = []
+            response = {"suggestions": suggestions}
+            return jsonify(response), 200
+
+    return "done"
 
 def DEBUG(message):
     print(f"--------------------------------------------------------------------")
