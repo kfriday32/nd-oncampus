@@ -39,7 +39,7 @@ class _HomePageState extends State<HomePage>
     // Initialize the controller with the number of tabs and this class as the provider
     _tabController = TabController(length: myTabs.length, vsync: this);
     _loadAllEvents();
-    // _loadSuggestedEvents();
+    _loadSuggestedEvents();
   }
 
   @override
@@ -59,6 +59,7 @@ class _HomePageState extends State<HomePage>
           icon: const Icon(Icons.refresh),
           onPressed: () {
             _loadAllEvents();
+            _loadSuggestedEvents();
           },
         ),
         title: const Text(
@@ -100,9 +101,9 @@ class _HomePageState extends State<HomePage>
                   eventDataUpcoming: widget.eventDataUpcoming,
                 ),
                 EventsList(
-                  eventDataToday: widget.eventDataToday,
-                  eventDataThisWeek: widget.eventDataThisWeek,
-                  eventDataUpcoming: widget.eventDataUpcoming,
+                  eventDataToday: widget.suggestedEventDataToday,
+                  eventDataThisWeek: widget.suggestedEventDataThisWeek,
+                  eventDataUpcoming: widget.suggestedEventDataUpcoming,
                 )
               ],
             ),
