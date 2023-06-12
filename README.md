@@ -1,4 +1,4 @@
-# hesburgh-hackathon
+# ND OnCampus
 2023 Hesburgh Library Hackathon
 
 ### Team Members
