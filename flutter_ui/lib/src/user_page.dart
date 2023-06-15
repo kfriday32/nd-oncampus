@@ -13,52 +13,52 @@ class UserPage extends StatefulWidget {
 }
 
 class _UserPageState extends State<UserPage> {
-  TextEditingController _firstNameController = TextEditingController();
-  TextEditingController _lastNameController = TextEditingController();
-  TextEditingController _netIdController = TextEditingController();
-  List<String> _savedInterests = [];
-  List<String> _suggestedInterests = [];
+  String firstName = "Carlo"; // TextEditingController _firstNameController =TextEditingController();
+  String lastName = "Preciado"; // TextEditingController _lastNameController = TextEditingController();
+  String netId = "cpreciad"; // TextEditingController _netIdController = TextEditingController();
+  List<String> _savedInterests = ["Live Performance", "Theater Productions", "Dancing", "Singing", "Sports", "Piano Playing"];
+  List<String> _suggestedInterests = ["interest1", "interest2", "interest3"];
 
-  bool _isUserLoading = true;
+  bool _isUserLoading = false; //true;
   bool _shouldUpdate = false;
 
   @override
   void initState() {
     super.initState();
-    _getUserFromDatabase();
+    // _getUserFromDatabase();
   }
 
-  Future<void> _getUserFromDatabase() async {
-    if (mounted) {
-      setState(() {
-        _isUserLoading = true;
-      });
-    }
-    final response = await http.get(Uri.parse('${Helpers.getUri()}/user'));
-    if (response.statusCode == 200) {
-      final decoded = jsonDecode(response.body);
-      _firstNameController.text = decoded['firstName'];
-      _lastNameController.text = decoded['lastName'];
-      // for dev purposes, this netid will never be allowed to change
-      _netIdController.text = "cprecaid";
-      _savedInterests = List<String>.from(
-          decoded['interests'].map((e) => e.toString()).toList());
-      _suggestedInterests = List<String>.from(
-          decoded['suggestions'].map((e) => e.toString()).toList());
-    } else {
-      print("failed");
-    }
-    if (mounted) {
-      setState(() {
-        _isUserLoading = false;
-      });
-    }
-  }
+  // Future<void> _getUserFromDatabase() async {
+  //   if (mounted) {
+  //     setState(() {
+  //       _isUserLoading = true;
+  //     });
+  //   }
+  //   final response = await http.get(Uri.parse('${Helpers.getUri()}/user'));
+  //   if (response.statusCode == 200) {
+  //     final decoded = jsonDecode(response.body);
+  //     _firstNameController.text = decoded['firstName'];
+  //     _lastNameController.text = decoded['lastName'];
+  //     // for dev purposes, this netid will never be allowed to change
+  //     _netIdController.text = "cprecaid";
+  //     _savedInterests = List<String>.from(
+  //         decoded['interests'].map((e) => e.toString()).toList());
+  //     _suggestedInterests = List<String>.from(
+  //         decoded['suggestions'].map((e) => e.toString()).toList());
+  //   } else {
+  //     print("failed");
+  //   }
+  //   if (mounted) {
+  //     setState(() {
+  //       _isUserLoading = false;
+  //     });
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
     if (_shouldUpdate) {
-      _getUserFromDatabase();
+      // _getUserFromDatabase();
       _shouldUpdate = false;
     }
     return Scaffold(
@@ -92,9 +92,9 @@ class _UserPageState extends State<UserPage> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => ProfilePage(
-                                        firstName: _firstNameController.text,
-                                        lastName: _lastNameController.text,
-                                        netID: _netIdController.text)),
+                                        firstName: firstName, //_firstNameController.text,
+                                        lastName: lastName, //_lastNameController.text,
+                                        netID: netId,),), //_netIdController.text)),
                               );
                               if (mounted) {
                                 setState(() {

@@ -296,7 +296,7 @@ class _EventFormState extends State<EventForm> {
                     // validate input
                     if (_formKey.currentState!.validate()) {
                       // send data to MongoDB
-                      await postEvent();
+                      // await postEvent();
 
                       if (mounted) {
                         setState(() {
