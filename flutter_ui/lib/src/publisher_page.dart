@@ -190,7 +190,7 @@ class _EventFormState extends State<EventForm> {
 
   bool _validateEndTime() {
     if (_selectedStartTime == null || _selectedEndTime == null) {
-      return true; // Skip validation if either start or end date is not selected
+      return true;
     }
     // Start Time is Before End Time
     if (_selectedStartTime!.hour < _selectedEndTime!.hour ||
