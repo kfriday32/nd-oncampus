@@ -297,13 +297,13 @@ class _EventFormState extends State<EventForm> {
                               const SizedBox(
                                 height: 20.0,
                               ),
-                              Expanded(
+                              SizedBox(
+                                height: 100.0,
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
-                                    Flexible(
-                                        child: Icon(Icons.calendar_today,
-                                            color: Colors.grey)),
+                                    Icon(Icons.calendar_today,
+                                        color: Colors.grey),
                                     // Calendar icon
                                     Expanded(
                                       child: ElevatedButton(
@@ -348,13 +348,13 @@ class _EventFormState extends State<EventForm> {
                                 ),
                               ),
                               const SizedBox(height: 20.0),
-                              Expanded(
+                              SizedBox(
+                                height: 100.0,
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
-                                    Flexible(
-                                        child: Icon(Icons.calendar_today,
-                                            color: Colors.grey)),
+                                    Icon(Icons.calendar_today,
+                                        color: Colors.grey),
                                     // Calendar icon
                                     Expanded(
                                       child: ElevatedButton(
