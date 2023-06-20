@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'helpers.dart';
+import 'package:syncfusion_flutter_calendar/calendar.dart';
+import 'package:table_calendar/table_calendar.dart';
+//import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 
 class PublisherPage extends StatelessWidget {
   final Function updateSelectedIndex;
@@ -44,6 +47,12 @@ class _EventFormState extends State<EventForm> {
   // visibility of guest list
   DateTime _startTime = DateTime.now();
   DateTime _endTime = DateTime.now();
+  // DateTime? _selectedDateTime;
+  // Selected date and time
+  DateTime? _selectedStartDate;
+  TimeOfDay? _selectedStartTime;
+  DateTime? _selectedEndDate;
+  TimeOfDay? _selectedEndTime;
 
   // text field controllers
   final _titleController = TextEditingController();
@@ -53,6 +62,71 @@ class _EventFormState extends State<EventForm> {
   final _registrationLinkController = TextEditingController();
   final _eventUrlController = TextEditingController();
   final _capacityController = TextEditingController();
+
+  // Calendar
+  final _startCalendarController = CalendarController();
+  final _endCalendarController = CalendarController();
+
+  Future<void> _selectStartDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100),
+    );
+    if (picked != null) {
+      setState(() {
+        _selectedStartDate = picked;
+      });
+    }
+  }
+
+  Future<void> _selectStartTime(BuildContext context) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+    if (picked != null) {
+      setState(() {
+        _selectedStartTime = picked;
+      });
+    }
+  }
+
+  Future<void> _selectEndDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100),
+    );
+    if (picked != null) {
+      setState(() {
+        _selectedEndDate = picked;
+      });
+    }
+  }
+
+  Future<void> _selectEndTime(BuildContext context) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+    if (picked != null) {
+      setState(() {
+        _selectedEndTime = picked;
+      });
+    }
+  }
+
+  // Validate date & time
+  bool _validateEndDate() {
+    if (_selectedStartDate == null || _selectedEndDate == null) {
+      return true; // Skip validation if either start or end date is not selected
+    }
+    return _selectedEndDate!
+        .isAfter(_selectedStartDate!); // Validate end date is after start date
+  }
 
   bool _isSubmitted = false;
 
@@ -65,6 +139,9 @@ class _EventFormState extends State<EventForm> {
     _registrationLinkController.dispose();
     _eventUrlController.dispose();
     _capacityController.dispose();
+
+    _startCalendarController.dispose();
+    _endCalendarController.dispose();
     super.dispose();
   }
 
@@ -216,45 +293,152 @@ class _EventFormState extends State<EventForm> {
                                       : null;
                                 },
                               ),
-                              const SizedBox(height: 20.0),
-                              DateTimeFormField(
-                                decoration: const InputDecoration(
-                                  icon: Icon(Icons.event_note),
-                                  hintStyle: TextStyle(color: Colors.black45),
-                                  errorStyle:
-                                      TextStyle(color: Colors.redAccent),
-                                  labelText: 'Start Time *',
+                              // Date & Time Selection
+                              const SizedBox(
+                                height: 20.0,
+                              ),
+                              Expanded(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Flexible(
+                                        child: Icon(Icons.calendar_today,
+                                            color: Colors.grey)),
+                                    // Calendar icon
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        style: ButtonStyle(
+                                          backgroundColor:
+                                              MaterialStateProperty.all<Color>(
+                                                  Color.fromARGB(
+                                                      255, 182, 186, 188)),
+                                          foregroundColor:
+                                              MaterialStateProperty.all<Color>(
+                                                  Color.fromARGB(
+                                                      255, 31, 33, 33)),
+                                        ),
+                                        onPressed: () =>
+                                            _selectStartDate(context),
+                                        child: Text(_selectedStartDate == null
+                                            ? 'Select Start Date'
+                                            : 'Start Date: ${_selectedStartDate.toString().split(' ')[0]}'),
+                                      ),
+                                    ),
+                                    SizedBox(width: 10),
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        style: ButtonStyle(
+                                          backgroundColor:
+                                              MaterialStateProperty.all<Color>(
+                                                  Color.fromARGB(
+                                                      255, 182, 186, 188)),
+                                          foregroundColor:
+                                              MaterialStateProperty.all<Color>(
+                                                  Color.fromARGB(
+                                                      255, 31, 33, 33)),
+                                        ),
+                                        onPressed: () =>
+                                            _selectStartTime(context),
+                                        child: Text(_selectedStartTime == null
+                                            ? 'Select Start Time'
+                                            : 'Start Time: ${_selectedStartTime!.format(context)}'),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                validator: (val) {
-                                  return (val == null)
-                                      ? 'Please pick a start time'
-                                      : null;
-                                },
-                                onDateSelected: (DateTime val) {
-                                  _startTime = val;
-                                },
                               ),
                               const SizedBox(height: 20.0),
-                              DateTimeFormField(
-                                decoration: const InputDecoration(
-                                  icon: Icon(Icons.event_note),
-                                  hintStyle: TextStyle(color: Colors.black45),
-                                  errorStyle:
-                                      TextStyle(color: Colors.redAccent),
-                                  labelText: 'End Time *',
+                              Expanded(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Flexible(
+                                        child: Icon(Icons.calendar_today,
+                                            color: Colors.grey)),
+                                    // Calendar icon
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        style: ButtonStyle(
+                                          backgroundColor:
+                                              MaterialStateProperty.all<Color>(
+                                                  Color.fromARGB(
+                                                      255, 182, 186, 188)),
+                                          foregroundColor:
+                                              MaterialStateProperty.all<Color>(
+                                                  Color.fromARGB(
+                                                      255, 31, 33, 33)),
+                                        ),
+                                        onPressed: () =>
+                                            _selectEndDate(context),
+                                        child: Text(_selectedEndDate == null
+                                            ? 'Select End Date'
+                                            : _validateEndDate()
+                                                ? 'End Date: ${_selectedEndDate.toString().split(' ')[0]}'
+                                                : 'Invalid End Date'),
+                                      ),
+                                    ),
+                                    SizedBox(width: 10),
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        style: ButtonStyle(
+                                          backgroundColor:
+                                              MaterialStateProperty.all<Color>(
+                                                  Color.fromARGB(
+                                                      255, 182, 186, 188)),
+                                          foregroundColor:
+                                              MaterialStateProperty.all<Color>(
+                                                  Color.fromARGB(
+                                                      255, 31, 33, 33)),
+                                        ),
+                                        onPressed: () =>
+                                            _selectEndTime(context),
+                                        child: Text(_selectedEndTime == null
+                                            ? 'Select End Time'
+                                            : 'Start Time: ${_selectedEndTime!.format(context)}'),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                validator: (val) {
-                                  if (val == null) {
-                                    return 'Please pick an end time';
-                                  } else if (!_endTime.isAfter(_startTime)) {
-                                    return 'Ensure that the end time is after the start time';
-                                  }
-                                  return null;
-                                },
-                                onDateSelected: (DateTime val) {
-                                  _endTime = val;
-                                },
                               ),
+                              // const SizedBox(height: 20.0),
+                              // DateTimeFormField(
+                              //   decoration: const InputDecoration(
+                              //     icon: Icon(Icons.event_note),
+                              //     hintStyle: TextStyle(color: Colors.black45),
+                              //     errorStyle:
+                              //         TextStyle(color: Colors.redAccent),
+                              //     labelText: 'Start Time *',
+                              //   ),
+                              //   validator: (val) {
+                              //     return (val == null)
+                              //         ? 'Please pick a start time'
+                              //         : null;
+                              //   },
+                              //   onDateSelected: (DateTime val) {
+                              //     _startTime = val;
+                              //   },
+                              // ),
+                              // const SizedBox(height: 20.0),
+                              // DateTimeFormField(
+                              //   decoration: const InputDecoration(
+                              //     icon: Icon(Icons.event_note),
+                              //     hintStyle: TextStyle(color: Colors.black45),
+                              //     errorStyle:
+                              //         TextStyle(color: Colors.redAccent),
+                              //     labelText: 'End Time *',
+                              //   ),
+                              //   validator: (val) {
+                              //     if (val == null) {
+                              //       return 'Please pick an end time';
+                              //     } else if (!_endTime.isAfter(_startTime)) {
+                              //       return 'Ensure that the end time is after the start time';
+                              //     }
+                              //     return null;
+                              //   },
+                              //   onDateSelected: (DateTime val) {
+                              //     _endTime = val;
+                              //   },
+                              // ),
                               const SizedBox(height: 20.0),
                               TextFormField(
                                 controller: _registrationLinkController,
