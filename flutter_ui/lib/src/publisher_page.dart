@@ -153,6 +153,8 @@ class _EventFormState extends State<EventForm> {
       'location': _locationController.text,
       'startTime': _startTime.toString(),
       'endTime': _endTime.toString(),
+      'startDate': _startTime.toString(),
+      'endDate': _endTime.toString(),
       'registrationLink': _registrationLinkController.text,
       'eventUrl': _eventUrlController.text,
       'capacity': _capacityController.text
@@ -298,7 +300,7 @@ class _EventFormState extends State<EventForm> {
                                 height: 20.0,
                               ),
                               SizedBox(
-                                height: 100.0,
+                                height: 50.0,
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
@@ -347,9 +349,10 @@ class _EventFormState extends State<EventForm> {
                                   ],
                                 ),
                               ),
+
                               const SizedBox(height: 20.0),
                               SizedBox(
-                                height: 100.0,
+                                height: 50.0,
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
@@ -400,6 +403,7 @@ class _EventFormState extends State<EventForm> {
                                   ],
                                 ),
                               ),
+
                               // const SizedBox(height: 20.0),
                               // DateTimeFormField(
                               //   decoration: const InputDecoration(
