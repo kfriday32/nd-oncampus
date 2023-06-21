@@ -20,6 +20,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
   Color _colorFollow = Colors.white;
   bool following = false;
   bool _isLoading = false; //true;
+  dynamic series = {"_id":{"oid":"6492fc0fd5145a791ddf1de7"},"name":"Women's Softball vs. Duke","description":"2 game series against Duke @ University of Notre Dame"};
 
   Future<http.Response> _updateFollowing() async {
     following = !following;
