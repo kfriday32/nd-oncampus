@@ -38,9 +38,9 @@ class _HomePageState extends State<HomePage>
   late TabController _tabController;
   bool displaySearch = false;
   final searchCont = TextEditingController();
-  bool _isAllLoading = true;
-  bool _isSuggestedLoading = true;
-  bool _isFollowingLoading = true;
+  bool _isAllLoading = false; //true;
+  bool _isSuggestedLoading = false; //true;
+  bool _isFollowingLoading = false; //true;
   bool _showInterestsSuggestion = false;
   bool _showErrorScreen = false;
 
@@ -49,9 +49,9 @@ class _HomePageState extends State<HomePage>
     super.initState();
     // Initialize the controller with the number of tabs and this class as the provider
     _tabController = TabController(length: myTabs.length, vsync: this);
-    _loadAllEvents();
-    _loadSuggestedEvents();
-    _loadFollowingEvents();
+    // _loadAllEvents();
+    // _loadSuggestedEvents();
+    // _loadFollowingEvents();
   }
 
   @override
@@ -70,9 +70,9 @@ class _HomePageState extends State<HomePage>
         leading: IconButton(
           icon: const Icon(Icons.refresh),
           onPressed: () {
-            _loadAllEvents();
-            _loadSuggestedEvents();
-            _loadFollowingEvents();
+            // _loadAllEvents();
+            // _loadSuggestedEvents();
+            // _loadFollowingEvents();
           },
         ),
         title: const Text(
@@ -132,7 +132,7 @@ class _HomePageState extends State<HomePage>
                                               });
                                             }
                                             // repopulate events
-                                            _loadAllEvents();
+                                            // _loadAllEvents();
                                           },
                                         ),
                                         prefixIcon: IconButton(
@@ -151,9 +151,9 @@ class _HomePageState extends State<HomePage>
                                   )
                                 : const SizedBox(),
                             EventsList(
-                                eventDataToday: widget.eventDataToday,
-                                eventDataThisWeek: widget.eventDataThisWeek,
-                                eventDataUpcoming: widget.eventDataUpcoming,
+                                // eventDataToday: widget.eventDataToday,
+                                // eventDataThisWeek: widget.eventDataThisWeek,
+                                // eventDataUpcoming: widget.eventDataUpcoming,
                                 refreshFollowing: _loadFollowingEvents),
                           ],
                         ),
@@ -193,23 +193,24 @@ class _HomePageState extends State<HomePage>
                               )
                             : SingleChildScrollView(
                                 child: EventsList(
-                                  eventDataToday:
-                                      widget.suggestedEventDataToday,
-                                  eventDataThisWeek:
-                                      widget.suggestedEventDataThisWeek,
-                                  eventDataUpcoming:
-                                      widget.suggestedEventDataUpcoming,
+                                  // eventDataToday:
+                                  //     widget.suggestedEventDataToday,
+                                  // eventDataThisWeek:
+                                  //     widget.suggestedEventDataThisWeek,
+                                  // eventDataUpcoming:
+                                  //     widget.suggestedEventDataUpcoming,
                                 ),
                               ),
                 _isFollowingLoading
                     ? const Center(child: CircularProgressIndicator())
                     : SingleChildScrollView(
                         child: EventsList(
-                            eventDataToday: widget.followingEventDataToday,
-                            eventDataThisWeek:
-                                widget.followingEventDataThisWeek,
-                            eventDataUpcoming:
-                                widget.followingEventDataUpcoming),
+                            // eventDataToday: widget.followingEventDataToday,
+                            // eventDataThisWeek:
+                            //     widget.followingEventDataThisWeek,
+                            // eventDataUpcoming:
+                            //     widget.followingEventDataUpcoming,
+                        ),
                       ),
               ],
             ),

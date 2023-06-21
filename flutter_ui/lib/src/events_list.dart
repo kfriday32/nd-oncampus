@@ -5,14 +5,17 @@ import 'event_detail_page.dart';
 class EventsList extends StatelessWidget {
   List<dynamic> eventDataToday = [];
   List<dynamic> eventDataThisWeek = [];
-  List<dynamic> eventDataUpcoming = [];
+  List<dynamic> eventDataUpcoming = [
+    {"_id":{"oid":"64277de37e591aeb3a0a5d2a"},"title":"Women’s Softball vs. Duke Game 1","description":"An upcoming softball game promises to be an exciting and competitive event, featuring two skilled teams ready to battle it out on the field. Fans can expect to see impressive displays of athleticism, teamwork, and strategic thinking as the players utilize their individual strengths to score runs and make game-winning plays. With the energy of the crowd and the high stakes of the match, the atmosphere is sure to be electric as both teams give it their all in pursuit of victory.","location":"Softball Stadium","registrationLink":"https://www.google.com/maps","url":"https://und.com/sports/wbball/","capacity":500,"endTime": DateTime.parse("2023-07-21 13:05:00.000"),"startTime":DateTime.parse("2023-07-01 16:05:00.000"),"host":"Notre Dame Athletics","series_id": "6492fc0fd5145a791ddf1de7"},
+    {"_id":{"oid":"6427d0d7752c37a7a61969f9"},"title":"Spring Musical “Anything Goes”","description":"When the S.S. American heads out to sea, etiquette and convention head out the portholes as two unlikely pairs set off on the course to true love","location":"Washington Hall","registrationLink":"","url":"http://pemco.weebly.com/anything-goes.html","capacity":"500","endTime":DateTime.parse("2023-07-21 18:35:00.000"),"host":"PEMCo","startTime":DateTime.parse("2023-06-23 16:05:00.000"),"series_id": "-1"}
+  ];
   final refreshFollowing;
 
   EventsList(
       {Key? key,
-      required this.eventDataToday,
-      required this.eventDataThisWeek,
-      required this.eventDataUpcoming,
+      // required this.eventDataToday,
+      // required this.eventDataThisWeek,
+      // required this.eventDataUpcoming,
       this.refreshFollowing})
       : super(key: key);
 

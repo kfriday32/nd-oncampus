@@ -19,7 +19,7 @@ class EventDetailPage extends StatefulWidget {
 class _EventDetailPageState extends State<EventDetailPage> {
   Color _colorFollow = Colors.white;
   bool following = false;
-  bool _isLoading = true;
+  bool _isLoading = false; //true;
 
   Future<http.Response> _updateFollowing() async {
     following = !following;
@@ -90,7 +90,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
   @override
   void initState() {
     super.initState();
-    _loadEvent();
+    // _loadEvent();
   }
 
   @override
