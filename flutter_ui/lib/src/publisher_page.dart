@@ -225,10 +225,20 @@ class _EventFormState extends State<EventForm> {
       'host': _hostController.text,
       'description': _descController.text,
       'location': _locationController.text,
-      'startDate': _selectedStartDate.toString(),
-      'endDate': _selectedEndDate.toString(),
-      'startTime': _selectedStartTime.toString(),
-      'endTime': _selectedEndTime.toString(),
+      'startTime': DateTime(
+        _selectedStartDate!.year,
+        _selectedStartDate!.month,
+        _selectedStartDate!.day,
+        _selectedStartTime!.hour,
+        _selectedStartTime!.minute,
+      ).toString(),
+      'endTime': DateTime(
+        _selectedEndDate!.year,
+        _selectedEndDate!.month,
+        _selectedEndDate!.day,
+        _selectedEndTime!.hour,
+        _selectedEndTime!.minute,
+      ).toString(),
       'registrationLink': _registrationLinkController.text,
       'eventUrl': _eventUrlController.text,
       'capacity': _capacityController.text
@@ -590,7 +600,7 @@ class _EventFormState extends State<EventForm> {
                     // validate input
                     if (_formKey.currentState!.validate()) {
                       // send data to MongoDB
-                      // await postEvent();
+                      await postEvent();
 
                       if (mounted) {
                         setState(() {

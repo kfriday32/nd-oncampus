@@ -11,15 +11,15 @@ import 'helpers.dart';
 
 class HomePage extends StatefulWidget {
   final AppNavigator navigator;
-  List<dynamic> eventDataToday = [{"_id":{"oid":"64277de37e591aeb3a0a5d2a"},"title":"Women’s Softball vs. Duke","description":"An upcoming softball game promises to be an exciting and competitive event, featuring two skilled teams ready to battle it out on the field. Fans can expect to see impressive displays of athleticism, teamwork, and strategic thinking as the players utilize their individual strengths to score runs and make game-winning plays. With the energy of the crowd and the high stakes of the match, the atmosphere is sure to be electric as both teams give it their all in pursuit of victory.","location":"Softball Stadium","registrationLink":"https://www.google.com/maps","url":"https://und.com/sports/wbball/","capacity":"500","endTime": DateTime.parse("2023-06-16 19:05:00.000"),"startTime": DateTime.parse("2023-06-16 16:05:00.000"),"host":"Notre Dame Athletics"}, {"_id":{"oid":"6427d0d7752c37a7a61969f9"},"title":"Spring Musical “Anything Goes”","description":"When the S.S. American heads out to sea, etiquette and convention head out the portholes as two unlikely pairs set off on the course to true love","location":"Washington Hall","registrationLink":"","url":"http://pemco.weebly.com/anything-goes.html","capacity":"500","endTime": DateTime.parse("2023-06-16 18:35:00.000"),"host":"PEMCo","startTime": DateTime.parse("2023-06-16 16:05:00.000")}, {"_id":{"oid":"6427d255752c37a7a61969fc"},"title":"“In Viaggio: The Travels of Pope Francis” (2023)","description":"This is a film about Pope Francis","location":"Browning Cinema","registrationLink":"https://performingarts.nd.edu/event/15675/in-viaggio-the-travels-of-pope-francis-2023/?utm_source=The+Week&utm_medium=ND+Newsletter&utm_campaign=The+Week&utm_term=Cinema&utm_content=In+Viaggio","url":"","capacity":"","endTime": DateTime.parse("2023-06-16 15:05:00.000"),"host":"Browning Cinema","startTime": DateTime.parse("2023-06-16 12:05:00.000")}];
-  List<dynamic> eventDataThisWeek = [{"_id":{"oid":"6427d2a7752c37a7a61969fd"},"title":"Hesburgh Libraries Hackathon 2023","description":"2023 Hesburgh Libraries Hackathon, where teams of undergrads come together to reimagine solutions to everyday problems","location":"Hesburgh Library","registrationLink":"","url":"hackathon.library.nd.edu","capacity":"75","endTime": DateTime.parse("2023-06-20 04:05:00.000"),"host":"Library Staff","startTime": DateTime.parse("2023-06-20 16:05:00.000")}, {"_id":{"oid":"6427d345752c37a7a61969fe"},"title":"Immigration Week","description":"Join the Student Coalition for Immigration Advocacy to celebrate its annual Immigration Week as it hosts events raising awareness for immigration issues and highlighting our migrant community.","location":"Duncan Student Center","registrationLink":"","url":"","capacity":"","endTime": DateTime.parse("2023-06-20 16:05:00.000"),"startTime": DateTime.parse("2023-06-20 16:05:00.000"),"host":"Student Coalition for Immigration Advocacy"}, {"_id":{"oid":"6427d345752c37a7a61969fe"},"title":"Immigration Week","description":"Join the Student Coalition for Immigration Advocacy to celebrate its annual Immigration Week as it hosts events raising awareness for immigration issues and highlighting our migrant community.","location":"Duncan Student Center","registrationLink":"","url":"","capacity":"","endTime": DateTime.parse("2023-06-20 16:05:00.000"),"startTime": DateTime.parse("2023-06-20 16:05:00.000"),"host":"Student Coalition for Immigration Advocacy"}];
-  List<dynamic> eventDataUpcoming = [{"_id":{"oid":"64289010583731839d4abb79"},"title":"Grand Scholars Challenge","description":"Technology challenge","location":"Stinson 143","registrationLink":"","url":"","host":"ND College of Engineering","capacity":"10","endTime": DateTime.parse("2023-07-04 18:11:00.000"),"startTime": DateTime.parse("2023-07-04 16:11:00.000")}, {"_id":{"oid":"64290edb7afcf8c7831c3ecd"},"title":"SILLY GOOFY HOURS","host":"OnCampus Staff","description":"Silly goofy hours for three gamers","location":"Stinson Remick","startTime": DateTime.parse("2023-07-04 03:00:00.000"),"endTime": DateTime.parse("2023-07-04 06:00:00.000"),"registrationLink":"https://tinyurl.com/pleasemakeitstop420","eventUrl":"","capacity":""}, {"_id":{"oid":"64292891fb7695307b61bb4e"},"title":"Beers in the AM","host":"Gavin Uhran","description":"Let's drink beers at 9 AM","location":"Stinson Remick","startTime": DateTime.parse("2023-07-04 09:00:00.000"),"endTime": DateTime.parse("2023-07-04 10:00:00.000"),"registrationLink":"","eventUrl":"","capacity":""}];
-  List<dynamic> suggestedEventDataToday = [{"_id":{"oid":"64277de37e591aeb3a0a5d2a"},"title":"Women’s Softball vs. Duke","description":"An upcoming softball game promises to be an exciting and competitive event, featuring two skilled teams ready to battle it out on the field. Fans can expect to see impressive displays of athleticism, teamwork, and strategic thinking as the players utilize their individual strengths to score runs and make game-winning plays. With the energy of the crowd and the high stakes of the match, the atmosphere is sure to be electric as both teams give it their all in pursuit of victory.","location":"Softball Stadium","registrationLink":"https://www.google.com/maps","url":"https://und.com/sports/wbball/","capacity":"500","endTime": DateTime.parse("2023-06-16 19:05:00.000"),"startTime": DateTime.parse("2023-06-16 16:05:00.000"),"host":"Notre Dame Athletics"}, {"_id":{"oid":"6427d0d7752c37a7a61969f9"},"title":"Spring Musical “Anything Goes”","description":"When the S.S. American heads out to sea, etiquette and convention head out the portholes as two unlikely pairs set off on the course to true love","location":"Washington Hall","registrationLink":"","url":"http://pemco.weebly.com/anything-goes.html","capacity":"500","endTime": DateTime.parse("2023-06-16 18:35:00.000"),"host":"PEMCo","startTime": DateTime.parse("2023-06-16 16:05:00.000")}, {"_id":{"oid":"6427d255752c37a7a61969fc"},"title":"“In Viaggio: The Travels of Pope Francis” (2023)","description":"This is a film about Pope Francis","location":"Browning Cinema","registrationLink":"https://performingarts.nd.edu/event/15675/in-viaggio-the-travels-of-pope-francis-2023/?utm_source=The+Week&utm_medium=ND+Newsletter&utm_campaign=The+Week&utm_term=Cinema&utm_content=In+Viaggio","url":"","capacity":"","endTime": DateTime.parse("2023-06-16 15:05:00.000"),"host":"Browning Cinema","startTime": DateTime.parse("2023-06-16 12:05:00.000")}];
-  List<dynamic> suggestedEventDataThisWeek = [{"_id":{"oid":"6427d2a7752c37a7a61969fd"},"title":"Hesburgh Libraries Hackathon 2023","description":"2023 Hesburgh Libraries Hackathon, where teams of undergrads come together to reimagine solutions to everyday problems","location":"Hesburgh Library","registrationLink":"","url":"hackathon.library.nd.edu","capacity":"75","endTime": DateTime.parse("2023-06-20 04:05:00.000"),"host":"Library Staff","startTime": DateTime.parse("2023-06-20 16:05:00.000")}, {"_id":{"oid":"6427d345752c37a7a61969fe"},"title":"Immigration Week","description":"Join the Student Coalition for Immigration Advocacy to celebrate its annual Immigration Week as it hosts events raising awareness for immigration issues and highlighting our migrant community.","location":"Duncan Student Center","registrationLink":"","url":"","capacity":"","endTime": DateTime.parse("2023-06-20 16:05:00.000"),"startTime": DateTime.parse("2023-06-20 16:05:00.000"),"host":"Student Coalition for Immigration Advocacy"}, {"_id":{"oid":"6427d345752c37a7a61969fe"},"title":"Immigration Week","description":"Join the Student Coalition for Immigration Advocacy to celebrate its annual Immigration Week as it hosts events raising awareness for immigration issues and highlighting our migrant community.","location":"Duncan Student Center","registrationLink":"","url":"","capacity":"","endTime": DateTime.parse("2023-06-20 16:05:00.000"),"startTime": DateTime.parse("2023-06-20 16:05:00.000"),"host":"Student Coalition for Immigration Advocacy"}];
-  List<dynamic> suggestedEventDataUpcoming = [{"_id":{"oid":"64289010583731839d4abb79"},"title":"Grand Scholars Challenge","description":"Technology challenge","location":"Stinson 143","registrationLink":"","url":"","host":"ND College of Engineering","capacity":"10","endTime": DateTime.parse("2023-07-04 18:11:00.000"),"startTime": DateTime.parse("2023-07-04 16:11:00.000")}, {"_id":{"oid":"64290edb7afcf8c7831c3ecd"},"title":"SILLY GOOFY HOURS","host":"OnCampus Staff","description":"Silly goofy hours for three gamers","location":"Stinson Remick","startTime": DateTime.parse("2023-07-04 03:00:00.000"),"endTime": DateTime.parse("2023-07-04 06:00:00.000"),"registrationLink":"https://tinyurl.com/pleasemakeitstop420","eventUrl":"","capacity":""}, {"_id":{"oid":"64292891fb7695307b61bb4e"},"title":"Beers in the AM","host":"Gavin Uhran","description":"Let's drink beers at 9 AM","location":"Stinson Remick","startTime": DateTime.parse("2023-07-04 09:00:00.000"),"endTime": DateTime.parse("2023-07-04 10:00:00.000"),"registrationLink":"","eventUrl":"","capacity":""}];
-  List<dynamic> followingEventDataToday = [{"_id":{"oid":"64277de37e591aeb3a0a5d2a"},"title":"Women’s Softball vs. Duke","description":"An upcoming softball game promises to be an exciting and competitive event, featuring two skilled teams ready to battle it out on the field. Fans can expect to see impressive displays of athleticism, teamwork, and strategic thinking as the players utilize their individual strengths to score runs and make game-winning plays. With the energy of the crowd and the high stakes of the match, the atmosphere is sure to be electric as both teams give it their all in pursuit of victory.","location":"Softball Stadium","registrationLink":"https://www.google.com/maps","url":"https://und.com/sports/wbball/","capacity":"500","endTime": DateTime.parse("2023-06-16 19:05:00.000"),"startTime": DateTime.parse("2023-06-16 16:05:00.000"),"host":"Notre Dame Athletics"}, {"_id":{"oid":"6427d0d7752c37a7a61969f9"},"title":"Spring Musical “Anything Goes”","description":"When the S.S. American heads out to sea, etiquette and convention head out the portholes as two unlikely pairs set off on the course to true love","location":"Washington Hall","registrationLink":"","url":"http://pemco.weebly.com/anything-goes.html","capacity":"500","endTime": DateTime.parse("2023-06-16 18:35:00.000"),"host":"PEMCo","startTime": DateTime.parse("2023-06-16 16:05:00.000")}, {"_id":{"oid":"6427d255752c37a7a61969fc"},"title":"“In Viaggio: The Travels of Pope Francis” (2023)","description":"This is a film about Pope Francis","location":"Browning Cinema","registrationLink":"https://performingarts.nd.edu/event/15675/in-viaggio-the-travels-of-pope-francis-2023/?utm_source=The+Week&utm_medium=ND+Newsletter&utm_campaign=The+Week&utm_term=Cinema&utm_content=In+Viaggio","url":"","capacity":"","endTime": DateTime.parse("2023-06-16 15:05:00.000"),"host":"Browning Cinema","startTime": DateTime.parse("2023-06-16 12:05:00.000")}];
-  List<dynamic> followingEventDataThisWeek = [{"_id":{"oid":"6427d2a7752c37a7a61969fd"},"title":"Hesburgh Libraries Hackathon 2023","description":"2023 Hesburgh Libraries Hackathon, where teams of undergrads come together to reimagine solutions to everyday problems","location":"Hesburgh Library","registrationLink":"","url":"hackathon.library.nd.edu","capacity":"75","endTime": DateTime.parse("2023-06-20 04:05:00.000"),"host":"Library Staff","startTime": DateTime.parse("2023-06-20 16:05:00.000")}, {"_id":{"oid":"6427d345752c37a7a61969fe"},"title":"Immigration Week","description":"Join the Student Coalition for Immigration Advocacy to celebrate its annual Immigration Week as it hosts events raising awareness for immigration issues and highlighting our migrant community.","location":"Duncan Student Center","registrationLink":"","url":"","capacity":"","endTime": DateTime.parse("2023-06-20 16:05:00.000"),"startTime": DateTime.parse("2023-06-20 16:05:00.000"),"host":"Student Coalition for Immigration Advocacy"}, {"_id":{"oid":"6427d345752c37a7a61969fe"},"title":"Immigration Week","description":"Join the Student Coalition for Immigration Advocacy to celebrate its annual Immigration Week as it hosts events raising awareness for immigration issues and highlighting our migrant community.","location":"Duncan Student Center","registrationLink":"","url":"","capacity":"","endTime": DateTime.parse("2023-06-20 16:05:00.000"),"startTime": DateTime.parse("2023-06-20 16:05:00.000"),"host":"Student Coalition for Immigration Advocacy"}];
-  List<dynamic> followingEventDataUpcoming = [{"_id":{"oid":"64289010583731839d4abb79"},"title":"Grand Scholars Challenge","description":"Technology challenge","location":"Stinson 143","registrationLink":"","url":"","host":"ND College of Engineering","capacity":"10","endTime": DateTime.parse("2023-07-04 18:11:00.000"),"startTime": DateTime.parse("2023-07-04 16:11:00.000")}, {"_id":{"oid":"64290edb7afcf8c7831c3ecd"},"title":"SILLY GOOFY HOURS","host":"OnCampus Staff","description":"Silly goofy hours for three gamers","location":"Stinson Remick","startTime": DateTime.parse("2023-07-04 03:00:00.000"),"endTime": DateTime.parse("2023-07-04 06:00:00.000"),"registrationLink":"https://tinyurl.com/pleasemakeitstop420","eventUrl":"","capacity":""}, {"_id":{"oid":"64292891fb7695307b61bb4e"},"title":"Beers in the AM","host":"Gavin Uhran","description":"Let's drink beers at 9 AM","location":"Stinson Remick","startTime": DateTime.parse("2023-07-04 09:00:00.000"),"endTime": DateTime.parse("2023-07-04 10:00:00.000"),"registrationLink":"","eventUrl":"","capacity":""}];
+  List<dynamic> eventDataToday = [];
+  List<dynamic> eventDataThisWeek = [];
+  List<dynamic> eventDataUpcoming = [];
+  List<dynamic> suggestedEventDataToday = [];
+  List<dynamic> suggestedEventDataThisWeek = [];
+  List<dynamic> suggestedEventDataUpcoming = [];
+  List<dynamic> followingEventDataToday = [];
+  List<dynamic> followingEventDataThisWeek = [];
+  List<dynamic> followingEventDataUpcoming = [];
 
   HomePage({Key? key, required this.navigator}) : super(key: key);
 
@@ -38,9 +38,9 @@ class _HomePageState extends State<HomePage>
   late TabController _tabController;
   bool displaySearch = false;
   final searchCont = TextEditingController();
-  bool _isAllLoading = false; //true;
-  bool _isSuggestedLoading = false; //true;
-  bool _isFollowingLoading = false; //true;
+  bool _isAllLoading = true;
+  bool _isSuggestedLoading = true;
+  bool _isFollowingLoading = true;
   bool _showInterestsSuggestion = false;
   bool _showErrorScreen = false;
 
@@ -49,9 +49,9 @@ class _HomePageState extends State<HomePage>
     super.initState();
     // Initialize the controller with the number of tabs and this class as the provider
     _tabController = TabController(length: myTabs.length, vsync: this);
-    // _loadAllEvents();
-    // _loadSuggestedEvents();
-    // _loadFollowingEvents();
+    _loadAllEvents();
+    _loadSuggestedEvents();
+    _loadFollowingEvents();
   }
 
   @override
@@ -70,9 +70,9 @@ class _HomePageState extends State<HomePage>
         leading: IconButton(
           icon: const Icon(Icons.refresh),
           onPressed: () {
-            // _loadAllEvents();
-            // _loadSuggestedEvents();
-            // _loadFollowingEvents();
+            _loadAllEvents();
+            _loadSuggestedEvents();
+            _loadFollowingEvents();
           },
         ),
         title: const Text(
@@ -124,15 +124,15 @@ class _HomePageState extends State<HomePage>
                                             // reset current lists
                                             if (mounted) {
                                               setState(() {
-                                                // widget.eventDataToday = [];
-                                                // widget.eventDataThisWeek = [];
-                                                // widget.eventDataUpcoming = [];
+                                                widget.eventDataToday = [];
+                                                widget.eventDataThisWeek = [];
+                                                widget.eventDataUpcoming = [];
 
                                                 displaySearch = false;
                                               });
                                             }
                                             // repopulate events
-                                            // _loadAllEvents();
+                                            _loadAllEvents();
                                           },
                                         ),
                                         prefixIcon: IconButton(
@@ -154,8 +154,7 @@ class _HomePageState extends State<HomePage>
                                 eventDataToday: widget.eventDataToday,
                                 eventDataThisWeek: widget.eventDataThisWeek,
                                 eventDataUpcoming: widget.eventDataUpcoming,
-                                refreshFollowing: () => {},
-                                )//_loadFollowingEvents),
+                                refreshFollowing: _loadFollowingEvents),
                           ],
                         ),
                       ),
