@@ -28,6 +28,19 @@ def get_mongodb_user():
     db = mongo_client['campus_events']
     return db['account_list']
 
+# Get series_id IDs from mongodb
+def get_mongodb_series():
+    # connect to client
+    mongo_client = MongoClient(f'mongodb+srv://{MONGO_USERNAME}:{MONGO_PASSWORD}@test-cluster1.ljrkvvp.mongodb.net/?retryWrites=true&w=majority')
+    # access 'campus_events' database
+    db = mongo_client['campus_events']
+    # series_ids = db['series_ids'].find({}, {'_id': 1})
+    series_ids_cursor = db['series_ids'].find({}, {'_id': 1})
+    series_ids = [str(doc['_id']) for doc in series_ids_cursor]
+    return series_ids
+
+    
+
 # this function will query all events from the event_list collection and return all events in json format
 def get_mongodb_all():
     collection = get_mongodb_collection()
@@ -200,11 +213,29 @@ def get_host_events(hosts):
     return events
 
 
+def get_series_events():
+    collection = get_mongodb_collection()
+    series_ids = get_mongodb_series()
+    events = []
+
+    for series_id in series_ids:
+        cursor = collection.find({"_id": ObjectId(series_id)})
+        if cursor:
+            for document in cursor:
+                events.append(document)
+    return events
+       
+
 def main():
+    
+    #pprint(get_mongodb_collection())
+    #pprint(get_seriesID('6492fc0fd5145a791ddf1de7'))
     # pprint(get_mongodb_flutter())
     # set_mongodb_user_interests(["baseball", "soccer"], "cpreciad")
-    # print(get_mongodb_user_interests("cpreciad"))
-    pprint(get_mongodb_all())
+    #print(get_mongodb_user_interests("cpreciad"))
+    #pprint(get_mongodb_all())
+    #pprint(get_mongodb_series())
+    pprint(get_series_events())
 
 
 if __name__ == '__main__':
