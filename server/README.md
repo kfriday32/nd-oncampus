@@ -20,3 +20,27 @@ FLASK_ENV=development
 ## Running the Server
 
 Running the server should be as simple as `flask run`
+
+# Database
+
+## Creating a user and generating a password 
+In order to use the MongoDB database, developers will need to be added to the Atlas cluster and given the 
+appropriate permissions to read & write to the database. 
+
+Once the developer has been added to the database which is done on the `Security -> Database Access` page, 
+click through `edit` ->  ` Edit Password` -> `generate new password` and save the password for the user. This 
+will be used as an environment variable to authenticate the user for database access
+
+## Saving the user credentials
+Within the `server` directory, open the `.env` file that was created in the previous step. 
+Include the following lines: 
+
+```
+MONGO_USERNAME=<username stored in Atlas>
+MONGO_PASSWORD=<generated password>
+```
+
+
+### Note
+This is how permissions are being granted to the database for now. A more streamlined solution 
+should be researched and pursued in the future
