@@ -219,7 +219,7 @@ def get_series_events():
     events = []
 
     for series_id in series_ids:
-        cursor = collection.find({"_id": ObjectId(series_id)})
+        cursor = collection.find({"series_id": ObjectId(series_id)})
         if cursor:
             for document in cursor:
                 events.append(document)
