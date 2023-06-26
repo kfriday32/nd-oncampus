@@ -3,7 +3,7 @@ from gpt import generate_prompt, generate_interests
 import mongodb
 import json
 from bson.json_util import dumps
-from mongodb import get_mongodb_flutter, get_mongodb_user_interests, rem_following_event, set_mongodb_user_interests, get_user_following, add_following_event, get_mongodb_events, get_host_events, get_mongodb_user_data, set_mongodb_user_data   
+from mongodb import get_mongodb_flutter, get_mongodb_user_interests, rem_following_event, set_mongodb_user_interests, get_user_following, add_following_event, get_mongodb_events, get_host_events, get_mongodb_user_data, set_mongodb_user_data, get_series_events   
 import re
 
 app = Flask(__name__)
@@ -133,6 +133,11 @@ def query_user():
 
     return "done"
 
+@app.route('/series', methods=["GET"])
+def series_events():
+    events = get_series_events()
+    json_events = dumps(events)
+    return jsonify(json_events)
 
 def DEBUG(message):
     print(f"--------------------------------------------------------------------")
