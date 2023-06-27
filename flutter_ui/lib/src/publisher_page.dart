@@ -1,8 +1,12 @@
-import 'package:date_field/date_field.dart';
+//import 'package:date_field/date_field.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'helpers.dart';
+import 'package:syncfusion_flutter_calendar/calendar.dart';
+//import 'package:table_calendar/table_calendar.dart';
+import 'package:intl/intl.dart';
+//import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 
 class PublisherPage extends StatelessWidget {
   final Function updateSelectedIndex;
@@ -44,6 +48,12 @@ class _EventFormState extends State<EventForm> {
   // visibility of guest list
   DateTime _startTime = DateTime.now();
   DateTime _endTime = DateTime.now();
+  // DateTime? _selectedDateTime;
+  // Selected date and time
+  DateTime? _selectedStartDate;
+  TimeOfDay? _selectedStartTime;
+  DateTime? _selectedEndDate;
+  TimeOfDay? _selectedEndTime;
 
   // text field controllers
   final _titleController = TextEditingController();
@@ -53,6 +63,144 @@ class _EventFormState extends State<EventForm> {
   final _registrationLinkController = TextEditingController();
   final _eventUrlController = TextEditingController();
   final _capacityController = TextEditingController();
+
+  // Calendar
+  final _startCalendarController = CalendarController();
+  final _endCalendarController = CalendarController();
+  // Date & Time Selecting
+  Future<void> _selectStartDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100),
+      // Change color
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            primaryColor: Color(0xFF0C2340),
+            colorScheme: ColorScheme.light(primary: Color(0xFF0C2340)),
+            buttonTheme: ButtonThemeData(
+              textTheme: ButtonTextTheme.primary,
+              buttonColor: Color(0xFF0C2340),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null) {
+      setState(() {
+        _selectedStartDate = picked;
+      });
+    }
+  }
+
+  Future<void> _selectStartTime(BuildContext context) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+      // Change color
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            primaryColor: Color(0xFF0C2340),
+            colorScheme: ColorScheme.light(primary: Color(0xFF0C2340)),
+            buttonTheme: ButtonThemeData(
+              textTheme: ButtonTextTheme.primary,
+              buttonColor: Color(0xFF0C2340),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null) {
+      setState(() {
+        _selectedStartTime = picked;
+      });
+    }
+  }
+
+  Future<void> _selectEndDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100),
+      // Change color
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            primaryColor: Color(0xFF0C2340),
+            colorScheme: ColorScheme.light(primary: Color(0xFF0C2340)),
+            buttonTheme: ButtonThemeData(
+              textTheme: ButtonTextTheme.primary,
+              buttonColor: Color(0xFF0C2340),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null) {
+      setState(() {
+        _selectedEndDate = picked;
+      });
+    }
+  }
+
+  Future<void> _selectEndTime(BuildContext context) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+      // Change color
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            primaryColor: Color(0xFF0C2340),
+            colorScheme: ColorScheme.light(primary: Color(0xFF0C2340)),
+            buttonTheme: ButtonThemeData(
+              textTheme: ButtonTextTheme.primary,
+              buttonColor: Color(0xFF0C2340),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null) {
+      setState(() {
+        _selectedEndTime = picked;
+      });
+    }
+  }
+
+  // Validate date & time
+  bool _validateEndDate() {
+    if (_selectedStartDate == null || _selectedEndDate == null) {
+      return true; // Skip validation if either start or end date is not selected
+    }
+    if (_selectedStartDate!.isAtSameMomentAs(_selectedEndDate!)) {
+      return true;
+    }
+    return _selectedEndDate!
+        .isAfter(_selectedStartDate!); // Validate end date is after start date
+  }
+
+  bool _validateEndTime() {
+    if (_selectedStartTime == null || _selectedEndTime == null) {
+      return true;
+    }
+    // Start Time is Before End Time
+    if (_selectedStartTime!.hour < _selectedEndTime!.hour ||
+        (_selectedStartTime!.hour == _selectedEndTime!.hour &&
+            _selectedStartTime!.minute < _selectedEndTime!.minute)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
   bool _isSubmitted = false;
 
@@ -65,6 +213,9 @@ class _EventFormState extends State<EventForm> {
     _registrationLinkController.dispose();
     _eventUrlController.dispose();
     _capacityController.dispose();
+
+    _startCalendarController.dispose();
+    _endCalendarController.dispose();
     super.dispose();
   }
 
@@ -74,8 +225,20 @@ class _EventFormState extends State<EventForm> {
       'host': _hostController.text,
       'description': _descController.text,
       'location': _locationController.text,
-      'startTime': _startTime.toString(),
-      'endTime': _endTime.toString(),
+      'startTime': DateTime(
+        _selectedStartDate!.year,
+        _selectedStartDate!.month,
+        _selectedStartDate!.day,
+        _selectedStartTime!.hour,
+        _selectedStartTime!.minute,
+      ).toString(),
+      'endTime': DateTime(
+        _selectedEndDate!.year,
+        _selectedEndDate!.month,
+        _selectedEndDate!.day,
+        _selectedEndTime!.hour,
+        _selectedEndTime!.minute,
+      ).toString(),
       'registrationLink': _registrationLinkController.text,
       'eventUrl': _eventUrlController.text,
       'capacity': _capacityController.text
@@ -216,46 +379,187 @@ class _EventFormState extends State<EventForm> {
                                       : null;
                                 },
                               ),
-                              const SizedBox(height: 20.0),
-                              DateTimeFormField(
-                                decoration: const InputDecoration(
-                                  icon: Icon(Icons.event_note),
-                                  hintStyle: TextStyle(color: Colors.black45),
-                                  errorStyle:
-                                      TextStyle(color: Colors.redAccent),
-                                  labelText: 'Start Time *',
+                              // Date & Time Selection
+                              const SizedBox(
+                                height: 20.0,
+                              ),
+                              // Date Entry
+                              SizedBox(
+                                height: 50.0,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    const Icon(Icons.calendar_today,
+                                        color: Colors.grey),
+                                    const SizedBox(width: 15.0),
+                                    // Start Date
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        style: ButtonStyle(
+                                          backgroundColor:
+                                              MaterialStateProperty.all<Color>(
+                                                  Color.fromARGB(
+                                                      255, 228, 230, 232)),
+                                          foregroundColor:
+                                              MaterialStateProperty.all<Color>(
+                                                  Color(0xFF0C2340)),
+                                          shape: MaterialStateProperty.all<
+                                              OutlinedBorder>(
+                                            RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8.0),
+                                              side: BorderSide(
+                                                color: Color(0xFF0C2340),
+                                              ), // Set the desired outline color here
+                                            ),
+                                          ),
+                                        ),
+                                        onPressed: () =>
+                                            _selectStartDate(context),
+                                        child: FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          child: Text(_selectedStartDate == null
+                                              ? 'Start Date'
+                                              : 'Starts: ${DateFormat('MMM d').format(_selectedStartDate!)}'),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    // End Date
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        style: ButtonStyle(
+                                          backgroundColor:
+                                              MaterialStateProperty.all<Color>(
+                                                  Color.fromARGB(
+                                                      255, 228, 230, 232)),
+                                          foregroundColor:
+                                              MaterialStateProperty.all<Color>(
+                                                  Color(0xFF0C2340)),
+                                          shape: MaterialStateProperty.all<
+                                              OutlinedBorder>(
+                                            RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8.0),
+                                              side: BorderSide(
+                                                color: Color(0xFF0C2340),
+                                              ), // Set the desired outline color here
+                                            ),
+                                          ), // shape
+                                        ),
+                                        onPressed: () =>
+                                            _selectEndDate(context),
+                                        child: FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          child: Text(
+                                            _selectedEndDate == null
+                                                ? 'End Date'
+                                                : _validateEndDate()
+                                                    ? 'Ends: ${DateFormat('MMM d').format(_selectedStartDate!)}'
+                                                    : 'Invalid End Date',
+                                            style: TextStyle(
+                                              color: _validateEndDate()
+                                                  ? Colors.black
+                                                  : Colors
+                                                      .red, // Set text color based on validity
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                validator: (val) {
-                                  return (val == null)
-                                      ? 'Please pick a start time'
-                                      : null;
-                                },
-                                onDateSelected: (DateTime val) {
-                                  _startTime = val;
-                                },
                               ),
                               const SizedBox(height: 20.0),
-                              DateTimeFormField(
-                                decoration: const InputDecoration(
-                                  icon: Icon(Icons.event_note),
-                                  hintStyle: TextStyle(color: Colors.black45),
-                                  errorStyle:
-                                      TextStyle(color: Colors.redAccent),
-                                  labelText: 'End Time *',
+                              // Time Entry
+                              SizedBox(
+                                height: 50.0,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    const Icon(Icons.access_time_outlined,
+                                        color: Colors.grey),
+                                    const SizedBox(width: 15.0),
+                                    // Start Time
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        style: ButtonStyle(
+                                          backgroundColor:
+                                              MaterialStateProperty.all<Color>(
+                                                  Color.fromARGB(
+                                                      255, 228, 230, 232)),
+                                          foregroundColor:
+                                              MaterialStateProperty.all<Color>(
+                                                  Color(0xFF0C2340)),
+                                          shape: MaterialStateProperty.all<
+                                              OutlinedBorder>(
+                                            RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8.0),
+                                              side: BorderSide(
+                                                color: Color(0xFF0C2340),
+                                              ), // Set the desired outline color here
+                                            ),
+                                          ),
+                                        ),
+                                        onPressed: () =>
+                                            _selectStartTime(context),
+                                        child: FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          child: Text(_selectedStartTime == null
+                                              ? 'Start Time'
+                                              : 'Starts: ${_selectedStartTime!.format(context)}'),
+                                        ),
+                                      ),
+                                    ),
+
+                                    const SizedBox(width: 10),
+                                    // End Time
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        style: ButtonStyle(
+                                          backgroundColor:
+                                              MaterialStateProperty.all<Color>(
+                                                  Color.fromARGB(
+                                                      255, 228, 230, 232)),
+                                          foregroundColor:
+                                              MaterialStateProperty.all<Color>(
+                                                  Color(0xFF0C2340)),
+                                          shape: MaterialStateProperty.all<
+                                              OutlinedBorder>(
+                                            RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8.0),
+                                              side: BorderSide(
+                                                color: Color(0xFF0C2340),
+                                              ), // Set the desired outline color here
+                                            ),
+                                          ),
+                                        ),
+                                        onPressed: () =>
+                                            _selectEndTime(context),
+                                        child: FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          child: Text(
+                                            _selectedEndTime == null
+                                                ? 'End Time'
+                                                : _validateEndTime()
+                                                    ? 'Ends: ${DateFormat.jm().format(DateTime(2023, 1, 1, _selectedEndTime!.hour, _selectedEndTime!.minute))}'
+                                                    : 'Invalid End Time',
+                                            style: TextStyle(
+                                              color: _validateEndTime()
+                                                  ? Colors.black
+                                                  : Colors
+                                                      .red, // Set text color based on validity
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                validator: (val) {
-                                  if (val == null) {
-                                    return 'Please pick an end time';
-                                  } else if (!_endTime.isAfter(_startTime)) {
-                                    return 'Ensure that the end time is after the start time';
-                                  }
-                                  return null;
-                                },
-                                onDateSelected: (DateTime val) {
-                                  _endTime = val;
-                                },
                               ),
-                              const SizedBox(height: 20.0),
+                              const SizedBox(height: 10.0),
                               TextFormField(
                                 controller: _registrationLinkController,
                                 decoration: const InputDecoration(

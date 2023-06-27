@@ -13,13 +13,13 @@ class UserPage extends StatefulWidget {
 }
 
 class _UserPageState extends State<UserPage> {
-  TextEditingController _firstNameController = TextEditingController();
+  TextEditingController _firstNameController =TextEditingController();
   TextEditingController _lastNameController = TextEditingController();
   TextEditingController _netIdController = TextEditingController();
   List<String> _savedInterests = [];
   List<String> _suggestedInterests = [];
 
-  bool _isUserLoading = true;
+  bool _isUserLoading = false; //true;
   bool _shouldUpdate = false;
 
   @override
