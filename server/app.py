@@ -136,8 +136,8 @@ def query_user():
 @app.route('/series', methods=["GET"])
 def series_events():
     events = get_series_events()
-    json_events = dumps(events)
-    return jsonify(json_events)
+    series_events = dumps(events)
+    return jsonify(series_events)
 
 def DEBUG(message):
     print(f"--------------------------------------------------------------------")

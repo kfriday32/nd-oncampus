@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'event_detail_page.dart';
+import 'events_list.dart';
 
-class EventsList extends StatelessWidget {
+class SeriesList extends StatelessWidget {
   List<dynamic> eventDataToday = [];
   List<dynamic> eventDataThisWeek = [];
   List<dynamic> eventDataUpcoming = [
@@ -19,25 +20,11 @@ class EventsList extends StatelessWidget {
       "startTime": DateTime.parse("2023-07-01 16:05:00.000"),
       "host": "Notre Dame Athletics",
       "series_id": "6492fc0fd5145a791ddf1de7"
-    },
-    {
-      "_id": {"oid": "6427d0d7752c37a7a61969f9"},
-      "title": "Spring Musical “Anything Goes”",
-      "description":
-          "When the S.S. American heads out to sea, etiquette and convention head out the portholes as two unlikely pairs set off on the course to true love",
-      "location": "Washington Hall",
-      "registrationLink": "",
-      "url": "http://pemco.weebly.com/anything-goes.html",
-      "capacity": "500",
-      "endTime": DateTime.parse("2023-07-21 18:35:00.000"),
-      "host": "PEMCo",
-      "startTime": DateTime.parse("2023-06-23 16:05:00.000"),
-      "series_id": "-1"
     }
   ];
   final refreshFollowing;
 
-  EventsList(
+  SeriesList(
       {Key? key,
       // required this.eventDataToday,
       // required this.eventDataThisWeek,
@@ -86,13 +73,13 @@ class EventsList extends StatelessWidget {
   }
 }
 
-class EventsListSection extends StatelessWidget {
+class SeriesListSection extends StatelessWidget {
   String title = "";
   List<dynamic> events = [];
   bool displayTime = false;
   final refreshFollowing;
 
-  EventsListSection(
+  SeriesListSection(
       {Key? key,
       required this.title,
       required this.events,
