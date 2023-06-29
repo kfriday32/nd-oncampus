@@ -39,9 +39,9 @@ class EventsList extends StatelessWidget {
 
   EventsList(
       {Key? key,
-      // required this.eventDataToday,
-      // required this.eventDataThisWeek,
-      // required this.eventDataUpcoming,
+      required this.eventDataToday,
+      required this.eventDataThisWeek,
+      required this.eventDataUpcoming,
       this.refreshFollowing})
       : super(key: key);
 
