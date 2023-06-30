@@ -2,7 +2,6 @@
 from dotenv import load_dotenv
 import os
 from pymongo import MongoClient
-from bson import ObjectId
 from datetime import datetime
 from pprint import pprint
 
@@ -75,7 +74,7 @@ def get_mongodb_events(id_list):
     collection = get_mongodb_collection()
 
     # itterate through the id list and query all completed collections 
-    events = [collection.find_one({'_id': ObjectId(id)}) for id in id_list]
+    events = [collection.find_one({'_id': id}) for id in id_list]
     return events
 
 # simple api wrapper for returning all data to flutter
@@ -212,18 +211,10 @@ def get_host_events(hosts):
 
     return events
 
-
-def get_series_events():
+def get_series_events(seriesId):
     collection = get_mongodb_collection()
-    series_ids = get_mongodb_series()
-    events = []
-
-    for series_id in series_ids:
-        cursor = collection.find({"series_id": ObjectId(series_id)})
-        if cursor:
-            for document in cursor:
-                events.append(document)
-    return events
+    events = collection.find({"series_id": seriesId})
+    return list(events)
        
 
 def main():

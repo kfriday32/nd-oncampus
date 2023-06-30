@@ -135,9 +135,9 @@ def query_user():
 
 @app.route('/series', methods=["GET"])
 def series_events():
-    events = get_series_events()
-    series_events = dumps(events)
-    return jsonify(series_events)
+    series_id = request.args.get('seriesId')  # Retrieve the seriesId from the query parameters
+    series_events = get_series_events(series_id)  # Pass the seriesId to the get_series_events() function
+    return dumps(series_events)
 
 def DEBUG(message):
     print(f"--------------------------------------------------------------------")
