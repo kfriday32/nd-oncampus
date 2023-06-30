@@ -17,9 +17,10 @@ class SeriesList extends StatefulWidget {
   List<dynamic> eventDataToday = [];
   List<dynamic> eventDataThisWeek = [];
   List<dynamic> eventDataUpcoming = [];
+  String seriesId = '';
 
   //SeriesList({Key? key, required this.navigator}) : super(key: key);
-  SeriesList({Key? key}) : super(key: key);
+  SeriesList({Key? key, required this.seriesId}) : super(key: key);
   @override
   State<SeriesList> createState() => _SeriesListState();
 }
@@ -41,9 +42,7 @@ class _SeriesListState extends State<SeriesList>
     super.initState();
     // Initialize the controller with the number of tabs and this class as the provider
     _tabController = TabController(length: myTabs.length, vsync: this);
-    // _loadAllEvents();
-    // _loadSuggestedEvents();
-    // _loadFollowingEvents();
+    _loadSeriesEvents();
   }
 
   @override
@@ -92,7 +91,7 @@ class _SeriesListState extends State<SeriesList>
                                 eventDataToday: widget.eventDataToday,
                                 eventDataThisWeek: widget.eventDataThisWeek,
                                 eventDataUpcoming: widget.eventDataUpcoming,
-                                refreshFollowing: _loadSeriesEvents),
+                                refreshFollowing: () => {}),
                           ],
                         ),
                       ),
@@ -111,7 +110,7 @@ class _SeriesListState extends State<SeriesList>
       });
     }
     try {
-      final response = await http.get(Uri.parse('${Helpers.getUri()}/series'));
+      final response = await http.get(Uri.parse('${Helpers.getUri()}/series?seriesId=${widget.seriesId}'));
 
       if (response.statusCode == 200) {
         if (mounted) {
@@ -173,8 +172,8 @@ bool isSameDate(DateTime time1, DateTime time2) {
 }
 
 bool isWithinUpcomingWeek(DateTime date1, DateTime date2) {
-  final nextWeekStart = date1.add(Duration(days: 7 - date1.weekday));
-  final nextWeekEnd = nextWeekStart.add(const Duration(days: 6));
-  return date2.isAfter(nextWeekStart.subtract(const Duration(days: 1))) &&
-      date2.isBefore(nextWeekEnd.add(const Duration(days: 1)));
+  final thisWeekEnd = date1.add(const Duration(days: 7));
+  return date2.isAfter(date1) &&
+      date2.isBefore(thisWeekEnd.add(const Duration(days: 1)));
 }
+

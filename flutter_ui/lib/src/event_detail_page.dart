@@ -358,7 +358,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (context) => SeriesList(),
+                                            builder: (context) => SeriesList(seriesId: widget.event['series_id'].toString()),
                                           ),
                                         );
                                       },
