@@ -464,7 +464,7 @@ bool isSameDate(DateTime time1, DateTime time2) {
 }
 
 bool isWithinUpcomingWeek(DateTime date1, DateTime date2) {
-  final thisWeekEnd = date1.add(const Duration(days: 7));
+  final thisWeekEnd = date1.add(const Duration(days: 6));
   return date2.isAfter(date1) &&
       date2.isBefore(thisWeekEnd.add(const Duration(days: 1)));
 }
