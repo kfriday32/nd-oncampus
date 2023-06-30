@@ -50,8 +50,8 @@ class _HomePageState extends State<HomePage>
     // Initialize the controller with the number of tabs and this class as the provider
     _tabController = TabController(length: myTabs.length, vsync: this);
     _loadAllEvents();
-    // _loadSuggestedEvents();
-    // _loadFollowingEvents();
+    _loadSuggestedEvents();
+    _loadFollowingEvents();
   }
 
   @override
