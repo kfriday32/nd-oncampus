@@ -1,16 +1,8 @@
-import 'package:intl/intl.dart';
-import 'event_detail_page.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_ui/src/interests_page.dart';
-import 'package:flutter_ui/src/user_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'navigation.dart';
-import 'events_page.dart';
-import 'package:fuzzy/fuzzy.dart';
 import 'events_list.dart';
 import 'helpers.dart';
-import 'home_page.dart';
 
 class SeriesList extends StatefulWidget {
   //final AppNavigator navigator;
@@ -25,31 +17,14 @@ class SeriesList extends StatefulWidget {
   State<SeriesList> createState() => _SeriesListState();
 }
 
-class _SeriesListState extends State<SeriesList>
-    with SingleTickerProviderStateMixin {
-  final List<Tab> myTabs = [
-    const Tab(text: 'Upcoming'),
-  ];
-
-  late TabController _tabController;
-  bool displaySearch = false;
-  final searchCont = TextEditingController();
+class _SeriesListState extends State<SeriesList> {
   bool _isAllLoading = false; //true;
-  bool _showErrorScreen = false;
 
   @override
   void initState() {
     super.initState();
-    // Initialize the controller with the number of tabs and this class as the provider
-    _tabController = TabController(length: myTabs.length, vsync: this);
-    _loadSeriesEvents();
-  }
 
-  @override
-  void dispose() {
-    _tabController
-        .dispose(); // Dispose of the controller when the widget is removed from the tree
-    super.dispose();
+    _loadSeriesEvents();
   }
 
   @override
@@ -63,40 +38,28 @@ class _SeriesListState extends State<SeriesList>
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Text(
-          'Series',
+          'Event Series',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 24.0,
           ),
         ),
-        bottom: TabBar(
-          controller: _tabController, // Set the controller for the TabBar
-          tabs: myTabs,
-          indicatorColor: const Color(0xFFd39F10),
-        ),
       ),
       body: Column(
         children: [
           Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                _isAllLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            const SizedBox(),
-                            EventsList(
-                                eventDataToday: widget.eventDataToday,
-                                eventDataThisWeek: widget.eventDataThisWeek,
-                                eventDataUpcoming: widget.eventDataUpcoming,
-                                refreshFollowing: () => {}),
-                          ],
-                        ),
-                      ),
-              ],
-            ),
+            child: _isAllLoading
+                ? const Center(child: CircularProgressIndicator())
+                : SingleChildScrollView(
+                    child: Column(children: [
+                      const SizedBox(),
+                      EventsList(
+                          eventDataToday: widget.eventDataToday,
+                          eventDataThisWeek: widget.eventDataThisWeek,
+                          eventDataUpcoming: widget.eventDataUpcoming,
+                          refreshFollowing: () => {}),
+                    ]),
+                  ),
           ),
         ],
       ),
@@ -110,7 +73,8 @@ class _SeriesListState extends State<SeriesList>
       });
     }
     try {
-      final response = await http.get(Uri.parse('${Helpers.getUri()}/series?seriesId=${widget.seriesId}'));
+      final response = await http.get(
+          Uri.parse('${Helpers.getUri()}/series?seriesId=${widget.seriesId}'));
 
       if (response.statusCode == 200) {
         if (mounted) {
@@ -176,4 +140,3 @@ bool isWithinUpcomingWeek(DateTime date1, DateTime date2) {
   return date2.isAfter(date1) &&
       date2.isBefore(thisWeekEnd.add(const Duration(days: 1)));
 }
-

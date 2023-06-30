@@ -358,7 +358,10 @@ class _EventDetailPageState extends State<EventDetailPage> {
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (context) => SeriesList(seriesId: widget.event['series_id'].toString()),
+                                            builder: (context) => SeriesList(
+                                                seriesId: widget
+                                                    .event['series_id']
+                                                    .toString()),
                                           ),
                                         );
                                       },
@@ -389,7 +392,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
                                           const SizedBox(width: 15),
                                           Expanded(
                                             child: Text(
-                                              'Series',
+                                              'Event Series',
                                               overflow: TextOverflow.ellipsis,
                                               maxLines: 2,
                                               style: const TextStyle(
@@ -402,10 +405,13 @@ class _EventDetailPageState extends State<EventDetailPage> {
                                       ),
                                     ),
                                   )
-                                : Divider(
+                                : Container(),
+                            _seriesCheck()
+                                ? Divider(
                                     height: 1,
                                     color: Colors.grey[400],
-                                  ),
+                                  )
+                                : Container(),
                             Padding(
                               padding:
                                   const EdgeInsets.symmetric(vertical: 20.0),

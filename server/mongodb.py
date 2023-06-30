@@ -220,13 +220,12 @@ def get_series_events(seriesId):
 def main():
     
     #pprint(get_mongodb_collection())
-    #pprint(get_seriesID('6492fc0fd5145a791ddf1de7'))
     # pprint(get_mongodb_flutter())
     # set_mongodb_user_interests(["baseball", "soccer"], "cpreciad")
     #print(get_mongodb_user_interests("cpreciad"))
-    #pprint(get_mongodb_all())
-    #pprint(get_mongodb_series())
-    pprint(get_series_events())
+    pprint(get_mongodb_all())
+    pprint(get_mongodb_series())
+    #pprint(get_series_events('6492fc0fd5145a791ddf1de7'))
 
 
 if __name__ == '__main__':
