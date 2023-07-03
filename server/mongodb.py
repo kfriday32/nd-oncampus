@@ -99,6 +99,7 @@ def get_user_by_id(studentId):
     # query for the demo user
     return accounts.find_one({"studentId": studentId})
 
+
 # this function returns the entire data set on a user 
 def get_mongodb_user_data(user):
     account = get_mongodb_user()

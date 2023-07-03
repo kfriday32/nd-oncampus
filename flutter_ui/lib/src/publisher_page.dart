@@ -1,4 +1,5 @@
 //import 'package:date_field/date_field.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -6,7 +7,7 @@ import 'helpers.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 //import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
-//import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:bson/bson.dart';
 
 class PublisherPage extends StatelessWidget {
   final Function updateSelectedIndex;
@@ -67,6 +68,7 @@ class _EventFormState extends State<EventForm> {
   // Calendar
   final _startCalendarController = CalendarController();
   final _endCalendarController = CalendarController();
+
   // Date & Time Selecting
   Future<void> _selectStartDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -203,7 +205,10 @@ class _EventFormState extends State<EventForm> {
   }
 
   bool _isSubmitted = false;
+  bool isSeriesEvent = false;
 
+  List<String> _existingSeries = ['ND Softball', 'Series B', 'Series C'];
+  TextEditingController _newSeriesController = TextEditingController();
   @override
   void dispose() {
     _titleController.dispose();
@@ -219,8 +224,28 @@ class _EventFormState extends State<EventForm> {
     super.dispose();
   }
 
+  String generateSeriesId(bool isSeriesEvent, String value,
+      TextEditingController newSeriesController) {
+    if (isSeriesEvent) {
+      if (value == 'new') {
+        // User selected "Add New Series"
+        final newSeries = newSeriesController.text;
+        return ObjectId()
+            .toHexString(); // Generate a new ObjectID and convert it to a hex string
+      } else {
+        // User selected an existing series
+        return getSeriesId(value); // Replace 'getSeriesId' with your own logic
+      }
+    } else {
+      return '-1'; // Assign '-1' if it's not a series
+    }
+  }
+
   Future<http.Response> postEvent() async {
-    String bodyData = jsonEncode(<String, String>{
+    String seriesId =
+        generateSeriesId(isSeriesEvent, value, newSeriesController);
+
+    String bodyData = jsonEncode(<String, dynamic>{
       'title': _titleController.text,
       'host': _hostController.text,
       'description': _descController.text,
@@ -241,7 +266,8 @@ class _EventFormState extends State<EventForm> {
       ).toString(),
       'registrationLink': _registrationLinkController.text,
       'eventUrl': _eventUrlController.text,
-      'capacity': _capacityController.text
+      'capacity': _capacityController.text,
+      'series_id': seriesId,
     });
 
     String uri = '${Helpers.getUri()}/publish';
@@ -441,7 +467,7 @@ class _EventFormState extends State<EventForm> {
                                             RoundedRectangleBorder(
                                               borderRadius:
                                                   BorderRadius.circular(8.0),
-                                              side: BorderSide(
+                                              side: const BorderSide(
                                                 color: Color(0xFF0C2340),
                                               ), // Set the desired outline color here
                                             ),
@@ -587,7 +613,92 @@ class _EventFormState extends State<EventForm> {
                                   labelText: 'Capacity',
                                 ),
                               ),
+                              // Add to Series
                               const SizedBox(height: 20.0),
+                              SizedBox(
+                                height: 30.0,
+                                child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      const Icon(Icons.format_list_bulleted_add,
+                                          color: Colors.grey),
+                                      const SizedBox(width: 15.0),
+                                      SizedBox(width: 10.0),
+                                      PopupMenuButton<String>(
+                                        child: Text('Add to Series'),
+                                        onSelected: (value) {
+                                          setState(() {
+                                            isSeriesEvent = true;
+                                          });
+                                          // Handle selected series here
+                                          if (value == 'new') {
+                                            // User selected "Add New Series"
+                                            final newSeries =
+                                                _newSeriesController.text;
+                                            // Implement logic to add a new series using the newSeries variable
+                                            _newSeriesController.clear();
+                                            // User selected "Add New Series"
+                                            // Implement logic to add a new series
+                                          } else {
+                                            // User selected an existing series
+                                            // Implement logic to add to the selected series
+                                          }
+                                        },
+                                        itemBuilder: (BuildContext context) {
+                                          return [
+                                            ..._existingSeries.map((series) {
+                                              return PopupMenuItem<String>(
+                                                value: series,
+                                                child: CheckboxListTile(
+                                                    value: false,
+                                                    title: Text(series),
+                                                    onChanged: (newValue) {
+                                                      setState(() {
+                                                        isSeriesEvent =
+                                                            newValue ?? false;
+                                                      });
+                                                    }),
+                                              );
+                                            }),
+                                            PopupMenuItem<String>(
+                                              value: 'new',
+                                              child: Row(
+                                                children: [
+                                                  Expanded(
+                                                    child: TextFormField(
+                                                      controller:
+                                                          _newSeriesController,
+                                                      decoration: InputDecoration(
+                                                          hintText:
+                                                              'New Series Event'),
+                                                    ),
+                                                  ),
+                                                  IconButton(
+                                                    onPressed: () {
+                                                      final newSeries =
+                                                          _newSeriesController
+                                                              .text;
+                                                      // Implement logic to add a new series using the newSeries variable
+                                                      _newSeriesController
+                                                          .clear(); // Clear the text field after adding the new series
+                                                    },
+                                                    icon: Icon(Icons.add),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ];
+
+                                          // return [
+                                          //   PopupMenuItem<String>(
+                                          //     value: 'new',
+                                          //     child: Text('Add New Series'),
+                                          //   ),
+                                          // ];
+                                        },
+                                      ),
+                                    ]),
+                              )
                             ],
                           ),
                         ),
