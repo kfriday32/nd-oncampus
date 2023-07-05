@@ -5,7 +5,6 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'helpers.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
-//import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
 import 'package:bson/bson.dart';
 
@@ -45,6 +44,7 @@ class EventForm extends StatefulWidget {
 class _EventFormState extends State<EventForm> {
   // global key to keep track of form id
   final _formKey = GlobalKey<FormState>();
+  String selectedSeries = '';
 
   // visibility of guest list
   DateTime _startTime = DateTime.now();
@@ -64,7 +64,7 @@ class _EventFormState extends State<EventForm> {
   final _registrationLinkController = TextEditingController();
   final _eventUrlController = TextEditingController();
   final _capacityController = TextEditingController();
-
+  final _seriesNameController = TextEditingController();
   // Calendar
   final _startCalendarController = CalendarController();
   final _endCalendarController = CalendarController();
@@ -218,7 +218,7 @@ class _EventFormState extends State<EventForm> {
     _registrationLinkController.dispose();
     _eventUrlController.dispose();
     _capacityController.dispose();
-
+    _seriesNameController.dispose();
     _startCalendarController.dispose();
     _endCalendarController.dispose();
     super.dispose();
@@ -229,22 +229,21 @@ class _EventFormState extends State<EventForm> {
     if (isSeriesEvent) {
       if (value == 'new') {
         // User selected "Add New Series"
-        final newSeries = newSeriesController.text;
-        return ObjectId()
-            .toHexString(); // Generate a new ObjectID and convert it to a hex string
+        final newSeries = _seriesNameController.text;
+        return ObjectId().toHexString(); // Generate a new ObjectID
       } else {
         // User selected an existing series
-        return getSeriesId(value); // Replace 'getSeriesId' with your own logic
+        return getSeriesId(value);
       }
     } else {
-      return '-1'; // Assign '-1' if it's not a series
+      return '-1'; //  not a series
     }
   }
 
   Future<http.Response> postEvent() async {
-    String seriesId =
-        generateSeriesId(isSeriesEvent, value, newSeriesController);
-
+    //String seriesId =
+    //generateSeriesId(isSeriesEvent, value, newSeriesController);
+    String series_name = '';
     String bodyData = jsonEncode(<String, dynamic>{
       'title': _titleController.text,
       'host': _hostController.text,
@@ -268,6 +267,7 @@ class _EventFormState extends State<EventForm> {
       'eventUrl': _eventUrlController.text,
       'capacity': _capacityController.text,
       'series_id': seriesId,
+      if (seriesId != '-1') 'series_name': _seriesNameController.text,
     });
 
     String uri = '${Helpers.getUri()}/publish';
@@ -618,87 +618,162 @@ class _EventFormState extends State<EventForm> {
                               SizedBox(
                                 height: 30.0,
                                 child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      const Icon(Icons.format_list_bulleted_add,
-                                          color: Colors.grey),
-                                      const SizedBox(width: 15.0),
-                                      SizedBox(width: 10.0),
-                                      PopupMenuButton<String>(
-                                        child: Text('Add to Series'),
-                                        onSelected: (value) {
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    const Icon(Icons.format_list_bulleted_add,
+                                        color: Colors.grey),
+                                    const SizedBox(width: 15.0),
+                                    SizedBox(width: 10.0),
+                                    PopupMenuButton<String>(
+                                      child: Text('Add to Series'),
+                                      onSelected: (value) {
+                                        setState(() {
+                                          isSeriesEvent = true;
+                                        });
+                                        // Handle selected series here
+                                        if (value == 'new') {
+                                          final newSeries =
+                                              _newSeriesController.text;
+                                          if (newSeries.isNotEmpty) {
+                                            setState(() {
+                                              _existingSeries.add(newSeries);
+                                              selectedSeries = newSeries;
+                                            });
+                                          }
+                                          _newSeriesController.clear();
+                                        } else {
                                           setState(() {
                                             isSeriesEvent = true;
+                                            selectedSeries = value;
                                           });
-                                          // Handle selected series here
-                                          if (value == 'new') {
-                                            // User selected "Add New Series"
-                                            final newSeries =
-                                                _newSeriesController.text;
-                                            // Implement logic to add a new series using the newSeries variable
-                                            _newSeriesController.clear();
-                                            // User selected "Add New Series"
-                                            // Implement logic to add a new series
-                                          } else {
-                                            // User selected an existing series
-                                            // Implement logic to add to the selected series
-                                          }
-                                        },
-                                        itemBuilder: (BuildContext context) {
-                                          return [
-                                            ..._existingSeries.map((series) {
-                                              return PopupMenuItem<String>(
-                                                value: series,
-                                                child: CheckboxListTile(
-                                                    value: false,
-                                                    title: Text(series),
-                                                    onChanged: (newValue) {
-                                                      setState(() {
-                                                        isSeriesEvent =
-                                                            newValue ?? false;
-                                                      });
-                                                    }),
-                                              );
-                                            }),
-                                            PopupMenuItem<String>(
-                                              value: 'new',
+                                        }
+                                      },
+                                      itemBuilder: (BuildContext context) {
+                                        return [
+                                          ..._existingSeries.map((series) {
+                                            return CheckedPopupMenuItem<String>(
+                                              value: series,
+                                              checked: series == selectedSeries,
                                               child: Row(
                                                 children: [
-                                                  Expanded(
-                                                    child: TextFormField(
-                                                      controller:
-                                                          _newSeriesController,
-                                                      decoration: InputDecoration(
-                                                          hintText:
-                                                              'New Series Event'),
-                                                    ),
-                                                  ),
+                                                  Expanded(child: Text(series)),
                                                   IconButton(
+                                                    icon: Icon(Icons.delete),
                                                     onPressed: () {
-                                                      final newSeries =
-                                                          _newSeriesController
-                                                              .text;
-                                                      // Implement logic to add a new series using the newSeries variable
-                                                      _newSeriesController
-                                                          .clear(); // Clear the text field after adding the new series
+                                                      setState(() {
+                                                        _existingSeries
+                                                            .remove(series);
+                                                        if (selectedSeries ==
+                                                            series) {
+                                                          selectedSeries =
+                                                              ''; // Reset selectedSeries if the deleted series was selected
+                                                        }
+                                                      });
                                                     },
-                                                    icon: Icon(Icons.add),
                                                   ),
                                                 ],
                                               ),
+                                            );
+                                          }),
+                                          PopupMenuItem<String>(
+                                            value: 'new',
+                                            child: Row(
+                                              children: [
+                                                Expanded(
+                                                  child: TextFormField(
+                                                    controller:
+                                                        _newSeriesController,
+                                                    decoration: InputDecoration(
+                                                        hintText:
+                                                            'New Series Event'),
+                                                    onChanged: (value) {
+                                                      setState(() {
+                                                        selectedSeries = value;
+                                                      });
+                                                    },
+                                                  ),
+                                                ),
+                                                IconButton(
+                                                  onPressed: () {
+                                                    final newSeries =
+                                                        _newSeriesController
+                                                            .text;
+                                                    if (newSeries.isNotEmpty) {
+                                                      setState(() {
+                                                        selectedSeries =
+                                                            newSeries;
+                                                        _existingSeries
+                                                            .add(newSeries);
+                                                      });
+                                                    }
+                                                    _newSeriesController
+                                                        .clear();
+                                                  },
+                                                  icon: Icon(Icons.add),
+                                                ),
+                                              ],
                                             ),
-                                          ];
+                                          ),
+                                        ];
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
 
-                                          // return [
-                                          //   PopupMenuItem<String>(
-                                          //     value: 'new',
-                                          //     child: Text('Add New Series'),
-                                          //   ),
-                                          // ];
-                                        },
-                                      ),
-                                    ]),
-                              )
+                              //   child: CheckboxListTile(
+                              //       value: _newSeriesController
+                              //               .text ==
+                              //           series,
+                              //       title: Text(series),
+                              //       onChanged: (newValue) {
+                              //         setState(() {
+                              //           _newSeriesController
+                              //               .text = series;
+                              //           isSeriesEvent =
+                              //               newValue ?? false;
+                              //         });
+                              //       }),
+                              // )];
+
+                              //         PopupMenuItem<String>(
+                              //           value: 'new',
+                              //           child: Row(
+                              //             children: [
+                              //               Expanded(
+                              //                 child: TextFormField(
+                              //                   controller:
+                              //                       _newSeriesController,
+                              //                   decoration: InputDecoration(
+                              //                       hintText:
+                              //                           'New Series Event'),
+                              //                 ),
+                              //               ),
+                              //               IconButton(
+                              //                 onPressed: () {
+                              //                   final newSeries =
+                              //                       _newSeriesController
+                              //                           .text;
+                              //                   // Implement logic to add a new series using the newSeries variable
+                              //                   //_newSeriesController
+                              //                   //.clear(); // Clear the text field after adding the new series
+                              //                 },
+                              //                 icon: Icon(Icons.add),
+                              //               ),
+                              //             ],
+                              //           ),
+                              //         ),
+                              //       ];
+
+                              //       // return [
+                              //       //   PopupMenuItem<String>(
+                              //       //     value: 'new',
+                              //       //     child: Text('Add New Series'),
+                              //       //   ),
+                              //       // ];
+                              //     },
+                              //   ),
+                              // ]),
                             ],
                           ),
                         ),
