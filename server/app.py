@@ -3,7 +3,7 @@ from gpt import generate_prompt, generate_interests
 import mongodb
 import json
 from bson.json_util import dumps
-from mongodb import get_mongodb_flutter, get_mongodb_user_interests, rem_following_event, set_mongodb_user_interests, get_user_following, add_following_event, get_mongodb_events, get_host_events, get_mongodb_user_data, set_mongodb_user_data, get_series_events   
+from mongodb import get_mongodb_flutter, get_mongodb_user_interests, rem_following_event, set_mongodb_user_interests, get_user_following, add_following_event, get_mongodb_events, get_host_events, get_mongodb_user_data, set_mongodb_user_data, get_series_events, get_series_id_from_name
 import re
 
 app = Flask(__name__)
@@ -138,6 +138,19 @@ def series_events():
     series_id = request.args.get('seriesId')  # Retrieve the seriesId from the query parameters
     series_events = get_series_events(series_id)  # Pass the seriesId to the get_series_events() function
     return dumps(series_events)
+
+@app.route('/seriesID', methods=["GET"])
+def series_id():
+    series_name = request.args.get('seriesName')
+    if series_name:
+        series_id = get_series_id_from_name(series_name)
+        if series_id is not None:
+            return series_id
+        else:
+            return "Series not found", 404
+    else:
+        return "Invalid request: seriesName parameter is missing", 400
+
 
 def DEBUG(message):
     print(f"--------------------------------------------------------------------")

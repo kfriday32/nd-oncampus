@@ -216,6 +216,16 @@ def get_series_events(seriesId):
     collection = get_mongodb_collection()
     events = collection.find({"series_id": seriesId})
     return list(events)
+
+def get_series_id_from_name(seriesName):
+    collection = get_mongodb_collection()
+    series = collection.find_one({"series_name": seriesName})
+    if series:
+        series_id = series["series_id"] 
+        return series_id
+    else:
+        return None
+
        
 
 def main():
@@ -224,8 +234,9 @@ def main():
     # pprint(get_mongodb_flutter())
     # set_mongodb_user_interests(["baseball", "soccer"], "cpreciad")
     #print(get_mongodb_user_interests("cpreciad"))
-    pprint(get_mongodb_all())
-    pprint(get_mongodb_series())
+    #pprint(get_mongodb_all())
+    #pprint(get_mongodb_series())
+    pprint(get_series_id_from_name("Softball"))
     #pprint(get_series_events('6492fc0fd5145a791ddf1de7'))
 
 
