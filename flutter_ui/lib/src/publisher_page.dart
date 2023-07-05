@@ -224,25 +224,50 @@ class _EventFormState extends State<EventForm> {
     super.dispose();
   }
 
-  String generateSeriesId(bool isSeriesEvent, String value,
-      TextEditingController newSeriesController) {
+  // Get seriesID using seriesName
+  Future<String?> fetchSeriesId(String seriesName) async {
+    try {
+      final response = await http.get(
+          Uri.parse('${Helpers.getUri()}/seriesID?seriesName=$seriesName'));
+
+      if (response.statusCode == 200) {
+        return response.body;
+      } else {
+        throw Exception("Failed to fetch series ID.");
+      }
+    } catch (e) {
+      throw Exception('Error: $e');
+    }
+  }
+
+  Future<String> generateSeriesId(
+    bool isSeriesEvent,
+    String value,
+    TextEditingController seriesNameController,
+  ) async {
     if (isSeriesEvent) {
       if (value == 'new') {
         // User selected "Add New Series"
-        final newSeries = _seriesNameController.text;
+        final newSeries = seriesNameController.text;
         return ObjectId().toHexString(); // Generate a new ObjectID
       } else {
         // User selected an existing series
-        return getSeriesId(value);
+        final seriesName = value; // Assuming value is the series name
+        final seriesId = await fetchSeriesId(seriesName);
+        if (seriesId != null) {
+          return seriesId;
+        } else {
+          throw Exception('Failed to fetch series ID for $seriesName');
+        }
       }
     } else {
-      return '-1'; //  not a series
+      return '-1'; // Not a series
     }
   }
 
   Future<http.Response> postEvent() async {
-    //String seriesId =
-    //generateSeriesId(isSeriesEvent, value, newSeriesController);
+    Future<String> seriesId =
+        generateSeriesId(isSeriesEvent, value, _seriesNameController);
     String series_name = '';
     String bodyData = jsonEncode(<String, dynamic>{
       'title': _titleController.text,
