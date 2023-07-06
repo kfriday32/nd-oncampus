@@ -3,8 +3,10 @@ from gpt import generate_prompt, generate_interests
 import mongodb
 import json
 from bson.json_util import dumps
-from mongodb import get_mongodb_flutter, get_mongodb_user_interests, rem_following_event, set_mongodb_user_interests, get_user_following, add_following_event, get_mongodb_events, get_host_events, get_mongodb_user_data, set_mongodb_user_data, get_series_events, get_series_id_from_name
+from mongodb import get_mongodb_flutter, get_mongodb_user_interests, rem_following_event, set_mongodb_user_interests, get_user_following, add_following_event, get_mongodb_events, get_host_events, get_mongodb_user_data, set_mongodb_user_data, get_series_events, get_series_id_from_name, get_existing_series_names
 import re
+
+
 
 app = Flask(__name__)
 
@@ -133,12 +135,14 @@ def query_user():
 
     return "done"
 
+# route to events in the same series
 @app.route('/series', methods=["GET"])
 def series_events():
     series_id = request.args.get('seriesId')  # Retrieve the seriesId from the query parameters
     series_events = get_series_events(series_id)  # Pass the seriesId to the get_series_events() function
     return dumps(series_events)
 
+# route to series_id using seriesName
 @app.route('/seriesID', methods=["GET"])
 def series_id():
     series_name = request.args.get('seriesName')
@@ -150,6 +154,17 @@ def series_id():
             return "Series not found", 404
     else:
         return "Invalid request: seriesName parameter is missing", 400
+    
+# route to list of existing series names
+@app.route('/existingSeries', methods=["GET"])
+def existing_series():
+    series_names = get_existing_series_names()
+    if series_names:
+        return jsonify(series_names)
+    else:
+        return jsonify([])
+
+
 
 
 def DEBUG(message):

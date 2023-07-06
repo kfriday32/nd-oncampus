@@ -28,15 +28,15 @@ def get_mongodb_user():
     return db['account_list']
 
 # Get series_id IDs from mongodb
-def get_mongodb_series():
-    # connect to client
-    mongo_client = MongoClient(f'mongodb+srv://{MONGO_USERNAME}:{MONGO_PASSWORD}@test-cluster1.ljrkvvp.mongodb.net/?retryWrites=true&w=majority')
-    # access 'campus_events' database
-    db = mongo_client['campus_events']
-    # series_ids = db['series_ids'].find({}, {'_id': 1})
-    series_ids_cursor = db['series_ids'].find({}, {'_id': 1})
-    series_ids = [str(doc['_id']) for doc in series_ids_cursor]
-    return series_ids
+# def get_mongodb_series():
+#     # connect to client
+#     mongo_client = MongoClient(f'mongodb+srv://{MONGO_USERNAME}:{MONGO_PASSWORD}@test-cluster1.ljrkvvp.mongodb.net/?retryWrites=true&w=majority')
+#     # access 'campus_events' database
+#     db = mongo_client['campus_events']
+#     # series_ids = db['series_ids'].find({}, {'_id': 1})
+#     series_ids_cursor = db['series_ids'].find({}, {'_id': 1})
+#     series_ids = [str(doc['_id']) for doc in series_ids_cursor]
+#     return series_ids
 
     
 
@@ -211,12 +211,12 @@ def get_host_events(hosts):
             events.append(event)
 
     return events
-
+# Get list of all events in a series using seriesId
 def get_series_events(seriesId):
     collection = get_mongodb_collection()
     events = collection.find({"series_id": seriesId})
     return list(events)
-
+# Get the seriesId using the series name
 def get_series_id_from_name(seriesName):
     collection = get_mongodb_collection()
     series = collection.find_one({"series_name": seriesName})
@@ -225,6 +225,11 @@ def get_series_id_from_name(seriesName):
         return series_id
     else:
         return None
+# Get all existing series names
+def get_existing_series_names():
+    collection = get_mongodb_collection()
+    series_names = collection.distinct("series_name")
+    return series_names
 
        
 
@@ -237,6 +242,7 @@ def main():
     #pprint(get_mongodb_all())
     #pprint(get_mongodb_series())
     pprint(get_series_id_from_name("Softball"))
+    pprint(get_existing_series_names())
     #pprint(get_series_events('6492fc0fd5145a791ddf1de7'))
 
 
