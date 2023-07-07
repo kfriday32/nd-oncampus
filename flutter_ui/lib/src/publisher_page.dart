@@ -44,7 +44,7 @@ class EventForm extends StatefulWidget {
 class _EventFormState extends State<EventForm> {
   // global key to keep track of form id
   final _formKey = GlobalKey<FormState>();
-  List<String> seriesList = []; // list of series names
+
   @override
   void initState() {
     super.initState();
@@ -280,31 +280,46 @@ class _EventFormState extends State<EventForm> {
     });
   }
 
-  Future<String> generateSeriesId(
+  Future<Map<String, String>> generateSeriesId(
     bool isSeriesEvent,
     String value,
     TextEditingController seriesNameController,
   ) async {
+    Map<String, String> seriesData = {};
+
     if (isSeriesEvent) {
       if (value == 'new') {
         // User selected "Add New Series"
-        return ObjectId().toHexString(); // Generate a new ObjectID
+        final seriesName = seriesNameController.text;
+        if (seriesName.isNotEmpty) {
+          final seriesId = ObjectId().toHexString();
+          seriesData['seriesName'] = seriesName;
+          seriesData['seriesId'] = seriesId;
+          seriesList.add(seriesName);
+        } else {
+          throw Exception('Series name cannot be empty.');
+        }
       } else {
         // User selected an existing series
         final seriesName = value; // Assuming value is the series name
         final seriesId = await fetchSeriesId(seriesName);
         if (seriesId != null) {
-          return seriesId;
+          seriesData['seriesName'] = seriesName;
+          seriesData['seriesId'] = seriesId;
         } else {
           throw Exception('Failed to fetch series ID for $seriesName');
         }
       }
     } else {
-      return '-1'; // Not a series
+      seriesData['seriesName'] = '';
+      seriesData['seriesId'] = '-1';
     }
+
+    return seriesData;
   }
 
   // series input widget
+  List<String> seriesList = []; // list of series names
   String generatedSeriesId = '';
   String seriesId = '';
   Widget _buildSeriesPopupMenu() {
@@ -312,7 +327,7 @@ class _EventFormState extends State<EventForm> {
       future: fetchSeriesList(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          final seriesList = snapshot.data!;
+          seriesList = snapshot.data!;
           return PopupMenuButton<String>(
             child: Text(
               selectedSeries.isEmpty ? 'Add to Series' : selectedSeries,
@@ -326,7 +341,7 @@ class _EventFormState extends State<EventForm> {
               setState(() {
                 isSeriesEvent = true;
               });
-
+              // New series
               if (value == 'new') {
                 final newSeries = _seriesNameController.text;
                 if (newSeries.isNotEmpty) {
@@ -335,31 +350,33 @@ class _EventFormState extends State<EventForm> {
                     selectedSeries = newSeries;
                   });
                 }
-                _seriesNameController.clear();
 
-                final generatedSeriesId = await generateSeriesId(
+                final seriesData = await generateSeriesId(
                   isSeriesEvent,
                   value,
                   _seriesNameController,
                 );
-
                 setState(() {
-                  seriesId = generatedSeriesId;
+                  seriesId = seriesData['seriesId']!;
+                  seriesData['seriesName'] = selectedSeries;
                 });
+
+                _seriesNameController.clear();
+                // existing series
               } else {
                 setState(() {
-                  isSeriesEvent = true;
+                  //isSeriesEvent = true;
                   selectedSeries = value;
                 });
 
-                final generatedSeriesId = await generateSeriesId(
+                final seriesData = await generateSeriesId(
                   isSeriesEvent,
                   value,
                   _seriesNameController,
                 );
-
                 setState(() {
-                  seriesId = generatedSeriesId;
+                  seriesId = seriesData['seriesId']!;
+                  selectedSeries = seriesData['seriesName']!;
                 });
               }
             },
@@ -425,6 +442,14 @@ class _EventFormState extends State<EventForm> {
   }
 
   Future<http.Response> postEvent() async {
+    final seriesData = await generateSeriesId(
+      isSeriesEvent,
+      selectedSeries,
+      _seriesNameController,
+    );
+
+    String seriesName = seriesData['seriesName']!;
+    String seriesId = seriesData['seriesId']!;
     String bodyData = jsonEncode(<String, dynamic>{
       'title': _titleController.text,
       'host': _hostController.text,
@@ -448,8 +473,7 @@ class _EventFormState extends State<EventForm> {
       'eventUrl': _eventUrlController.text,
       'capacity': _capacityController.text,
       'series_id': seriesId,
-      if (seriesId != '-1' && selectedSeries.isNotEmpty)
-        'series_name': selectedSeries,
+      if (seriesId != '-1') 'series_name': seriesName, //selectedSeries,
     });
 
     String uri = '${Helpers.getUri()}/publish';
