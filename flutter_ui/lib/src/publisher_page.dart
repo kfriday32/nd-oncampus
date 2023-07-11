@@ -441,6 +441,33 @@ class _EventFormState extends State<EventForm> {
     );
   }
 
+  Future<http.Response> postSeries() async {
+    final seriesData = await generateSeriesId(
+      isSeriesEvent,
+      selectedSeries,
+      _seriesNameController,
+    );
+    //String seriesName = seriesData['seriesName']!;
+    String bodyData = jsonEncode(<String, dynamic>{
+      'name': selectedSeries,
+      'description': '',
+    });
+    String uri = '${Helpers.getUri()}/publishseries';
+    final headers = {'Content-Type': 'application/json'};
+
+    // send series to server
+    final response =
+        await http.post(Uri.parse(uri), headers: headers, body: bodyData);
+
+    if (response.statusCode == 200) {
+      return response;
+    }
+    // error with post request
+    else {
+      throw Exception("Failed to add new series.");
+    }
+  }
+
   Future<http.Response> postEvent() async {
     final seriesData = await generateSeriesId(
       isSeriesEvent,
@@ -847,6 +874,7 @@ class _EventFormState extends State<EventForm> {
                     if (_formKey.currentState!.validate()) {
                       // send data to MongoDB
                       await postEvent();
+                      await postSeries();
 
                       if (mounted) {
                         setState(() {

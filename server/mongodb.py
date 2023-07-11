@@ -27,16 +27,22 @@ def get_mongodb_user():
     db = mongo_client['campus_events']
     return db['account_list']
 
-# Get series_id IDs from mongodb
-# def get_mongodb_series():
-#     # connect to client
-#     mongo_client = MongoClient(f'mongodb+srv://{MONGO_USERNAME}:{MONGO_PASSWORD}@test-cluster1.ljrkvvp.mongodb.net/?retryWrites=true&w=majority')
-#     # access 'campus_events' database
-#     db = mongo_client['campus_events']
-#     # series_ids = db['series_ids'].find({}, {'_id': 1})
-#     series_ids_cursor = db['series_ids'].find({}, {'_id': 1})
-#     series_ids = [str(doc['_id']) for doc in series_ids_cursor]
-#     return series_ids
+#Get series_id IDs from mongodb
+def get_mongodb_series():
+    mongo_client = MongoClient(f'mongodb+srv://{MONGO_USERNAME}:{MONGO_PASSWORD}@test-cluster1.ljrkvvp.mongodb.net/?retryWrites=true&w=majority')
+    # access 'campus_events' database
+    db = mongo_client['campus_events']
+
+    # access  and return 'event_list' collection
+    return db['series_ids']
+    # # connect to client
+    # mongo_client = MongoClient(f'mongodb+srv://{MONGO_USERNAME}:{MONGO_PASSWORD}@test-cluster1.ljrkvvp.mongodb.net/?retryWrites=true&w=majority')
+    # # access 'campus_events' database
+    # db = mongo_client['campus_events']
+    # # series_ids = db['series_ids'].find({}, {'_id': 1})
+    # series_ids_cursor = db['series_ids'].find({}, {'_id': 1})
+    # series_ids = [str(doc['_id']) for doc in series_ids_cursor]
+    # return series_ids
 
     
 
@@ -218,20 +224,37 @@ def get_series_events(seriesId):
     return list(events)
 # Get the seriesId using the series name
 def get_series_id_from_name(seriesName):
-    collection = get_mongodb_collection()
-    series = collection.find_one({"series_name": seriesName})
+    collection = get_mongodb_series()
+    series = collection.find_one({"name": seriesName})
     if series:
-        series_id = series["series_id"] 
+        series_id = series["_id"] 
         return series_id
     else:
         return None
+# def get_series_id_from_name(seriesName):
+#     collection = get_mongodb_collection()
+#     series = collection.find_one({"series_name": seriesName})
+#     if series:
+#         series_id = series["series_id"] 
+#         return series_id
+#     else:
+#         return None
 # Get all existing series names
 def get_existing_series_names():
-    collection = get_mongodb_collection()
-    series_names = collection.distinct("series_name")
+    collection = get_mongodb_series()
+    series_names = collection.distinct("name")
     return series_names
+    # collection = get_mongodb_collection()
+    # series_names = collection.distinct("series_name")
+    # return series_names
 
-       
+# publish data to collection
+def publish_series(new_series):
+    series_coll = get_mongodb_series()
+    # insert new event into collection
+    created_event = series_coll.insert_one(new_series)
+    
+    return "successfully added new series"
 
 def main():
     
@@ -241,8 +264,9 @@ def main():
     #print(get_mongodb_user_interests("cpreciad"))
     #pprint(get_mongodb_all())
     #pprint(get_mongodb_series())
-    pprint(get_series_id_from_name("Softball"))
+    pprint(get_series_id_from_name("test"))
     pprint(get_existing_series_names())
+    #pprint(get_mongodb_series())
     #pprint(get_series_events('6492fc0fd5145a791ddf1de7'))
 
 

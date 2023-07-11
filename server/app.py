@@ -164,7 +164,17 @@ def existing_series():
     else:
         return jsonify([])
 
-
+# route to add series
+@app.route('/publishseries', methods=["GET", "POST"])
+def publish_series():
+    if request.method == "GET":
+        return "<p>publish get request</p>"
+    else:
+        # get data to publish from post request
+        data = request.get_json()
+        # post event to MongoDB
+        new_series = mongodb.publish_series(data)
+        return new_series
 
 
 def DEBUG(message):
