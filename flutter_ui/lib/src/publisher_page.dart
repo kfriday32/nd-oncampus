@@ -48,6 +48,7 @@ class _EventFormState extends State<EventForm> {
   @override
   void initState() {
     super.initState();
+    _seriesNameController.clear();
     // get intial existing series list
     fetchSeriesList().then((list) {
       setState(() {
@@ -234,7 +235,6 @@ class _EventFormState extends State<EventForm> {
     super.dispose();
   }
 
-  String selectedSeries = '';
   // Series Input Functions
   // Get seriesID using seriesName
   Future<String?> fetchSeriesId(String seriesName) async {
@@ -280,46 +280,70 @@ class _EventFormState extends State<EventForm> {
     });
   }
 
-  Future<Map<String, String>> generateSeriesId(
+// Generate seriesId for adding to existing series
+  Future<String> generateSeriesId(
     bool isSeriesEvent,
     String value,
     TextEditingController seriesNameController,
   ) async {
-    Map<String, String> seriesData = {};
+    //Map<String, String> seriesData = {};
 
     if (isSeriesEvent) {
       if (value == 'new') {
-        // User selected "Add New Series"
         final seriesName = seriesNameController.text;
         if (seriesName.isNotEmpty) {
-          final seriesId = ObjectId().toHexString();
-          seriesData['seriesName'] = seriesName;
-          seriesData['seriesId'] = seriesId;
-          seriesList.add(seriesName);
-        } else {
-          throw Exception('Series name cannot be empty.');
+          final seriesId = await fetchSeriesId(seriesName);
+          if (seriesId != null) {
+            // check seriesId
+            return seriesId;
+          } else {
+            throw Exception('Failed to fetch series ID for $seriesName');
+          }
         }
-      } else {
-        // User selected an existing series
+      }
+      // new series selected
+      else {
+        // retireve existing seriesId
         final seriesName = value; // Assuming value is the series name
         final seriesId = await fetchSeriesId(seriesName);
         if (seriesId != null) {
-          seriesData['seriesName'] = seriesName;
-          seriesData['seriesId'] = seriesId;
+          // check seriesId
+          return seriesId;
         } else {
           throw Exception('Failed to fetch series ID for $seriesName');
         }
       }
-    } else {
-      seriesData['seriesName'] = '';
-      seriesData['seriesId'] = '-1';
     }
-
-    return seriesData;
+    return '-1'; // not part of series
   }
+  // if (value == 'new') {
+  //   // User selected "Add New Series"
+  //   final seriesName = seriesNameController.text;
+  //   if (seriesName.isNotEmpty) {
+  //     final seriesId = ObjectId().toHexString();
+  //     seriesData['seriesName'] = seriesName;
+  //     seriesData['seriesId'] = seriesId;
+  //     seriesList.add(seriesName);
+  //   } else {
+  //     throw Exception('Series name cannot be empty.');
+  //   }
+  // }
+  // if {
+  //   // User selected an existing series
+  //   // keep series name in series collection; just series_id
+  //   final seriesName = value; // Assuming value is the series name
+  //   final seriesId = await fetchSeriesId(seriesName);
+  //   if (seriesId != null) {
+  //     seriesData['seriesName'] = seriesName;
+  //     seriesData['seriesId'] = seriesId;
+  //   } else {
+  //     throw Exception('Failed to fetch series ID for $seriesName');
+  //   }
+  // }
 
-  // series input widget
-  List<String> seriesList = []; // list of series names
+  // Series input widget
+  String selectedSeries = ''; // holds the series name
+  List<String> seriesList = []; // list of series names to display
   String generatedSeriesId = '';
   String seriesId = '';
   Widget _buildSeriesPopupMenu() {
@@ -331,7 +355,7 @@ class _EventFormState extends State<EventForm> {
           return PopupMenuButton<String>(
             child: Text(
               selectedSeries.isEmpty ? 'Add to Series' : selectedSeries,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16.0,
                 color: Colors.black54,
                 fontWeight: FontWeight.normal,
@@ -346,38 +370,38 @@ class _EventFormState extends State<EventForm> {
                 final newSeries = _seriesNameController.text;
                 if (newSeries.isNotEmpty) {
                   setState(() {
-                    seriesList.add(newSeries);
+                    //seriesList.add(newSeries);
                     selectedSeries = newSeries;
                   });
                 }
 
-                final seriesData = await generateSeriesId(
-                  isSeriesEvent,
-                  value,
-                  _seriesNameController,
-                );
-                setState(() {
-                  seriesId = seriesData['seriesId']!;
-                  seriesData['seriesName'] = selectedSeries;
-                });
-
-                _seriesNameController.clear();
+                //_seriesNameController.clear();
                 // existing series
               } else {
                 setState(() {
                   //isSeriesEvent = true;
                   selectedSeries = value;
+
+                  // Get existing seriesId
+                  // final generatedSeriesId = await generateSeriesId(
+                  //   isSeriesEvent,
+                  //   value,
+                  //   _seriesNameController,
+                  // ); // dont call generateseriesid here
+                  // setState(() {
+                  //   seriesId = generatedSeriesId;
+                  // });
                 });
 
-                final seriesData = await generateSeriesId(
-                  isSeriesEvent,
-                  value,
-                  _seriesNameController,
-                );
-                setState(() {
-                  seriesId = seriesData['seriesId']!;
-                  selectedSeries = seriesData['seriesName']!;
-                });
+                // final seriesData = await generateSeriesId(
+                //   isSeriesEvent,
+                //   value,
+                //   _seriesNameController,
+                // );
+                // setState(() {
+                //   seriesId = seriesData['seriesId']!;
+                //   selectedSeries = seriesData['seriesName']!;
+                // });
               }
             },
             itemBuilder: (BuildContext context) {
@@ -418,7 +442,7 @@ class _EventFormState extends State<EventForm> {
                           _seriesNameController.clear();
                           updateSeriesList();
                         },
-                        icon: Icon(Icons.add),
+                        icon: const Icon(Icons.add),
                       ),
                     ],
                   ),
@@ -441,42 +465,51 @@ class _EventFormState extends State<EventForm> {
     );
   }
 
-  Future<http.Response> postSeries() async {
-    final seriesData = await generateSeriesId(
-      isSeriesEvent,
-      selectedSeries,
-      _seriesNameController,
-    );
+  Future<Object?> postSeries(bool isSeriesEvent) async {
+    // call here not in dropdown series
+    // final seriesId = await generateSeriesId(
+    //   isSeriesEvent,
+    //   selectedSeries,
+    //   _seriesNameController,
+    // );
+    // final seriesData = await generateSeriesId(
+    //   isSeriesEvent,
+    //   selectedSeries,
+    //   _seriesNameController,
+    // );
     //String seriesName = seriesData['seriesName']!;
-    String bodyData = jsonEncode(<String, dynamic>{
-      'name': selectedSeries,
-      'description': '',
-    });
-    String uri = '${Helpers.getUri()}/publishseries';
-    final headers = {'Content-Type': 'application/json'};
+    if (isSeriesEvent) {
+      String bodyData = jsonEncode(<String, dynamic>{
+        'name': selectedSeries,
+        'description': '', // another field if series
+      });
+      String uri = '${Helpers.getUri()}/publishseries';
+      final headers = {'Content-Type': 'application/json'};
 
-    // send series to server
-    final response =
-        await http.post(Uri.parse(uri), headers: headers, body: bodyData);
+      // send series to server
+      final response =
+          await http.post(Uri.parse(uri), headers: headers, body: bodyData);
 
-    if (response.statusCode == 200) {
-      return response;
+      if (response.statusCode == 200) {
+        return response; // check response
+      }
+      // error with post request
+      else {
+        throw Exception("Failed to add new series.");
+      }
+    } else {
+      return null;
     }
-    // error with post request
-    else {
-      throw Exception("Failed to add new series.");
-    }
+    // try requests
   }
 
   Future<http.Response> postEvent() async {
-    final seriesData = await generateSeriesId(
+    final seriesId = await generateSeriesId(
       isSeriesEvent,
       selectedSeries,
       _seriesNameController,
     );
 
-    String seriesName = seriesData['seriesName']!;
-    String seriesId = seriesData['seriesId']!;
     String bodyData = jsonEncode(<String, dynamic>{
       'title': _titleController.text,
       'host': _hostController.text,
@@ -500,7 +533,7 @@ class _EventFormState extends State<EventForm> {
       'eventUrl': _eventUrlController.text,
       'capacity': _capacityController.text,
       'series_id': seriesId,
-      if (seriesId != '-1') 'series_name': seriesName, //selectedSeries,
+      // if (seriesId != '-1') 'series_name': seriesName, //selectedSeries,
     });
 
     String uri = '${Helpers.getUri()}/publish';
@@ -873,8 +906,10 @@ class _EventFormState extends State<EventForm> {
                     // validate input
                     if (_formKey.currentState!.validate()) {
                       // send data to MongoDB
+
+                      await postSeries(isSeriesEvent);
+
                       await postEvent();
-                      await postSeries();
 
                       if (mounted) {
                         setState(() {

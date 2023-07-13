@@ -32,9 +32,9 @@ def get_mongodb_series():
     mongo_client = MongoClient(f'mongodb+srv://{MONGO_USERNAME}:{MONGO_PASSWORD}@test-cluster1.ljrkvvp.mongodb.net/?retryWrites=true&w=majority')
     # access 'campus_events' database
     db = mongo_client['campus_events']
-
-    # access  and return 'event_list' collection
     return db['series_ids']
+    # access  and return 'event_list' collection
+    
     # # connect to client
     # mongo_client = MongoClient(f'mongodb+srv://{MONGO_USERNAME}:{MONGO_PASSWORD}@test-cluster1.ljrkvvp.mongodb.net/?retryWrites=true&w=majority')
     # # access 'campus_events' database
@@ -227,10 +227,11 @@ def get_series_id_from_name(seriesName):
     collection = get_mongodb_series()
     series = collection.find_one({"name": seriesName})
     if series:
-        series_id = series["_id"] 
+        series_id = str(series["_id"])
         return series_id
     else:
         return None
+    
 # def get_series_id_from_name(seriesName):
 #     collection = get_mongodb_collection()
 #     series = collection.find_one({"series_name": seriesName})
