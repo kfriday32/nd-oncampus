@@ -3,8 +3,10 @@ from gpt import generate_prompt, generate_interests
 import mongodb
 import json
 from bson.json_util import dumps
-from mongodb import get_mongodb_flutter, get_mongodb_user_interests, rem_following_event, set_mongodb_user_interests, get_user_following, add_following_event, get_mongodb_events, get_host_events, get_mongodb_user_data, set_mongodb_user_data, get_series_events, get_series_id_from_name, get_existing_series_names
+from mongodb import get_mongodb_flutter, get_mongodb_user_interests, rem_following_event, set_mongodb_user_interests, get_user_following, add_following_event, get_mongodb_events, get_host_events, get_mongodb_user_data, set_mongodb_user_data, get_series_events, get_series_id_from_name, get_existing_series_names, get_series_info
 import re
+
+
 
 
 
@@ -154,7 +156,27 @@ def series_id():
             return "Series not found", 404
     else:
         return "Invalid request: seriesName parameter is missing", 400
-    
+
+# route to get seriesInfo using seriesId
+@app.route('/seriesinfo', methods=["GET"])
+def series_info():
+    series_id = request.args.get('seriesId')
+    if series_id:
+        series_info = get_series_info(series_id)
+        if series_info is not None:
+            return {
+                'seriesName': series_info[0] if series_info[0] is not None else '',
+                'seriesDescription': series_info[1] if series_info[1] is not None else ''
+            }
+        else:
+            return {
+                'error': 'Series not found'
+            }, 404
+    else:
+        return {
+            'error': 'Invalid request: seriesId parameter is missing'
+        }, 400
+
 # route to list of existing series names
 @app.route('/existingSeries', methods=["GET"])
 def existing_series():
