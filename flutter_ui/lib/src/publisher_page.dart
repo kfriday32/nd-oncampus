@@ -292,32 +292,16 @@ class _EventFormState extends State<EventForm> {
     //Map<String, String> seriesData = {};
 
     if (isSeriesEvent) {
-      if (value == 'new') {
-        final seriesName = seriesNameController.text;
-        if (seriesName.isNotEmpty) {
-          final seriesId = await fetchSeriesId(seriesName);
-          if (seriesId != null) {
-            // check seriesId
-            return seriesId;
-          } else {
-            throw Exception('Failed to fetch series ID for $seriesName');
-          }
-        }
+      final seriesId = await fetchSeriesId(value);
+      if (seriesId != null) {
+        // check seriesId
+        return seriesId;
+      } else {
+        throw Exception('Failed to fetch series ID for $value');
       }
-      // new series selected
-      else {
-        // retireve existing seriesId
-        final seriesName = value; // Assuming value is the series name
-        final seriesId = await fetchSeriesId(seriesName);
-        if (seriesId != null) {
-          // check seriesId
-          return seriesId;
-        } else {
-          throw Exception('Failed to fetch series ID for $seriesName');
-        }
-      }
+    } else {
+      return '-1';
     }
-    return '-1'; // not part of series
   }
 
   // Series input widget
@@ -349,16 +333,11 @@ class _EventFormState extends State<EventForm> {
                 final newSeries = _seriesNameController.text;
                 if (newSeries.isNotEmpty) {
                   setState(() {
-                    //seriesList.add(newSeries);
                     selectedSeries = newSeries;
                   });
                 }
-
-                //_seriesNameController.clear();
-                // existing series
               } else {
                 setState(() {
-                  //isSeriesEvent = true;
                   selectedSeries = value;
                 });
               }
@@ -384,6 +363,7 @@ class _EventFormState extends State<EventForm> {
                           ),
                           onChanged: (value) {
                             setState(() {
+                              isSeriesEvent = true;
                               selectedSeries = value;
                             });
                           },
@@ -396,6 +376,7 @@ class _EventFormState extends State<EventForm> {
                             setState(() {
                               selectedSeries = newSeries;
                               seriesList.add(newSeries);
+                              isSeriesEvent = true;
                             });
                           }
                           _seriesNameController.clear();
@@ -424,7 +405,7 @@ class _EventFormState extends State<EventForm> {
     );
   }
 
-  Future<http.Response> postSeries(bool isSeriesEvent) async {
+  Future<http.Response?> postSeries(bool isSeriesEvent) async {
     if (isSeriesEvent) {
       final List<String> seriesNames = await fetchSeriesList();
       if (!seriesNames.contains(selectedSeries)) {
@@ -448,6 +429,7 @@ class _EventFormState extends State<EventForm> {
         }
       }
     }
+    return null;
   }
 
   Future<http.Response> postEvent() async {
