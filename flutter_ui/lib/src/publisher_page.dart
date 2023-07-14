@@ -315,80 +315,85 @@ class _EventFormState extends State<EventForm> {
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           seriesList = snapshot.data!;
-          return PopupMenuButton<String>(
-            child: Text(
-              selectedSeries.isEmpty ? 'Add to Series' : selectedSeries,
-              style: const TextStyle(
-                fontSize: 16.0,
-                color: Colors.black54,
-                fontWeight: FontWeight.normal,
-              ),
-            ),
-            onSelected: (value) async {
-              setState(() {
-                isSeriesEvent = true;
-              });
-              // New series
-              if (value == 'new') {
-                final newSeries = _seriesNameController.text;
-                if (newSeries.isNotEmpty) {
-                  setState(() {
-                    selectedSeries = newSeries;
-                  });
-                }
-              } else {
-                setState(() {
-                  selectedSeries = value;
-                });
-              }
-            },
-            itemBuilder: (BuildContext context) {
-              return [
-                ...seriesList.map((series) {
-                  return CheckedPopupMenuItem<String>(
-                    value: series,
-                    checked: series == selectedSeries,
-                    child: Text(series),
-                  );
-                }),
-                PopupMenuItem<String>(
-                  value: 'new',
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextFormField(
-                          controller: _seriesNameController,
-                          decoration: InputDecoration(
-                            hintText: 'New Series Event',
-                          ),
-                          onChanged: (value) {
-                            setState(() {
-                              isSeriesEvent = true;
-                              selectedSeries = value;
-                            });
-                          },
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () {
-                          final newSeries = _seriesNameController.text;
-                          if (newSeries.isNotEmpty) {
-                            setState(() {
-                              selectedSeries = newSeries;
-                              seriesList.add(newSeries);
-                              isSeriesEvent = true;
-                            });
-                          }
-                          _seriesNameController.clear();
-                          updateSeriesList();
-                        },
-                        icon: const Icon(Icons.add),
-                      ),
-                    ],
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              PopupMenuButton<String>(
+                child: Text(
+                  selectedSeries.isEmpty ? 'Add to Series' : selectedSeries,
+                  style: const TextStyle(
+                    fontSize: 16.0,
+                    color: Colors.black54,
+                    fontWeight: FontWeight.normal,
                   ),
                 ),
-              ];
-            },
+                onSelected: (value) async {
+                  setState(() {
+                    isSeriesEvent = true;
+                  });
+                  // New series
+                  if (value == 'new') {
+                    final newSeries = _seriesNameController.text;
+                    if (newSeries.isNotEmpty) {
+                      setState(() {
+                        selectedSeries = newSeries;
+                      });
+                    }
+                  } else {
+                    setState(() {
+                      selectedSeries = value;
+                    });
+                  }
+                },
+                itemBuilder: (BuildContext context) {
+                  return [
+                    ...seriesList.map((series) {
+                      return CheckedPopupMenuItem<String>(
+                        value: series,
+                        checked: series == selectedSeries,
+                        child: Text(series),
+                      );
+                    }),
+                    PopupMenuItem<String>(
+                      value: 'new',
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextFormField(
+                              controller: _seriesNameController,
+                              decoration: InputDecoration(
+                                hintText: 'New Series Event',
+                              ),
+                              onChanged: (value) {
+                                setState(() {
+                                  isSeriesEvent = true;
+                                  selectedSeries = value;
+                                });
+                              },
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              final newSeries = _seriesNameController.text;
+                              if (newSeries.isNotEmpty) {
+                                setState(() {
+                                  selectedSeries = newSeries;
+                                  seriesList.add(newSeries);
+                                  isSeriesEvent = true;
+                                });
+                              }
+                              _seriesNameController.clear();
+                              updateSeriesList();
+                            },
+                            icon: const Icon(Icons.add),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ];
+                },
+              ),
+            ],
           );
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
@@ -817,7 +822,7 @@ class _EventFormState extends State<EventForm> {
                                     const Icon(Icons.format_list_bulleted_add,
                                         color: Colors.grey),
                                     const SizedBox(width: 15.0),
-                                    SizedBox(width: 10.0),
+                                    SizedBox(width: 3.0),
                                     _buildSeriesPopupMenu(),
                                   ],
                                 ),

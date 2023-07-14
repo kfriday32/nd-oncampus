@@ -11,7 +11,6 @@ class SeriesList extends StatefulWidget {
   List<dynamic> eventDataUpcoming = [];
   String seriesId = '';
 
-  //SeriesList({Key? key, required this.navigator}) : super(key: key);
   SeriesList({Key? key, required this.seriesId}) : super(key: key);
   @override
   State<SeriesList> createState() => _SeriesListState();
@@ -19,11 +18,12 @@ class SeriesList extends StatefulWidget {
 
 class _SeriesListState extends State<SeriesList> {
   bool _isAllLoading = false; //true;
+  String? seriesName;
+  String? seriesDescription;
 
   @override
   void initState() {
     super.initState();
-
     _loadSeriesEvents();
   }
 
@@ -37,11 +37,16 @@ class _SeriesListState extends State<SeriesList> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
-          'Event Series',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 24.0,
+        title: FittedBox(
+          fit: BoxFit.contain,
+          child: Center(
+            child: Text(
+              seriesName ?? 'Event Series',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 24.0,
+              ),
+            ),
           ),
         ),
       ),
@@ -52,7 +57,21 @@ class _SeriesListState extends State<SeriesList> {
                 ? const Center(child: CircularProgressIndicator())
                 : SingleChildScrollView(
                     child: Column(children: [
-                      const SizedBox(),
+                      Row(
+                        children: [
+                          const SizedBox(width: 16.0),
+                          Expanded(
+                              child: Padding(
+                            padding: const EdgeInsets.only(top: 10.0),
+                            child: Text(
+                              seriesDescription ?? '',
+                              style: const TextStyle(fontSize: 16.0),
+                            ),
+                          )),
+                          const SizedBox(width: 16.0),
+                        ],
+                      ),
+                      const SizedBox(height: 14.0),
                       EventsList(
                           eventDataToday: widget.eventDataToday,
                           eventDataThisWeek: widget.eventDataThisWeek,
@@ -73,45 +92,57 @@ class _SeriesListState extends State<SeriesList> {
       });
     }
     try {
-      final response = await http.get(
-          Uri.parse('${Helpers.getUri()}/series?seriesId=${widget.seriesId}'));
+      // Retrieve seriesinfo
+      final seriesInfoResponse = await http.get(Uri.parse(
+          '${Helpers.getUri()}/seriesinfo?seriesId=${widget.seriesId}'));
+      if (seriesInfoResponse.statusCode == 200) {
+        //final seriesInfo = seriesInfoResponse.body;
+        final seriesInfo = jsonDecode(seriesInfoResponse.body);
+        seriesName = seriesInfo["seriesName"];
+        seriesDescription = seriesInfo["seriesDescription"];
 
-      if (response.statusCode == 200) {
-        if (mounted) {
-          setState(() {
-            // Clear existing data
-            widget.eventDataToday = [];
-            widget.eventDataThisWeek = [];
-            widget.eventDataUpcoming = [];
+        // retrieve series events
+        final response = await http.get(Uri.parse(
+            '${Helpers.getUri()}/series?seriesId=${widget.seriesId}'));
+        if (response.statusCode == 200) {
+          if (mounted) {
+            setState(() {
+              // Clear existing data
+              widget.eventDataToday = [];
+              widget.eventDataThisWeek = [];
+              widget.eventDataUpcoming = [];
 
-            final DateTime now = DateTime.now();
-            for (var event in jsonDecode(response.body)) {
-              event['startTime'] = DateTime.parse(event['startTime']!);
-              event['endTime'] = DateTime.parse(event['endTime']!);
+              final DateTime now = DateTime.now();
+              for (var event in jsonDecode(response.body)) {
+                event['startTime'] = DateTime.parse(event['startTime']!);
+                event['endTime'] = DateTime.parse(event['endTime']!);
 
-              if (event['startTime'].isBefore(now)) {
-                continue;
+                if (event['startTime'].isBefore(now)) {
+                  continue;
+                }
+
+                if (isSameDate(now, event['startTime'])) {
+                  widget.eventDataToday.add(event);
+                } else if (isWithinUpcomingWeek(now, event['startTime'])) {
+                  widget.eventDataThisWeek.add(event);
+                } else {
+                  widget.eventDataUpcoming.add(event);
+                }
               }
 
-              if (isSameDate(now, event['startTime'])) {
-                widget.eventDataToday.add(event);
-              } else if (isWithinUpcomingWeek(now, event['startTime'])) {
-                widget.eventDataThisWeek.add(event);
-              } else {
-                widget.eventDataUpcoming.add(event);
-              }
-            }
-
-            widget.eventDataToday
-                .sort((a, b) => a['startTime'].compareTo(b['startTime']));
-            widget.eventDataThisWeek
-                .sort((a, b) => a['startTime'].compareTo(b['startTime']));
-            widget.eventDataUpcoming
-                .sort((a, b) => a['startTime'].compareTo(b['startTime']));
-          });
+              widget.eventDataToday
+                  .sort((a, b) => a['startTime'].compareTo(b['startTime']));
+              widget.eventDataThisWeek
+                  .sort((a, b) => a['startTime'].compareTo(b['startTime']));
+              widget.eventDataUpcoming
+                  .sort((a, b) => a['startTime'].compareTo(b['startTime']));
+            });
+          }
+        } else {
+          throw Exception("Failed to load all events.");
         }
       } else {
-        throw Exception("Failed to load all events.");
+        throw Exception("Failed to load series information.");
       }
     } catch (e) {
       throw Exception('Error: $e');

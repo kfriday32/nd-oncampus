@@ -51,7 +51,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
 
     final response =
         await http.post(Uri.parse(uri), headers: headers, body: bodyData);
-// asynchorunous data?
+
     if (response.statusCode == 200) {
       // refresh listing
       widget.refreshFollowing();
