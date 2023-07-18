@@ -1,12 +1,13 @@
 //import 'package:date_field/date_field.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_ui/src/event_series_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'helpers.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
-//import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
-//import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:bson/bson.dart';
 
 class PublisherPage extends StatelessWidget {
   final Function updateSelectedIndex;
@@ -45,6 +46,20 @@ class _EventFormState extends State<EventForm> {
   // global key to keep track of form id
   final _formKey = GlobalKey<FormState>();
 
+  @override
+  void initState() {
+    super.initState();
+    //_seriesNameController.clear();
+    // get intial existing series list
+    fetchSeriesList().then((list) {
+      setState(() {
+        seriesList = list;
+      });
+    }).catchError((error) {
+      // Handle error
+    });
+  }
+
   // visibility of guest list
   DateTime _startTime = DateTime.now();
   DateTime _endTime = DateTime.now();
@@ -63,10 +78,12 @@ class _EventFormState extends State<EventForm> {
   final _registrationLinkController = TextEditingController();
   final _eventUrlController = TextEditingController();
   final _capacityController = TextEditingController();
-
+  final _seriesNameController = TextEditingController();
+  final _seriesDescripController = TextEditingController();
   // Calendar
   final _startCalendarController = CalendarController();
   final _endCalendarController = CalendarController();
+
   // Date & Time Selecting
   Future<void> _selectStartDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -203,6 +220,7 @@ class _EventFormState extends State<EventForm> {
   }
 
   bool _isSubmitted = false;
+  bool isSeriesEvent = false;
 
   @override
   void dispose() {
@@ -213,14 +231,220 @@ class _EventFormState extends State<EventForm> {
     _registrationLinkController.dispose();
     _eventUrlController.dispose();
     _capacityController.dispose();
-
+    _seriesNameController.dispose();
+    _seriesDescripController.dispose();
     _startCalendarController.dispose();
     _endCalendarController.dispose();
     super.dispose();
   }
 
+  // Series Input Functions
+  // Get seriesID using seriesName
+  Future<String?> fetchSeriesId(String seriesName) async {
+    try {
+      final response = await http.get(
+          Uri.parse('${Helpers.getUri()}/seriesID?seriesName=$seriesName'));
+
+      if (response.statusCode == 200) {
+        return response.body;
+      } else {
+        throw Exception("Failed to fetch series ID.");
+      }
+    } catch (e) {
+      throw Exception('Error: $e');
+    }
+  }
+
+  // Get list of existing series
+  Future<List<String>> fetchSeriesList() async {
+    try {
+      final response =
+          await http.get(Uri.parse('${Helpers.getUri()}/existingSeries'));
+      if (response.statusCode == 200) {
+        final List<dynamic> seriesList = jsonDecode(response.body);
+        final List<String> seriesNames = seriesList.cast<String>();
+        return seriesNames;
+      } else {
+        throw Exception("Failed to fetch series names.");
+      }
+    } catch (e) {
+      throw Exception('Error: $e');
+    }
+  }
+
+  // Update series list
+  void updateSeriesList() {
+    fetchSeriesList().then((list) {
+      setState(() {
+        seriesList = list;
+      });
+    }).catchError((error) {
+      // Handle error
+    });
+  }
+
+// Generate seriesId for adding to existing series
+  Future<String> generateSeriesId(
+    bool isSeriesEvent,
+    String value,
+    TextEditingController seriesNameController,
+  ) async {
+    //Map<String, String> seriesData = {};
+
+    if (isSeriesEvent) {
+      final seriesId = await fetchSeriesId(value);
+      if (seriesId != null) {
+        // check seriesId
+        return seriesId;
+      } else {
+        throw Exception('Failed to fetch series ID for $value');
+      }
+    } else {
+      return '-1';
+    }
+  }
+
+  // Series input widget
+  String selectedSeries = ''; // holds the series name
+  List<String> seriesList = []; // list of series names to display
+  String generatedSeriesId = '';
+  String seriesId = '';
+  Widget _buildSeriesPopupMenu() {
+    return FutureBuilder<List<String>>(
+      future: fetchSeriesList(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          seriesList = snapshot.data!;
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              PopupMenuButton<String>(
+                child: Text(
+                  selectedSeries.isEmpty ? 'Add to Series' : selectedSeries,
+                  style: const TextStyle(
+                    fontSize: 16.0,
+                    color: Colors.black54,
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
+                onSelected: (value) async {
+                  setState(() {
+                    isSeriesEvent = true;
+                  });
+                  // New series
+                  if (value == 'new') {
+                    final newSeries = _seriesNameController.text;
+                    if (newSeries.isNotEmpty) {
+                      setState(() {
+                        selectedSeries = newSeries;
+                      });
+                    }
+                  } else {
+                    setState(() {
+                      selectedSeries = value;
+                    });
+                  }
+                },
+                itemBuilder: (BuildContext context) {
+                  return [
+                    ...seriesList.map((series) {
+                      return CheckedPopupMenuItem<String>(
+                        value: series,
+                        checked: series == selectedSeries,
+                        child: Text(series),
+                      );
+                    }),
+                    PopupMenuItem<String>(
+                      value: 'new',
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextFormField(
+                              controller: _seriesNameController,
+                              decoration: InputDecoration(
+                                hintText: 'New Series Event',
+                              ),
+                              onChanged: (value) {
+                                setState(() {
+                                  isSeriesEvent = true;
+                                  selectedSeries = value;
+                                });
+                              },
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              final newSeries = _seriesNameController.text;
+                              if (newSeries.isNotEmpty) {
+                                setState(() {
+                                  selectedSeries = newSeries;
+                                  seriesList.add(newSeries);
+                                  isSeriesEvent = true;
+                                });
+                              }
+                              _seriesNameController.clear();
+                              updateSeriesList();
+                            },
+                            icon: const Icon(Icons.add),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ];
+                },
+              ),
+            ],
+          );
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          return SizedBox(
+            height: 20.0,
+            width: 20.0,
+            child: CircularProgressIndicator(
+              strokeWidth: 2.0,
+            ),
+          );
+        }
+      },
+    );
+  }
+
+  Future<http.Response?> postSeries(bool isSeriesEvent) async {
+    if (isSeriesEvent) {
+      final List<String> seriesNames = await fetchSeriesList();
+      if (!seriesNames.contains(selectedSeries)) {
+        String bodyData = jsonEncode(<String, dynamic>{
+          'name': selectedSeries,
+          'description': _seriesDescripController.text,
+        });
+        String uri = '${Helpers.getUri()}/publishseries';
+        final headers = {'Content-Type': 'application/json'};
+
+        // send series to server
+        final response =
+            await http.post(Uri.parse(uri), headers: headers, body: bodyData);
+
+        if (response.statusCode == 200) {
+          return response; // check response
+        }
+        // error with post request
+        else {
+          throw Exception("Failed to add new series.");
+        }
+      }
+    }
+    return null;
+  }
+
   Future<http.Response> postEvent() async {
-    String bodyData = jsonEncode(<String, String>{
+    final seriesId = await generateSeriesId(
+      isSeriesEvent,
+      selectedSeries,
+      _seriesNameController,
+    );
+
+    String bodyData = jsonEncode(<String, dynamic>{
       'title': _titleController.text,
       'host': _hostController.text,
       'description': _descController.text,
@@ -241,7 +465,8 @@ class _EventFormState extends State<EventForm> {
       ).toString(),
       'registrationLink': _registrationLinkController.text,
       'eventUrl': _eventUrlController.text,
-      'capacity': _capacityController.text
+      'capacity': _capacityController.text,
+      'series_id': seriesId,
     });
 
     String uri = '${Helpers.getUri()}/publish';
@@ -441,7 +666,7 @@ class _EventFormState extends State<EventForm> {
                                             RoundedRectangleBorder(
                                               borderRadius:
                                                   BorderRadius.circular(8.0),
-                                              side: BorderSide(
+                                              side: const BorderSide(
                                                 color: Color(0xFF0C2340),
                                               ), // Set the desired outline color here
                                             ),
@@ -587,7 +812,30 @@ class _EventFormState extends State<EventForm> {
                                   labelText: 'Capacity',
                                 ),
                               ),
+                              // Add to Series
                               const SizedBox(height: 20.0),
+                              SizedBox(
+                                height: 30.0,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    const Icon(Icons.format_list_bulleted_add,
+                                        color: Colors.grey),
+                                    const SizedBox(width: 15.0),
+                                    SizedBox(width: 3.0),
+                                    _buildSeriesPopupMenu(),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 20.0),
+                              TextFormField(
+                                controller: _seriesDescripController,
+                                decoration: const InputDecoration(
+                                  icon: Icon(Icons.short_text),
+                                  hintText: 'Optional: Short description',
+                                  labelText: 'Series Description',
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -600,8 +848,8 @@ class _EventFormState extends State<EventForm> {
                     // validate input
                     if (_formKey.currentState!.validate()) {
                       // send data to MongoDB
+                      await postSeries(isSeriesEvent);
                       await postEvent();
-
                       if (mounted) {
                         setState(() {
                           _isSubmitted = true;

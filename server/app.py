@@ -3,8 +3,12 @@ from gpt import generate_prompt, generate_interests
 import mongodb
 import json
 from bson.json_util import dumps
-from mongodb import get_mongodb_flutter, get_mongodb_user_interests, rem_following_event, set_mongodb_user_interests, get_user_following, add_following_event, get_mongodb_events, get_host_events, get_mongodb_user_data, set_mongodb_user_data   
+from mongodb import get_mongodb_flutter, get_mongodb_user_interests, rem_following_event, set_mongodb_user_interests, get_user_following, add_following_event, get_mongodb_events, get_host_events, get_mongodb_user_data, set_mongodb_user_data, get_series_events, get_series_id_from_name, get_existing_series_names, get_series_info
 import re
+
+
+
+
 
 app = Flask(__name__)
 
@@ -132,6 +136,67 @@ def query_user():
             return jsonify(response), 200
 
     return "done"
+
+# route to events in the same series
+@app.route('/series', methods=["GET"])
+def series_events():
+    series_id = request.args.get('seriesId')  # Retrieve the seriesId from the query parameters
+    series_events = get_series_events(series_id)  # Pass the seriesId to the get_series_events() function
+    return dumps(series_events)
+
+# route to series_id using seriesName
+@app.route('/seriesID', methods=["GET"])
+def series_id():
+    series_name = request.args.get('seriesName')
+    if series_name:
+        series_id = get_series_id_from_name(series_name)
+        if series_id is not None:
+            return series_id
+        else:
+            return "Series not found", 404
+    else:
+        return "Invalid request: seriesName parameter is missing", 400
+
+# route to get seriesInfo using seriesId
+@app.route('/seriesinfo', methods=["GET"])
+def series_info():
+    series_id = request.args.get('seriesId')
+    if series_id:
+        series_info = get_series_info(series_id)
+        if series_info is not None:
+            return {
+                'seriesName': series_info[0] if series_info[0] is not None else '',
+                'seriesDescription': series_info[1] if series_info[1] is not None else ''
+            }
+        else:
+            return {
+                'error': 'Series not found'
+            }, 404
+    else:
+        return {
+            'error': 'Invalid request: seriesId parameter is missing'
+        }, 400
+
+# route to list of existing series names
+@app.route('/existingSeries', methods=["GET"])
+def existing_series():
+    series_names = get_existing_series_names()
+    if series_names:
+        return jsonify(series_names)
+    else:
+        return jsonify([])
+
+# route to add series
+@app.route('/publishseries', methods=["GET", "POST"])
+def publish_series():
+    if request.method == "GET":
+        return "<p>publish get request</p>"
+    else:
+        # get data to publish from post request
+        data = request.get_json()
+        # post event to MongoDB
+        new_series = mongodb.publish_series(data)
+        return new_series
 
 
 def DEBUG(message):

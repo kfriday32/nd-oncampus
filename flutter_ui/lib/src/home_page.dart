@@ -38,9 +38,9 @@ class _HomePageState extends State<HomePage>
   late TabController _tabController;
   bool displaySearch = false;
   final searchCont = TextEditingController();
-  bool _isAllLoading = true;
-  bool _isSuggestedLoading = true;
-  bool _isFollowingLoading = true;
+  bool _isAllLoading = false; //true;
+  bool _isSuggestedLoading = false; //true;
+  bool _isFollowingLoading = false; //true;
   bool _showInterestsSuggestion = false;
   bool _showErrorScreen = false;
 
@@ -50,7 +50,7 @@ class _HomePageState extends State<HomePage>
     // Initialize the controller with the number of tabs and this class as the provider
     _tabController = TabController(length: myTabs.length, vsync: this);
     _loadAllEvents();
-    _loadSuggestedEvents();
+    // _loadSuggestedEvents();
     _loadFollowingEvents();
   }
 
@@ -71,8 +71,8 @@ class _HomePageState extends State<HomePage>
           icon: const Icon(Icons.refresh),
           onPressed: () {
             _loadAllEvents();
-            _loadSuggestedEvents();
-            _loadFollowingEvents();
+            // _loadSuggestedEvents();
+            // _loadFollowingEvents();
           },
         ),
         title: const Text(
@@ -205,11 +205,10 @@ class _HomePageState extends State<HomePage>
                     ? const Center(child: CircularProgressIndicator())
                     : SingleChildScrollView(
                         child: EventsList(
-                            eventDataToday: widget.followingEventDataToday,
-                            eventDataThisWeek:
-                                widget.followingEventDataThisWeek,
-                            eventDataUpcoming:
-                                widget.followingEventDataUpcoming),
+                          eventDataToday: widget.followingEventDataToday,
+                          eventDataThisWeek: widget.followingEventDataThisWeek,
+                          eventDataUpcoming: widget.followingEventDataUpcoming,
+                        ),
                       ),
               ],
             ),
@@ -465,8 +464,7 @@ bool isSameDate(DateTime time1, DateTime time2) {
 }
 
 bool isWithinUpcomingWeek(DateTime date1, DateTime date2) {
-  final nextWeekStart = date1.add(Duration(days: 7 - date1.weekday));
-  final nextWeekEnd = nextWeekStart.add(const Duration(days: 6));
-  return date2.isAfter(nextWeekStart.subtract(const Duration(days: 1))) &&
-      date2.isBefore(nextWeekEnd.add(const Duration(days: 1)));
+  final thisWeekEnd = date1.add(const Duration(days: 6));
+  return date2.isAfter(date1) &&
+      date2.isBefore(thisWeekEnd.add(const Duration(days: 1)));
 }

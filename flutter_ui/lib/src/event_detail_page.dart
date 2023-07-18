@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'helpers.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'event_series_page.dart';
 
 class EventDetailPage extends StatefulWidget {
   final dynamic event;
@@ -19,7 +20,20 @@ class EventDetailPage extends StatefulWidget {
 class _EventDetailPageState extends State<EventDetailPage> {
   Color _colorFollow = Colors.white;
   bool following = false;
-  bool _isLoading = true;
+  bool _isLoading = false; //true;
+  dynamic series = {
+    "_id": {"oid": "6492fc0fd5145a791ddf1de7"},
+    "name": "Women's Softball vs. Duke",
+    "description": "2 game series against Duke @ University of Notre Dame"
+  };
+
+  // Check if part of series
+  bool _seriesCheck() {
+    if (widget.event['series_id'] != "-1") {
+      return true; // part of series
+    }
+    return false;
+  }
 
   Future<http.Response> _updateFollowing() async {
     following = !following;
@@ -37,7 +51,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
 
     final response =
         await http.post(Uri.parse(uri), headers: headers, body: bodyData);
-// asynchorunous data?
+
     if (response.statusCode == 200) {
       // refresh listing
       widget.refreshFollowing();
@@ -90,7 +104,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
   @override
   void initState() {
     super.initState();
-    _loadEvent();
+    // _loadEvent();
   }
 
   @override
@@ -334,6 +348,70 @@ class _EventDetailPageState extends State<EventDetailPage> {
                               height: 1,
                               color: Colors.grey[400],
                             ),
+                            // Event Series
+                            _seriesCheck()
+                                ? Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 20.0),
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => SeriesList(
+                                                seriesId: widget
+                                                    .event['series_id']
+                                                    .toString()),
+                                          ),
+                                        );
+                                      },
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            width: 50,
+                                            height: 50,
+                                            decoration: BoxDecoration(
+                                              color: Colors.grey[200]!,
+                                              borderRadius:
+                                                  const BorderRadius.only(
+                                                topLeft: Radius.circular(7.5),
+                                                bottomLeft:
+                                                    Radius.circular(7.5),
+                                                topRight: Radius.circular(7.5),
+                                                bottomRight:
+                                                    Radius.circular(7.5),
+                                              ),
+                                            ),
+                                            child: const Center(
+                                              child: Icon(
+                                                Icons.format_list_bulleted,
+                                                size: 24.0,
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 15),
+                                          Expanded(
+                                            child: Text(
+                                              'Event Series',
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 2,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 18.0,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  )
+                                : Container(),
+                            _seriesCheck()
+                                ? Divider(
+                                    height: 1,
+                                    color: Colors.grey[400],
+                                  )
+                                : Container(),
                             Padding(
                               padding:
                                   const EdgeInsets.symmetric(vertical: 20.0),
