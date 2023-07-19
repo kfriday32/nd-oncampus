@@ -245,6 +245,24 @@ def publish_series(new_series):
     
     return "successfully added new series"
 
+# User creation in database
+def create_new_user(firstName, lastName, studentId, email, major, college, grade, interests, clubs, follow_events, hashed_password):
+    # mongo_client = MongoClient(f'mongodb+srv://{MONGO_USERNAME}:{MONGO_PASSWORD}@test-cluster1.ljrkvvp.mongodb.net/?retryWrites=true&w=majority')
+    # Database and collection information
+    #db = mongo_client[os.getenv("MONGODB_DATABASE")]
+    # db = mongo_client['campus_events']
+    users_collection = get_mongodb_user()  # Collection for storing user information
+
+    # Check if the user already exists
+    if users_collection.find_one({'studentId': studentId}):
+        return 'User already exists'
+
+    # Insert the new user into the database
+    user = {'firstName': firstName, 'lastName': lastName, 'studentId': studentId, email: 'email', 'major': major, 'college': college, 'grade': grade, 'interests': interests, 'clubs': clubs, 'follow_events': follow_events, 'password': hashed_password}
+
+    users_collection.insert_one(user)
+    
+
 def main():
     
     #pprint(get_mongodb_collection())
