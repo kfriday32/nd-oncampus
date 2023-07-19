@@ -3,12 +3,11 @@ from gpt import generate_prompt, generate_interests
 import mongodb
 import json
 from bson.json_util import dumps
-from mongodb import get_mongodb_flutter, get_mongodb_user_interests, rem_following_event, set_mongodb_user_interests, get_user_following, add_following_event, get_mongodb_events, get_host_events, get_mongodb_user_data, set_mongodb_user_data, get_series_events, get_series_id_from_name, get_existing_series_names, get_series_info
+from mongodb import get_mongodb_flutter, get_mongodb_user_interests, rem_following_event, set_mongodb_user_interests, get_user_following, add_following_event, get_mongodb_events, get_host_events, get_mongodb_user_data, set_mongodb_user_data, get_series_events, get_series_id_from_name, get_existing_series_names, get_series_info, create_new_user
 import re
-
-
-
-
+import bcrypt
+import jwt
+import os
 
 app = Flask(__name__)
 
@@ -197,7 +196,53 @@ def publish_series():
         # post event to MongoDB
         new_series = mongodb.publish_series(data)
         return new_series
+    
+# route to user sign up
+@app.route('/signup', methods=['POST'])
+def signup():
+    try:
+        data = request.json
+        firstName = data.get('firstName')
+        lastName = data.get('lastName')
+        studentId = data.get('studentId')
+        major = data.get('major')
+        college = data.get('college')
+        grade = data.get('grade')
+        interests = data.get('interests')
+        clubs = data.get('clubs')
+        follow_events = data.get('follow_events')
+        email = data.get('email')
+        password = data.get('password')
 
+        # Hash the password
+        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
+        create_new_user(firstName, lastName, studentId, email, major, college, grade, interests, clubs, follow_events, hashed_password)
+
+        return jsonify({'message': 'User registered successfully'}), 200
+
+    except Exception as e:
+        print(f'An error occurred: {e}')
+        return jsonify({'message': 'An error occurred', 'error': str(e)}), 500
+
+# route to user login
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.json
+    studentId = data.get('studentId')
+    password = data.get('password')
+    # Find the user in the database
+    user = get_mongodb_user_data(studentId)
+
+    if user and bcrypt.checkpw(password.encode('utf-8'), user['password']):
+
+        # Generate a JWT token
+        token = jwt.encode({'studentId': studentId}, str(os.getenv('secret-auth-key')), algorithm='HS256')
+
+        # Return the token to the client
+        return jsonify({'token': token}), 200
+    else:
+        return jsonify({'message': 'Invalid ID or password'}), 401
 
 def DEBUG(message):
     print(f"--------------------------------------------------------------------")

@@ -10,4 +10,8 @@ class AppNavigator {
   void goBack() {
     return navigatorKey.currentState!.pop();
   }
+
+  void navigateToHomePage() {
+    navigateTo('/home_page');
+  }
 }
