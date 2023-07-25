@@ -14,16 +14,29 @@ app = Flask(__name__)
 # route to get events based on interests
 @app.route("/", methods=("GET", "POST"))
 def call_gpt():
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({'message': 'Missing token'}), 401
+
+    try:
+        decoded_token = jwt.decode(token, str(os.getenv('secret-auth-key')), algorithms=['HS256'])
+        userId = decoded_token.get('studentId')
+
+    except jwt.ExpiredSignatureError:
+        return jsonify({'message': 'Expired token'}), 401
+    except jwt.InvalidTokenError:
+        return jsonify({'message': 'Invalid token'}), 401
+
     if request.method == "POST":
         
         # access interest sent via post body
         data = request.get_json()
-        interests = data['interest']
+        interests = data['interests']
 
         interests = re.split(', |,| ',interests)
 
         # save the interests list to the account list of MongoDB
-        set_mongodb_user_interests(interests, "cpreciad")
+        set_mongodb_user_interests(interests, userId)
 
         # make call to OpenAI and retrieve the data
         data = generate_prompt(interests)
@@ -56,10 +69,22 @@ def publish_event():
 # route to refresh the pages 
 @app.route('/refresh', methods=["GET"])
 def refresh_suggested():
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({'message': 'Missing token'}), 401
+
+    try:
+        decoded_token = jwt.decode(token, str(os.getenv('secret-auth-key')), algorithms=['HS256'])
+        userId = decoded_token.get('studentId')
+
+    except jwt.ExpiredSignatureError:
+        return jsonify({'message': 'Expired token'}), 401
+    except jwt.InvalidTokenError:
+        return jsonify({'message': 'Invalid token'}), 401
     if request.method == "GET":
 
         # retrieve the interests list form mongoDB and run the prompt generation 
-        interests = get_mongodb_user_interests("cpreciad")
+        interests = get_mongodb_user_interests(userId)
         
         # check if the interests list is empty, and return None if true
         if interests == []:
@@ -76,17 +101,40 @@ def refresh_suggested():
 
 @app.route('/followingHosts', methods=["GET"])
 def following_host_list():
-    demo_user = "cpreciad"
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({'message': 'Missing token'}), 401
+
+    try:
+        decoded_token = jwt.decode(token, str(os.getenv('secret-auth-key')), algorithms=['HS256'])
+        userId = decoded_token.get('studentId')
+
+    except jwt.ExpiredSignatureError:
+        return jsonify({'message': 'Expired token'}), 401
+    except jwt.InvalidTokenError:
+        return jsonify({'message': 'Invalid token'}), 401
     # retries the list of events followed by user
     if request.method == "GET":
-        return dumps(get_user_following(demo_user))
+        return dumps(get_user_following(userId))
         
 @app.route('/following', methods=["GET", "POST"])
 def following_events():
-    demo_user = "cpreciad"
+    # Get the userId from the JWT token using getUser() function
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({'message': 'Missing token'}), 401
+
+    try:
+        decoded_token = jwt.decode(token, str(os.getenv('secret-auth-key')), algorithms=['HS256'])
+        userId = decoded_token.get('studentId')
+
+    except jwt.ExpiredSignatureError:
+        return jsonify({'message': 'Expired token'}), 401
+    except jwt.InvalidTokenError:
+        return jsonify({'message': 'Invalid token'}), 401
     # retries the list of events followed by user
     if request.method == "GET":
-        follow_hosts = get_user_following(demo_user)
+        follow_hosts = get_user_following(userId)
         follow_events = get_host_events(follow_hosts)
 
         return dumps(follow_events)
@@ -94,7 +142,7 @@ def following_events():
     else:
         data = request.get_json()
         host = data["host"]
-        new_following = add_following_event(demo_user, host)
+        new_following = add_following_event(userId, host)
         return dumps(new_following)
 
 @app.route('/unfollow', methods=["POST"])
@@ -107,10 +155,11 @@ def unfollow_events():
         return dumps(new_following)
 
 # route to get the user information from mongoDB
-@app.route('/user', methods=["GET", "POST"])
+@app.route('/queryuser', methods=["GET", "POST"])
 def query_user():
     if request.method == 'GET':
-        data = get_mongodb_user_data("cpreciad")
+        userId = request.args.get('userId')
+        data = get_mongodb_user_data(userId)
         # generate suggestion interests, only add them to the data if the user has suggestions
         suggestions = generate_interests(data['interests']) 
         if suggestions:
@@ -122,10 +171,10 @@ def query_user():
         data = request.get_json()
         if 'firstName' in data:
             # save the user profile 
-            set_mongodb_user_data(request.get_json(), "cpreciad")
+            set_mongodb_user_data(request.get_json(), userId)
         else:
             # save the user preferences
-            set_mongodb_user_interests(data['interests'], "cpreciad")
+            set_mongodb_user_interests(data['interests'], userId)
 
             # call chatGPT to generate suggested interests
             suggestions = generate_interests(data['interests']) 
@@ -135,6 +184,7 @@ def query_user():
             return jsonify(response), 200
 
     return "done"
+
 
 # route to events in the same series
 @app.route('/series', methods=["GET"])
@@ -243,6 +293,32 @@ def login():
         return jsonify({'token': token}), 200
     else:
         return jsonify({'message': 'Invalid ID or password'}), 401
+    
+
+@app.route('/user', methods=['GET'])
+def getUser():
+    token = request.headers.get('Authorization')
+
+    if not token:
+        return jsonify({'message': 'Missing token'}), 401
+
+    try:
+        decoded_token = jwt.decode(token, str(os.getenv('secret-auth-key')), algorithms=['HS256'])
+        id = decoded_token.get('studentId')
+
+        # Fetch user data from the database based on the email
+        user = get_mongodb_user_data(id)
+
+        if user:
+            studentId = user.get('studentId')
+            return jsonify({'studentId': studentId}), 200
+        else:
+            return jsonify({'message': 'User not found'}), 404
+
+    except jwt.ExpiredSignatureError:
+        return jsonify({'message': 'Expired token'}), 401
+    except jwt.InvalidTokenError:
+        return jsonify({'message': 'Invalid token'}), 401
 
 def DEBUG(message):
     print(f"--------------------------------------------------------------------")
