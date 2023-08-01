@@ -69,6 +69,7 @@ def publish_event():
 # route to refresh the pages 
 @app.route('/refresh', methods=["GET"])
 def refresh_suggested():
+    #userId = getUser()
     token = request.headers.get('Authorization')
     if not token:
         return jsonify({'message': 'Missing token'}), 401
@@ -147,11 +148,23 @@ def following_events():
 
 @app.route('/unfollow', methods=["POST"])
 def unfollow_events():
-    demo_user = "cpreciad"
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({'message': 'Missing token'}), 401
+
+    try:
+        decoded_token = jwt.decode(token, str(os.getenv('secret-auth-key')), algorithms=['HS256'])
+        userId = decoded_token.get('studentId')
+
+    except jwt.ExpiredSignatureError:
+        return jsonify({'message': 'Expired token'}), 401
+    except jwt.InvalidTokenError:
+        return jsonify({'message': 'Invalid token'}), 401
+    
     if request.method == "POST":
         data = request.get_json()
         host = data["host"]
-        new_following = rem_following_event(demo_user, host)
+        new_following = rem_following_event(userId, host)
         return dumps(new_following)
 
 # route to get the user information from mongoDB

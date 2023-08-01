@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import 'navigation.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'pages.dart';
 
 class LoginPage extends StatelessWidget {
   final AppNavigator appNavigator = AppNavigator();
   final AuthService authService = AuthService();
+  final FlutterSecureStorage _Storage = FlutterSecureStorage();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController studentIdController = TextEditingController();
   LoginPage({super.key});
@@ -16,7 +19,15 @@ class LoginPage extends StatelessWidget {
 
       // Save the token to shared preferences or secure storage
 
-      appNavigator.navigateToHomePage();
+      //appNavigator.navigateToHomePage();
+      // Navigate to the home page after successful login
+      // ignore: use_build_context_synchronously
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Pages(navigator: AppNavigator()),
+        ),
+      );
     } catch (e) {
       // Handle login error
       showDialog(
@@ -38,7 +49,11 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
+      appBar: AppBar(
+        centerTitle: true,
+        title: const Text('OnCampus Login'),
+        backgroundColor: const Color(0xFF0C2340),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -46,7 +61,7 @@ class LoginPage extends StatelessWidget {
           children: <Widget>[
             TextFormField(
               controller: studentIdController,
-              decoration: const InputDecoration(labelText: 'Student Id'),
+              decoration: const InputDecoration(labelText: 'Student ID'),
             ),
             TextFormField(
               controller: passwordController,
@@ -56,14 +71,15 @@ class LoginPage extends StatelessWidget {
             Row(
               children: [
                 ElevatedButton(
+                  onPressed: () => _login(context),
+                  child: const Text('Login'),
+                ),
+                const SizedBox(width: 20.0),
+                ElevatedButton(
                   onPressed: () {
                     Navigator.pushNamed(context, '/signup');
                   },
                   child: const Text('Sign Up'),
-                ),
-                ElevatedButton(
-                  onPressed: () => _login(context),
-                  child: const Text('Login'),
                 ),
               ],
             ),

@@ -10,7 +10,7 @@ class AuthService {
   Future<String> loginUser(String studentId, String password) async {
     final response = await http.post(Uri.parse('$baseUrl/login'),
         headers: {'Content-Type': 'application/json'},
-        body: json.encode({'email': studentId, 'password': password}));
+        body: json.encode({'studentId': studentId, 'password': password}));
 
     if (response.statusCode == 200) {
       final token = json.decode(response.body)['token'];
@@ -77,5 +77,11 @@ class AuthService {
 
     // Check if the token is available and not empty
     return token != null && token.isNotEmpty;
+  }
+
+  // Log Out
+  Future<void> logoutUser() async {
+    // Remove the token from the secure storage
+    await storage.delete(key: 'token');
   }
 }

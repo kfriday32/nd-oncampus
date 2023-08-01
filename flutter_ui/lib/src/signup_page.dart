@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import 'navigation.dart';
+import 'pages.dart';
 
 class SignUpPage extends StatelessWidget {
   final AppNavigator appNavigator = AppNavigator();
@@ -46,8 +47,12 @@ class SignUpPage extends StatelessWidget {
           password);
 
       // Save the token to shared preferences or secure storage
-
-      appNavigator.navigateToHomePage();
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Pages(navigator: AppNavigator()),
+        ),
+      );
     } catch (e) {
       // Handle sign up error
       showDialog(
@@ -69,76 +74,78 @@ class SignUpPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Sign Up')),
+      appBar: AppBar(
+          centerTitle: true,
+          title: const Text('OnCampus Sign Up'),
+          backgroundColor: const Color(0xFF0C2340)),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            TextFormField(
-              controller: firstNameController,
-              decoration: const InputDecoration(labelText: 'First Name'),
-            ),
-            TextFormField(
-              controller: lastNameController,
-              decoration: const InputDecoration(labelText: 'Last Name'),
-            ),
-            TextFormField(
-              controller: studentIdController,
-              decoration: const InputDecoration(labelText: 'Student ID'),
-            ),
-            TextFormField(
-              controller: emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
-            ),
-            TextFormField(
-              controller: majorController,
-              decoration: const InputDecoration(labelText: 'Major'),
-            ),
-            TextFormField(
-              controller: collegeController,
-              decoration: const InputDecoration(labelText: 'College'),
-            ),
-            TextFormField(
-              controller: gradeController,
-              decoration: const InputDecoration(labelText: 'Grade'),
-            ),
-            TextFormField(
-              controller: interestsController,
-              decoration: InputDecoration(
-                labelText: 'Interests',
-                hintText: 'Separate with commas',
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              TextFormField(
+                controller: firstNameController,
+                decoration: const InputDecoration(labelText: 'First Name'),
               ),
-              maxLines: 3, // Adjust the number of visible lines as needed
-            ),
-            TextFormField(
-              controller: clubsController,
-              decoration: InputDecoration(
-                labelText: 'Clubs',
-                hintText: 'Separate with commas',
+              TextFormField(
+                controller: lastNameController,
+                decoration: const InputDecoration(labelText: 'Last Name'),
               ),
-              maxLines: 3, // Adjust the number of visible lines as needed
-            ),
-            TextFormField(
-              controller: passwordController,
-              decoration: const InputDecoration(labelText: 'Password'),
-              obscureText: true,
-            ),
-            Row(
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/login');
-                  },
-                  child: const Text('Log In'),
-                ),
-                ElevatedButton(
-                  onPressed: () => _signUp(context),
-                  child: const Text('Sign Up'),
-                ),
-              ],
-            ),
-          ],
+              TextFormField(
+                controller: studentIdController,
+                decoration: const InputDecoration(labelText: 'Student ID'),
+              ),
+              TextFormField(
+                controller: emailController,
+                decoration: const InputDecoration(labelText: 'Email'),
+              ),
+              TextFormField(
+                controller: majorController,
+                decoration: const InputDecoration(labelText: 'Major'),
+              ),
+              TextFormField(
+                controller: collegeController,
+                decoration: const InputDecoration(labelText: 'College'),
+              ),
+              TextFormField(
+                controller: gradeController,
+                decoration: const InputDecoration(labelText: 'Grade'),
+              ),
+              TextFormField(
+                  controller: interestsController,
+                  decoration: InputDecoration(
+                    labelText: 'Interests',
+                    hintText: 'Separate with commas',
+                  )),
+              TextFormField(
+                  controller: clubsController,
+                  decoration: InputDecoration(
+                    labelText: 'Clubs',
+                    hintText: 'Separate with commas',
+                  )),
+              TextFormField(
+                controller: passwordController,
+                decoration: const InputDecoration(labelText: 'Password'),
+                obscureText: true,
+              ),
+              Row(
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/login');
+                    },
+                    child: const Text('Log In'),
+                  ),
+                  const SizedBox(width: 20.0, height: 15.0),
+                  ElevatedButton(
+                    onPressed: () => _signUp(context),
+                    child: const Text('Sign Up'),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
