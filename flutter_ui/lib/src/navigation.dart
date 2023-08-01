@@ -11,7 +11,7 @@ class AppNavigator {
     return navigatorKey.currentState!.pop();
   }
 
-  void navigateToHomePage() {
-    navigateTo('/home_page');
+  void navigateToLogin() {
+    navigateTo('/login');
   }
 }

@@ -8,9 +8,11 @@ import 'events_page.dart';
 import 'package:fuzzy/fuzzy.dart';
 import 'events_list.dart';
 import 'helpers.dart';
+import 'package:flutter_ui/services/auth_service.dart';
 
 class HomePage extends StatefulWidget {
   final AppNavigator navigator;
+
   List<dynamic> eventDataToday = [];
   List<dynamic> eventDataThisWeek = [];
   List<dynamic> eventDataUpcoming = [];
@@ -51,7 +53,7 @@ class _HomePageState extends State<HomePage>
     _tabController = TabController(length: myTabs.length, vsync: this);
     _loadAllEvents();
     // _loadSuggestedEvents();
-    _loadFollowingEvents();
+    //_loadFollowingEvents();
   }
 
   @override
@@ -61,6 +63,7 @@ class _HomePageState extends State<HomePage>
     super.dispose();
   }
 
+  final AuthService _authService = AuthService();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -219,14 +222,30 @@ class _HomePageState extends State<HomePage>
   }
 
   void _loadAllEvents() async {
-    if (mounted) {
-      setState(() {
-        _isAllLoading = true;
-      });
-    }
     try {
-      final response = await http.get(Uri.parse(Helpers.getUri()));
+      // Get the token from the AuthService
+      final token = await _authService.getUserAuthToken();
+      if (token == null) {
+        // Handle the scenario when the token is not available
+        // For example, navigate to the login page to force the user to log in again.
+        Navigator.pushReplacementNamed(context, '/login');
+        return;
+      }
 
+      String apiUrl = Helpers.getUri();
+
+      if (mounted) {
+        setState(() {
+          _isAllLoading = true;
+        });
+      }
+      // Make the API call with the token in the Authorization header
+      final response = await http.get(
+        Uri.parse(apiUrl),
+        headers: {
+          'Authorization': token,
+        },
+      );
       if (response.statusCode == 200) {
         if (mounted) {
           setState(() {
@@ -276,11 +295,24 @@ class _HomePageState extends State<HomePage>
   }
 
   void _loadSuggestedEvents() async {
+    // Get the token from the AuthService
+    final token = await _authService.getUserAuthToken();
+
+    String apiUrl = Helpers.getUri();
     if (mounted) {
       setState(() {
         _isSuggestedLoading = true;
       });
     }
+
+    // Make the API call with the token in the Authorization header
+    final resp = await http.get(
+      Uri.parse(apiUrl),
+      headers: {
+        'Authorization': token,
+      },
+    );
+
     try {
       // call the refresh route
       final response = await http.get(Uri.parse('${Helpers.getUri()}/refresh'));

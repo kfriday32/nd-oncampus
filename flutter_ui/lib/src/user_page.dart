@@ -4,6 +4,7 @@ import 'profile_page.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'helpers.dart';
+import 'package:flutter_ui/services/auth_service.dart';
 
 class UserPage extends StatefulWidget {
   const UserPage({super.key});
@@ -13,7 +14,7 @@ class UserPage extends StatefulWidget {
 }
 
 class _UserPageState extends State<UserPage> {
-  TextEditingController _firstNameController =TextEditingController();
+  TextEditingController _firstNameController = TextEditingController();
   TextEditingController _lastNameController = TextEditingController();
   TextEditingController _netIdController = TextEditingController();
   List<String> _savedInterests = [];
@@ -28,6 +29,21 @@ class _UserPageState extends State<UserPage> {
     _getUserFromDatabase();
   }
 
+  // Instance of AuthService to handle logout
+  final AuthService _authService = AuthService();
+
+  // Method to handle logout
+  Future<void> _handleLogout() async {
+    try {
+      await _authService.logoutUser(); // Call logoutUser to clear the token
+      Navigator.pushReplacementNamed(
+          context, '/login'); // Navigate to login page
+    } catch (e) {
+      // Handle any errors that may occur during logout process
+      Exception('Logout Error: $e');
+    }
+  }
+
   Future<void> _getUserFromDatabase() async {
     if (mounted) {
       setState(() {
@@ -40,7 +56,7 @@ class _UserPageState extends State<UserPage> {
       _firstNameController.text = decoded['firstName'];
       _lastNameController.text = decoded['lastName'];
       // for dev purposes, this netid will never be allowed to change
-      _netIdController.text = "cprecaid";
+      _netIdController.text = decoded['studentId'];
       _savedInterests = List<String>.from(
           decoded['interests'].map((e) => e.toString()).toList());
       _suggestedInterests = List<String>.from(
@@ -187,6 +203,38 @@ class _UserPageState extends State<UserPage> {
                                 Expanded(
                                   child: Text(
                                     'Delete Account',
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 2,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18.0,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Divider(
+                          height: 1,
+                          color: Colors.grey[400],
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 20.0),
+                          child: GestureDetector(
+                            onTap: () {
+                              _handleLogout();
+                            },
+                            child: Row(
+                              children: const [
+                                Icon(
+                                  Icons.logout,
+                                  size: 24.0,
+                                ),
+                                SizedBox(width: 15),
+                                Expanded(
+                                  child: Text(
+                                    'Logout Account',
                                     overflow: TextOverflow.ellipsis,
                                     maxLines: 2,
                                     style: TextStyle(
