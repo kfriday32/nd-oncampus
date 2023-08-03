@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'Helpers.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_ui/services/auth_service.dart';
 
 class InterestsPage extends StatefulWidget {
   final List<String> savedInterests;
@@ -30,15 +31,24 @@ class _InterestsPageState extends State<InterestsPage> {
     _suggestedInterests = widget.suggestedInterests;
   }
 
+  final AuthService _authService = AuthService();
+
   Future<void> _saveInterestsToDatabase(List<String> interests) async {
     // save the interests to the database here
+    final token = await _authService.getUserAuthToken();
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': token
+    };
+
+    // send post to /user route to server
+
     String bodyData = jsonEncode(<String, List<String>>{
       'interests': _savedInterests,
     });
-    final headers = {'Content-Type': 'application/json'};
 
     // send post to /user route to server
-    final response = await http.post(Uri.parse('${Helpers.getUri()}/user'),
+    final response = await http.post(Uri.parse('${Helpers.getUri()}/queryuser'),
         headers: headers, body: bodyData);
 
     if (response.statusCode == 200) {
@@ -49,7 +59,6 @@ class _InterestsPageState extends State<InterestsPage> {
       throw Exception("post interest request failed: ${response}");
     }
     // Do something with the profile data, e.g. save it to a database
-
     Navigator.pop(context);
   }
 

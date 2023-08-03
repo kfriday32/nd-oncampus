@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import 'navigation.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'pages.dart';
 
 class LoginPage extends StatelessWidget {
   final AppNavigator appNavigator = AppNavigator();
   final AuthService authService = AuthService();
-  final FlutterSecureStorage _Storage = FlutterSecureStorage();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController studentIdController = TextEditingController();
   LoginPage({super.key});
@@ -16,12 +14,6 @@ class LoginPage extends StatelessWidget {
     try {
       final String token = await authService.loginUser(
           studentIdController.text, passwordController.text);
-
-      // Save the token to shared preferences or secure storage
-
-      //appNavigator.navigateToHomePage();
-      // Navigate to the home page after successful login
-      // ignore: use_build_context_synchronously
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -51,8 +43,9 @@ class LoginPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('OnCampus Login'),
+        title: const Text('Login'),
         backgroundColor: const Color(0xFF0C2340),
+        automaticallyImplyLeading: false, // get rid of back arrow
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -72,16 +65,32 @@ class LoginPage extends StatelessWidget {
               children: [
                 ElevatedButton(
                   onPressed: () => _login(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:
+                        Color(0xFF0C2340), // Set the button color here
+                  ),
                   child: const Text('Login'),
                 ),
-                const SizedBox(width: 20.0),
-                ElevatedButton(
-                  onPressed: () {
+              ],
+            ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 20.0),
+                child: GestureDetector(
+                  onTap: () {
                     Navigator.pushNamed(context, '/signup');
                   },
-                  child: const Text('Sign Up'),
+                  child: Text(
+                    'Click to Sign Up',
+                    style: TextStyle(
+                      color: Color(0xFF0C2340),
+                      decoration: TextDecoration.underline,
+                      fontSize: 15,
+                    ),
+                  ),
                 ),
-              ],
+              ),
             ),
           ],
         ),
