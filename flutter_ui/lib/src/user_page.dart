@@ -17,6 +17,10 @@ class _UserPageState extends State<UserPage> {
   TextEditingController _firstNameController = TextEditingController();
   TextEditingController _lastNameController = TextEditingController();
   TextEditingController _netIdController = TextEditingController();
+
+  TextEditingController _majorController = TextEditingController();
+  TextEditingController _collegeController = TextEditingController();
+  TextEditingController _gradeController = TextEditingController();
   List<String> _savedInterests = [];
   List<String> _suggestedInterests = [];
 
@@ -44,19 +48,60 @@ class _UserPageState extends State<UserPage> {
     }
   }
 
+  Future<void> _handleDeleteAccount() async {
+    try {
+      // Get the token from the AuthService
+      final token = await _authService.getUserAuthToken();
+      String apiUrl = Helpers.getUri();
+
+      final response = await http.post(
+        Uri.parse('$apiUrl/deleteaccount'),
+        headers: {
+          'Authorization': token,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        await _authService.logoutUser(); // Call logoutUser to clear the token
+        Navigator.pushReplacementNamed(
+            context, '/login'); // Navigate to login page
+      } else {
+        // Handle error response
+        print('Account deletion failed');
+      }
+    } catch (e) {
+      // Handle any errors that may occur during account deletion process
+      print('Delete Account Error: $e');
+    }
+  }
+
   Future<void> _getUserFromDatabase() async {
+    // Get the token from the AuthService
+    final token = await _authService.getUserAuthToken();
+    String apiUrl = Helpers.getUri();
     if (mounted) {
       setState(() {
         _isUserLoading = true;
       });
     }
-    final response = await http.get(Uri.parse('${Helpers.getUri()}/user'));
+    final response = await http.get(
+      Uri.parse('$apiUrl/queryuser'),
+      headers: {
+        'Authorization': token,
+      },
+    );
+    //final response = await http.get(Uri.parse('${Helpers.getUri()}/user'));
     if (response.statusCode == 200) {
       final decoded = jsonDecode(response.body);
       _firstNameController.text = decoded['firstName'];
       _lastNameController.text = decoded['lastName'];
+
       // for dev purposes, this netid will never be allowed to change
       _netIdController.text = decoded['studentId'];
+      _majorController.text = decoded['major'];
+      _collegeController.text = decoded['college'];
+      _gradeController.text = decoded['grade'];
+
       _savedInterests = List<String>.from(
           decoded['interests'].map((e) => e.toString()).toList());
       _suggestedInterests = List<String>.from(
@@ -87,6 +132,7 @@ class _UserPageState extends State<UserPage> {
           ),
         ),
         backgroundColor: const Color(0xFF0C2340),
+        automaticallyImplyLeading: false,
       ),
       body: _isUserLoading
           ? const Center(child: CircularProgressIndicator())
@@ -110,7 +156,10 @@ class _UserPageState extends State<UserPage> {
                                     builder: (context) => ProfilePage(
                                         firstName: _firstNameController.text,
                                         lastName: _lastNameController.text,
-                                        netID: _netIdController.text)),
+                                        netID: _netIdController.text,
+                                        major: _majorController.text,
+                                        college: _collegeController.text,
+                                        grade: _gradeController.text)),
                               );
                               if (mounted) {
                                 setState(() {
@@ -189,32 +238,6 @@ class _UserPageState extends State<UserPage> {
                           height: 1,
                           color: Colors.grey[400],
                         ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 20.0),
-                          child: GestureDetector(
-                            onTap: () {},
-                            child: Row(
-                              children: const [
-                                Icon(
-                                  Icons.delete_forever,
-                                  size: 24.0,
-                                ),
-                                SizedBox(width: 15),
-                                Expanded(
-                                  child: Text(
-                                    'Delete Account',
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 2,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18.0,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
                         Divider(
                           height: 1,
                           color: Colors.grey[400],
@@ -247,6 +270,64 @@ class _UserPageState extends State<UserPage> {
                             ),
                           ),
                         ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 20.0),
+                          child: GestureDetector(
+                            onTap: () async {
+                              // Show a confirmation dialog before proceeding
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    title: Text('Confirm Account Deletion'),
+                                    content: Text(
+                                        'Are you sure you want to delete your account?'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(
+                                              context); // Close the dialog
+                                        },
+                                        child: Text('Cancel'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () async {
+                                          await _handleDeleteAccount(); // Call the delete account function
+                                          // Navigator.pop(
+                                          //     context);
+                                          Navigator.pushReplacementNamed(
+                                              context,
+                                              '/login'); // Close the dialog
+                                        },
+                                        child: Text('Delete'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                            child: Row(
+                              children: const [
+                                Icon(
+                                  Icons.delete_forever,
+                                  size: 24.0,
+                                ),
+                                SizedBox(width: 15),
+                                Expanded(
+                                  child: Text(
+                                    'Delete Account',
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 2,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18.0,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
                       ],
                     ),
                   ),

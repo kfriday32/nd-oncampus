@@ -53,7 +53,7 @@ class _HomePageState extends State<HomePage>
     _tabController = TabController(length: myTabs.length, vsync: this);
     _loadAllEvents();
     // _loadSuggestedEvents();
-    //_loadFollowingEvents();
+    _loadFollowingEvents();
   }
 
   @override
@@ -75,7 +75,7 @@ class _HomePageState extends State<HomePage>
           onPressed: () {
             _loadAllEvents();
             // _loadSuggestedEvents();
-            // _loadFollowingEvents();
+            _loadFollowingEvents();
           },
         ),
         title: const Text(
@@ -305,17 +305,16 @@ class _HomePageState extends State<HomePage>
       });
     }
 
-    // Make the API call with the token in the Authorization header
-    final resp = await http.get(
-      Uri.parse(apiUrl),
-      headers: {
-        'Authorization': token,
-      },
-    );
-
     try {
       // call the refresh route
-      final response = await http.get(Uri.parse('${Helpers.getUri()}/refresh'));
+      // Make the API call with the token in the Authorization header
+      final response = await http.get(
+        Uri.parse('$apiUrl/refresh'),
+        headers: {
+          'Authorization': token,
+        },
+      );
+      //final response = await http.get(Uri.parse('${Helpers.getUri()}/refresh'));
       if (response.statusCode == 200) {
         _showInterestsSuggestion = false;
         _showErrorScreen = false;
@@ -376,15 +375,30 @@ class _HomePageState extends State<HomePage>
   }
 
   void _loadFollowingEvents() async {
+    // Get the token from the AuthService
+    final token = await _authService.getUserAuthToken();
+
+    String apiUrl = Helpers.getUri();
+    if (mounted) {
+      setState(() {
+        _isSuggestedLoading = true;
+      });
+    }
     if (mounted) {
       setState(() {
         _isFollowingLoading = true;
       });
     }
     try {
-      String uri = "${Helpers.getUri()}/following";
-      final response = await http.get(Uri.parse(uri));
-
+      // String uri = "${Helpers.getUri()}/following";
+      // final response = await http.get(Uri.parse(uri));
+      // Make the API call with the token in the Authorization header
+      final response = await http.get(
+        Uri.parse('$apiUrl/following'),
+        headers: {
+          'Authorization': token,
+        },
+      );
       if (response.statusCode != 200) {
         print('Error: ${response.statusCode}');
       } else {

@@ -2,17 +2,24 @@ import 'package:flutter/material.dart';
 import 'helpers.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_ui/services/auth_service.dart';
 
 class ProfilePage extends StatefulWidget {
   final dynamic firstName;
   final dynamic lastName;
   final dynamic netID;
+  final dynamic major;
+  final dynamic college;
+  final dynamic grade;
 
   const ProfilePage(
       {super.key,
       required this.firstName,
       required this.lastName,
-      required this.netID});
+      required this.netID,
+      required this.major,
+      required this.college,
+      required this.grade});
 
   @override
   _ProfilePageState createState() => _ProfilePageState();
@@ -22,6 +29,9 @@ class _ProfilePageState extends State<ProfilePage> {
   TextEditingController _firstNameController = TextEditingController();
   TextEditingController _lastNameController = TextEditingController();
   TextEditingController _netIdController = TextEditingController();
+  TextEditingController _majorController = TextEditingController();
+  TextEditingController _collegeController = TextEditingController();
+  TextEditingController _gradeController = TextEditingController();
 
   @override
   void initState() {
@@ -29,24 +39,39 @@ class _ProfilePageState extends State<ProfilePage> {
     _firstNameController = TextEditingController(text: widget.firstName);
     _lastNameController = TextEditingController(text: widget.lastName);
     _netIdController = TextEditingController(text: widget.netID);
+    _majorController = TextEditingController(text: widget.major);
+    _collegeController = TextEditingController(text: widget.college);
+    _gradeController = TextEditingController(text: widget.grade);
   }
+
+  final AuthService _authService = AuthService();
 
   Future<void> _submitProfile() async {
     String firstName = _firstNameController.text;
     String lastName = _lastNameController.text;
     // for dev purposes, this will never be anything but cpreciad
-    String netId = "cpreciad";
+    String netId = _netIdController.text;
+    String major = _majorController.text;
+    String college = _collegeController.text;
+    String grade = _gradeController.text;
     // TODO save the changes to the user profile
     // encode post body data
     String bodyData = jsonEncode(<String, String>{
       'firstName': firstName,
       'lastName': lastName,
       'netId': netId,
+      'major': major,
+      'college': college,
+      'grade': grade,
     });
-    final headers = {'Content-Type': 'application/json'};
+    final token = await _authService.getUserAuthToken();
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': token
+    };
 
     // send post to /user route to server
-    final response = await http.post(Uri.parse('${Helpers.getUri()}/user'),
+    final response = await http.post(Uri.parse('${Helpers.getUri()}/queryuser'),
         headers: headers, body: bodyData);
 
     if (response.statusCode == 200) {
@@ -75,36 +100,55 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: SafeArea(
+        child: SingleChildScrollView(
           child: Column(
             children: [
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 20.0),
-                    TextField(
-                      controller: _firstNameController,
-                      decoration: const InputDecoration(
-                        labelText: 'First Name',
-                      ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 15.0),
+                  TextField(
+                    controller: _firstNameController,
+                    decoration: const InputDecoration(
+                      labelText: 'First Name',
                     ),
-                    const SizedBox(height: 20.0),
-                    TextField(
-                      controller: _lastNameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Last Name',
-                      ),
+                  ),
+                  const SizedBox(height: 15.0),
+                  TextField(
+                    controller: _lastNameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Last Name',
                     ),
-                    const SizedBox(height: 20.0),
-                    TextField(
-                      controller: _netIdController,
-                      decoration: const InputDecoration(
-                        labelText: 'Net ID',
-                      ),
+                  ),
+                  const SizedBox(height: 15.0),
+                  TextField(
+                    controller: _netIdController,
+                    decoration: const InputDecoration(
+                      labelText: 'Net ID',
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 15.0),
+                  TextField(
+                    controller: _majorController,
+                    decoration: const InputDecoration(
+                      labelText: 'Major',
+                    ),
+                  ),
+                  const SizedBox(height: 15.0),
+                  TextField(
+                    controller: _collegeController,
+                    decoration: const InputDecoration(
+                      labelText: 'College',
+                    ),
+                  ),
+                  const SizedBox(height: 15.0),
+                  TextField(
+                    controller: _gradeController,
+                    decoration: const InputDecoration(
+                      labelText: 'Grade',
+                    ),
+                  ),
+                ],
               ),
               TextButton(
                 onPressed: () async {

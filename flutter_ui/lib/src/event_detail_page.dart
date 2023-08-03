@@ -5,6 +5,7 @@ import 'helpers.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'event_series_page.dart';
+import 'package:flutter_ui/services/auth_service.dart';
 
 class EventDetailPage extends StatefulWidget {
   final dynamic event;
@@ -35,6 +36,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
     return false;
   }
 
+  final AuthService _authService = AuthService();
   Future<http.Response> _updateFollowing() async {
     following = !following;
     String host = widget.event['host'];
@@ -45,8 +47,11 @@ class _EventDetailPageState extends State<EventDetailPage> {
     } else {
       uri += "/unfollow";
     }
-
-    final headers = {'Content-Type': 'application/json'};
+    final token = await _authService.getUserAuthToken();
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': token
+    };
     final bodyData = jsonEncode(<String, String>{'host': host});
 
     final response =
@@ -67,11 +72,16 @@ class _EventDetailPageState extends State<EventDetailPage> {
         _isLoading = true;
       });
     }
+    final token = await _authService.getUserAuthToken();
+    String apiUrl = Helpers.getUri();
     try {
       // get currently logged in user (use default 'cpreciad')
-      String uri = "${Helpers.getUri()}/followingHosts";
-      final response = await http.get(Uri.parse(uri));
-
+      final response = await http.get(
+        Uri.parse('$apiUrl/followingHosts'),
+        headers: {
+          'Authorization': token,
+        },
+      );
       if (response.statusCode != 200) {
         print('Error: ${response.statusCode}');
       }
@@ -104,7 +114,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
   @override
   void initState() {
     super.initState();
-    // _loadEvent();
+    _loadEvent();
   }
 
   @override

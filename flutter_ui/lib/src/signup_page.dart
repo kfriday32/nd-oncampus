@@ -33,6 +33,17 @@ class SignUpPage extends StatelessWidget {
       List<String> clubs = clubsController.text.split(",");
       List<String> followEvents = [];
       String password = passwordController.text;
+      // Validate required fields
+      if (firstName.isEmpty ||
+          lastName.isEmpty ||
+          studentId.isEmpty ||
+          email.isEmpty ||
+          major.isEmpty ||
+          college.isEmpty ||
+          grade.isEmpty ||
+          password.isEmpty) {
+        throw Exception('Please fill in all required fields');
+      }
       final String token = await authService.signUpUser(
           firstName,
           lastName,
@@ -45,8 +56,10 @@ class SignUpPage extends StatelessWidget {
           clubs,
           followEvents,
           password);
+      print('token created: $token');
 
-      // Save the token to shared preferences or secure storage
+      //Save the token to shared preferences or secure storage
+      // ignore: use_build_context_synchronously
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -59,7 +72,8 @@ class SignUpPage extends StatelessWidget {
         context: context,
         builder: (BuildContext context) => AlertDialog(
           title: const Text('Sign Up Failed'),
-          content: const Text('Try signing up again.'),
+          content: const Text(
+              'Fill in all required fields and try signing up again.'),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.pop(context, 'OK'),
@@ -75,9 +89,11 @@ class SignUpPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          centerTitle: true,
-          title: const Text('OnCampus Sign Up'),
-          backgroundColor: const Color(0xFF0C2340)),
+        centerTitle: true,
+        title: const Text('Sign Up'),
+        backgroundColor: const Color(0xFF0C2340),
+        automaticallyImplyLeading: false, // get rid of back arrow
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
@@ -86,31 +102,74 @@ class SignUpPage extends StatelessWidget {
             children: <Widget>[
               TextFormField(
                 controller: firstNameController,
-                decoration: const InputDecoration(labelText: 'First Name'),
+                decoration: const InputDecoration(labelText: 'First Name *'),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'First name must not be blank!';
+                  }
+                  return null;
+                },
               ),
               TextFormField(
                 controller: lastNameController,
-                decoration: const InputDecoration(labelText: 'Last Name'),
+                decoration: const InputDecoration(labelText: 'Last Name *'),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Last name must not be blank!';
+                  }
+                  return null;
+                },
               ),
               TextFormField(
                 controller: studentIdController,
-                decoration: const InputDecoration(labelText: 'Student ID'),
+                decoration: const InputDecoration(labelText: 'Student ID *'),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Student ID must not be blank!';
+                  }
+                  return null;
+                },
               ),
               TextFormField(
                 controller: emailController,
-                decoration: const InputDecoration(labelText: 'Email'),
+                decoration: const InputDecoration(labelText: 'Email *'),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Email must not be blank!';
+                  }
+                  return null;
+                },
               ),
               TextFormField(
                 controller: majorController,
-                decoration: const InputDecoration(labelText: 'Major'),
+                decoration: const InputDecoration(labelText: 'Major *'),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Major must not be blank!';
+                  }
+                  return null;
+                },
               ),
               TextFormField(
                 controller: collegeController,
-                decoration: const InputDecoration(labelText: 'College'),
+                decoration: const InputDecoration(labelText: 'College *'),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'College must not be blank!';
+                  }
+                  return null;
+                },
               ),
               TextFormField(
                 controller: gradeController,
-                decoration: const InputDecoration(labelText: 'Grade'),
+                decoration: const InputDecoration(
+                    labelText: 'Grade *', hintText: 'Ex. Junior'),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Grade must not be blank!';
+                  }
+                  return null;
+                },
               ),
               TextFormField(
                   controller: interestsController,
@@ -126,23 +185,39 @@ class SignUpPage extends StatelessWidget {
                   )),
               TextFormField(
                 controller: passwordController,
-                decoration: const InputDecoration(labelText: 'Password'),
+                decoration: const InputDecoration(labelText: 'Password *'),
                 obscureText: true,
               ),
               Row(
                 children: [
                   ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/login');
-                    },
-                    child: const Text('Log In'),
-                  ),
-                  const SizedBox(width: 20.0, height: 15.0),
-                  ElevatedButton(
                     onPressed: () => _signUp(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          Color(0xFF0C2340), // Set the button color here
+                    ),
                     child: const Text('Sign Up'),
                   ),
                 ],
+              ),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 20.0),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.pushNamed(context, '/login');
+                    },
+                    child: Text(
+                      'Click to Login',
+                      style: TextStyle(
+                        color: Color(0xFF0C2340),
+                        decoration: TextDecoration.underline,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ],
           ),

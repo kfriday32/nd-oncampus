@@ -105,10 +105,13 @@ def set_mongodb_user_data(data, user):
     # get the collection and querey the user data
     account = get_mongodb_user()
     query = account.find_one({"studentId": user})
-    print(query)
+
     new_data = {'$set': {"firstName": data['firstName'],
                          "lastName": data['lastName'],
-                         "netId": "cpreciad"}}
+                         "studentId": user,
+                         "major": data['major'],
+                         "college": data["college"],
+                         "grade": data['grade']}}
     account.update_many(query, new_data)
 
 # def get_mongodb_user_interests(user):
@@ -257,10 +260,26 @@ def create_new_user(firstName, lastName, studentId, email, major, college, grade
     user = {'firstName': firstName, 'lastName': lastName, 'studentId': studentId, 'email': email, 'major': major, 'college': college, 'grade': grade, 'interests': interests, 'clubs': clubs, 'follow_events': follow_events, 'password': hashed_password}
 
     users_collection.insert_one(user)
-    
+    return "successfully created new user"
+
+# Delete User Account
+def delete_user_account(studentId):
+    try:
+        account_collection = get_mongodb_user()
+        # Find and delete the user's account
+        result = account_collection.delete_one({"studentId": studentId})
+        # Check if the deletion was successful
+        print(result.deleted_count)
+        if result.deleted_count == 1:
+            return "Account deleted successfully"
+        else:
+            return "Account not found"
+    except Exception as e:
+        return f"An error occurred: {e}"
 
 def main():
-    
+    #print(delete_user_account("jdoe"))
+    pprint(get_mongodb_user)
     #pprint(get_mongodb_collection())
     # pprint(get_mongodb_flutter())
     # set_mongodb_user_interests(["baseball", "soccer"], "cpreciad")
@@ -271,7 +290,7 @@ def main():
     # pprint(get_existing_series_names())
     #pprint(get_series_info('6492fc0fd5145a791ddf1de7'))
     #pprint(get_mongodb_series())
-    pprint(get_series_events('6492fc0fd5145a791ddf1de7'))
+    #pprint(get_series_events('6492fc0fd5145a791ddf1de7'))
 
 
 if __name__ == '__main__':
