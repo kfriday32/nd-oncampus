@@ -54,19 +54,7 @@ class AuthService {
         }));
 
     if (response.statusCode == 200) {
-      final jsonResponse = json.decode(response.body);
-      print('json: $jsonResponse');
-      final token = json.decode(response.body)['token'];
-      print('Token from response: $token');
-      await storage.write(key: 'token', value: token);
-      print('Token saved after signup: $token');
-      //return token;
       return response.body;
-      // final token = json.decode(response.body)['token'];
-      // print('Token from response: $token');
-      // await storage.write(key: 'token', value: token);
-      // print('Token saved after signup: $token');
-      // return response.body;
     } else {
       throw Exception('Failed to sign up');
     }
