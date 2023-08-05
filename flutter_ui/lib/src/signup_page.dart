@@ -56,14 +56,23 @@ class SignUpPage extends StatelessWidget {
           clubs,
           followEvents,
           password);
-      print('token created: $token');
 
-      //Save the token to shared preferences or secure storage
-      // ignore: use_build_context_synchronously
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => Pages(navigator: AppNavigator()),
+      // Redirect to login page after sign up successful
+      // Display success dialog
+      showDialog(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+          title: const Text('Sign Up Successful'),
+          content: const Text('Please log in.'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Close the dialog
+                Navigator.pushNamed(context, '/login'); // Navigate to login
+              },
+              child: const Text('OK'),
+            ),
+          ],
         ),
       );
     } catch (e) {
