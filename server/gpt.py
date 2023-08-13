@@ -3,7 +3,9 @@ import openai
 import re
 from mongodb import get_mongodb_gpt, get_mongodb_events
 
+#openai.api_key_path="/Users/claireyin/development/nd-oncampus/server/.env"
 openai.api_key = os.getenv("OPENAI_API_KEY")
+
 TRIES = 8
 
 # this function will take the users interests and return a new list of suggested interests 
@@ -104,7 +106,7 @@ def generate_prompt(interests):
         # clean the returned ids from chatGPT
         id_list = re.split(', |,| ', response.choices[0].text)
         id_list = [id.strip() for id in id_list]
-
+        print(id_list)
         # query the collections corresponding to the IDs
         try:
             data = get_mongodb_events(id_list) 
@@ -119,6 +121,7 @@ def generate_prompt(interests):
 def main():
     # get user input
     generate_interests(["Sports", "Programming, Baseball"])
+    #generate_prompt(["Sports", "Programming, Baseball"])
 
 
 if __name__ == '__main__':
