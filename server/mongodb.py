@@ -67,9 +67,8 @@ def get_mongodb_gpt():
 # returns a list of json objects corresponding to the ids
 def get_mongodb_events(id_list):
     collection = get_mongodb_collection()
-
     # itterate through the id list and query all completed collections 
-    events = [collection.find_one({'_id': id}) for id in id_list]
+    events = [collection.find_one({'_id': ObjectId(id)}) for id in id_list]
     return events
 
 # simple api wrapper for returning all data to flutter
@@ -121,7 +120,7 @@ def set_mongodb_user_data(data, user):
 
 
 def get_mongodb_user_interests(user):
-    query = get_user_by_id(user)
+    query = get_mongodb_user_data(user)
     if query == None:
         print("error: no user was found")
         return None
@@ -278,8 +277,10 @@ def delete_user_account(studentId):
         return f"An error occurred: {e}"
 
 def main():
-    #print(delete_user_account("jdoe"))
-    pprint(get_mongodb_user)
+    #pprint(get_mongodb_user)
+    pprint(get_mongodb_user_interests("cyin5"))
+    #pprint(get_mongodb_gpt())
+    #pprint(get_mongodb_events(idlist))
     #pprint(get_mongodb_collection())
     # pprint(get_mongodb_flutter())
     # set_mongodb_user_interests(["baseball", "soccer"], "cpreciad")

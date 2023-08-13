@@ -52,7 +52,7 @@ class _HomePageState extends State<HomePage>
     // Initialize the controller with the number of tabs and this class as the provider
     _tabController = TabController(length: myTabs.length, vsync: this);
     _loadAllEvents();
-    // _loadSuggestedEvents();
+    _loadSuggestedEvents();
     _loadFollowingEvents();
   }
 
@@ -74,7 +74,7 @@ class _HomePageState extends State<HomePage>
           icon: const Icon(Icons.refresh),
           onPressed: () {
             _loadAllEvents();
-            // _loadSuggestedEvents();
+            _loadSuggestedEvents();
             _loadFollowingEvents();
           },
         ),
